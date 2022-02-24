@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -7,20 +8,23 @@
   <body>
   <h1>Reduct</h1>
  <h4>the revolt.chat client held together by duct tape and bad code</h4>
-<div>(it's released under the MIT license)</div>
  <br/>
  <div id="loginoe">
-  <input id="token" alt="aaa"/>ENTER TOKEN HERE and press ok
-  <button onclick="login()">ok</button>
+  <input id="token" alt="aaa" placeholder="Token">
+  <br><input id="channel" placeholder="Channel ID">
+  <br><input id="inputTheme" placeholder="Theme">
+  <br><button onclick="login()">ok</button>
   <br/><br/><br/>
   </div>
   <div id="logged" hidden="true">
+    <button onclick="contentToJson()">JSON</button>
   <input id="a"/>
   <button onclick="sendmessage()">Send</button>
   <button onclick="getmessage()">Get messages</button>
   
   <button onclick="replacea()" id="rplca" hidden="true">Fetch usernames</button>
   </div>
+  <h2 id="theme"></h2>
 <br/>
 <div id="messages" hidden="true">
   <span id="a1">author </span><h5 id="onemsg">message</h5><br/><br/>
@@ -76,24 +80,63 @@
   </div>
 
   <style>
+      .a{width:200px}
   span {border-style: dotted;}
   h5 {border-style: solid; border-width: 1px;}
   </style>
 
   <script>
-
-  function login()
+      let userNameCache={};
+      function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+let sendRawJson=false;
+function contentToJson(){
+    if(!sendRawJson){
+    sendRawJson=true}
+    else{sendRawJson=false}
+}
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+  async function login()
   {
   thetoken = document.getElementById("token").value;
+  thechannel = document.getElementById("channel").value;
   document.getElementById("loginoe").hidden = true;
   document.getElementById("logged").hidden = false;
+  //if(document.getElementById("inputTheme")){document.cookie=`theme=${document.getElementById("inputTheme").value}; expires=Thu, 18 Dec 2200 12:00:00 UTC; path=/`)
+  //theme=getCookie("theme");
+  theme=document.getElementById("inputTheme").value
+  document.getElementById("theme").innerHTML=theme;
+  await getmessage();  
+  while(1){await sleep(10000);await getmessage()}
   }
 
-
-theserver = prompt("enter server id");
-thechannel = prompt("enter channel id");
-
   async function sendmessage(){
+      if(sendRawJson){
+        await fetch("https://api.revolt.chat/channels/"+thechannel+"/messages", {
+    "credentials": "omit",
+    "headers": {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        "x-session-token": thetoken
+    },
+    "body": document.getElementById("a").value,
+    "method": "POST"})
+      }else{
  await fetch("https://api.revolt.chat/channels/"+thechannel+"/messages", {
     "credentials": "omit",
     "headers": {
@@ -102,15 +145,16 @@ thechannel = prompt("enter channel id");
         "x-session-token": thetoken
     },
     "body": "{\"nonce\":\"\",\"content\":\" " + document.getElementById("a").value + "\",\"replies\":[]}",
-    "method": "POST",
-});
+    "method": "POST"})
+}
 getmessage();
 }
-
 async function replacea(){
   for (let i = 1; i<51; i++){
+      id=document.getElementById("a"+i).innerHTML;
   await getuser(document.getElementById("a"+i).innerHTML);
-  document.getElementById("a"+i).innerHTML = membo;
+  
+  document.getElementById("a"+i).innerText = membo;
 }
   document.getElementById("rplca").hidden = true;
   }
@@ -139,107 +183,107 @@ await fetch("https://api.revolt.chat/channels/"+thechannel+"/messages?include_us
     "method": "GET",
 })   .then(response => response.json())
   .then(data => mess = (data.messages))
-document.getElementById("a1").innerHTML = mess[0].author;
-document.getElementById("a2").innerHTML = mess[1].author;
-document.getElementById("a3").innerHTML = mess[2].author;
-document.getElementById("a4").innerHTML = mess[3].author;
-document.getElementById("a5").innerHTML = mess[4].author;
-document.getElementById("a6").innerHTML = mess[5].author;
-document.getElementById("a7").innerHTML = mess[6].author;
-document.getElementById("a8").innerHTML = mess[7].author;
-document.getElementById("a9").innerHTML = mess[8].author;
-document.getElementById("a10").innerHTML = mess[9].author;
-document.getElementById("a11").innerHTML = mess[10].author;
-document.getElementById("a12").innerHTML = mess[11].author;
-document.getElementById("a13").innerHTML = mess[12].author;
-document.getElementById("a14").innerHTML = mess[13].author;
-document.getElementById("a15").innerHTML = mess[14].author;
-document.getElementById("a16").innerHTML = mess[15].author;
-document.getElementById("a17").innerHTML = mess[16].author;
-document.getElementById("a18").innerHTML = mess[17].author;
-document.getElementById("a19").innerHTML = mess[18].author;
-document.getElementById("a20").innerHTML = mess[19].author;
-document.getElementById("a21").innerHTML = mess[20].author;
-document.getElementById("a22").innerHTML = mess[21].author;
-document.getElementById("a23").innerHTML = mess[22].author;
-document.getElementById("a24").innerHTML = mess[23].author;
-document.getElementById("a25").innerHTML = mess[24].author;
-document.getElementById("a26").innerHTML = mess[25].author;
-document.getElementById("a27").innerHTML = mess[26].author;
-document.getElementById("a28").innerHTML = mess[27].author;
-document.getElementById("a29").innerHTML = mess[28].author;
-document.getElementById("a30").innerHTML = mess[29].author;
-document.getElementById("a31").innerHTML = mess[30].author;
-document.getElementById("a32").innerHTML = mess[31].author;
-document.getElementById("a33").innerHTML = mess[32].author;
-document.getElementById("a34").innerHTML = mess[33].author;
-document.getElementById("a35").innerHTML = mess[34].author;
-document.getElementById("a36").innerHTML = mess[35].author;
-document.getElementById("a37").innerHTML = mess[36].author;
-document.getElementById("a38").innerHTML = mess[37].author;
-document.getElementById("a39").innerHTML = mess[38].author;
-document.getElementById("a40").innerHTML = mess[39].author;
-document.getElementById("a41").innerHTML = mess[40].author;
-document.getElementById("a42").innerHTML = mess[41].author;
-document.getElementById("a43").innerHTML = mess[42].author;
-document.getElementById("a44").innerHTML = mess[43].author;
-document.getElementById("a45").innerHTML = mess[44].author;
-document.getElementById("a46").innerHTML = mess[45].author;
-document.getElementById("a47").innerHTML = mess[46].author;
-document.getElementById("a48").innerHTML = mess[47].author;
-document.getElementById("a49").innerHTML = mess[48].author;
-document.getElementById("a50").innerHTML = mess[49].author;
-
-document.getElementById("onemsg").innerHTML = '"' + mess[0].content + '"';
-document.getElementById("twomsg").innerHTML = '"' + mess[1].content + '"';
-document.getElementById("threemsg").innerHTML = '"' + mess[2].content + '"';
-document.getElementById("fourmsg").innerHTML = '"' + mess[3].content + '"';
-document.getElementById("fivemsg").innerHTML = '"' + mess[4].content + '"';
-document.getElementById("sixmsg").innerHTML = '"' + mess[5].content + '"';
-document.getElementById("sevenmsg").innerHTML = '"' + mess[6].content + '"';
-document.getElementById("eightmsg").innerHTML = '"' + mess[7].content + '"';
-document.getElementById("ninemsg").innerHTML = '"' + mess[8].content + '"';
-document.getElementById("tenmsg").innerHTML = '"' + mess[9].content + '"';
-document.getElementById("elevenmsg").innerHTML = '"' + mess[10].content + '"';
-document.getElementById("twelvemsg").innerHTML = '"' + mess[11].content + '"';
-document.getElementById("thirteenmsg").innerHTML = '"' + mess[12].content + '"';
-document.getElementById("fourteenmsg").innerHTML = '"' + mess[13].content + '"';
-document.getElementById("fifteenmsg").innerHTML = '"' + mess[14].content + '"';
-document.getElementById("sixteenmsg").innerHTML = '"' + mess[15].content + '"';
-document.getElementById("seventeenmsg").innerHTML = '"' + mess[16].content + '"';
-document.getElementById("eighteenmsg").innerHTML = '"' + mess[17].content + '"';
-document.getElementById("nineteenmsg").innerHTML = '"' + mess[18].content + '"';
-document.getElementById("twentymsg").innerHTML = '"' + mess[19].content + '"';
-document.getElementById("twentyonemsg").innerHTML = '"' + mess[20].content + '"';
-document.getElementById("twentytwomsg").innerHTML = '"' + mess[21].content + '"';
-document.getElementById("twentythreemsg").innerHTML = '"' + mess[22].content + '"';
-document.getElementById("twentyfourmsg").innerHTML = '"' + mess[23].content + '"';
-document.getElementById("twentyfivemsg").innerHTML = '"' + mess[24].content + '"';
-document.getElementById("twentysixmsg").innerHTML = '"' + mess[25].content + '"';
-document.getElementById("twentysevenmsg").innerHTML = '"' + mess[26].content + '"';
-document.getElementById("twentyeightmsg").innerHTML = '"' + mess[27].content + '"';
-document.getElementById("twentyninemsg").innerHTML = '"' + mess[28].content + '"';
-document.getElementById("thirtymsg").innerHTML = '"' + mess[29].content + '"';
-document.getElementById("thirtyonemsg").innerHTML = '"' + mess[30].content + '"';
-document.getElementById("thirtytwomsg").innerHTML = '"' + mess[31].content + '"';
-document.getElementById("thirtythreemsg").innerHTML = '"' + mess[32].content + '"';
-document.getElementById("thirtyfourmsg").innerHTML = '"' + mess[33].content + '"';
-document.getElementById("thirtyfivemsg").innerHTML = '"' + mess[34].content + '"';
-document.getElementById("thirtysixmsg").innerHTML = '"' + mess[35].content + '"';
-document.getElementById("thirtysevenmsg").innerHTML = '"' + mess[36].content + '"';
-document.getElementById("thirtyeightmsg").innerHTML = '"' + mess[37].content + '"';
-document.getElementById("thirtyninemsg").innerHTML = '"' + mess[38].content + '"';
-document.getElementById("fortymsg").innerHTML = '"' + mess[39].content + '"';
-document.getElementById("fortyonemsg").innerHTML = '"' + mess[40].content + '"';
-document.getElementById("fortytwomsg").innerHTML = '"' + mess[41].content + '"';
-document.getElementById("fortythreemsg").innerHTML = '"' + mess[42].content + '"';
-document.getElementById("fortyfourmsg").innerHTML = '"' + mess[43].content + '"';
-document.getElementById("fortyfivemsg").innerHTML = '"' + mess[44].content + '"';
-document.getElementById("fortysixmsg").innerHTML = '"' + mess[45].content + '"';
-document.getElementById("fortysevenmsg").innerHTML = '"' + mess[46].content + '"';
-document.getElementById("fortyeightmsg").innerHTML = '"' + mess[47].content + '"';
-document.getElementById("fortyninemsg").innerHTML = '"' + mess[48].content + '"';
-document.getElementById("fiftymsg").innerHTML = '"' + mess[49].content + '"';
+document.getElementById("a1").innerText = mess[0].author;
+document.getElementById("a2").innerText = mess[1].author;
+document.getElementById("a3").innerText = mess[2].author;
+document.getElementById("a4").innerText = mess[3].author;
+document.getElementById("a5").innerText = mess[4].author;
+document.getElementById("a6").innerText = mess[5].author;
+document.getElementById("a7").innerText = mess[6].author;
+document.getElementById("a8").innerText = mess[7].author;
+document.getElementById("a9").innerText = mess[8].author;
+document.getElementById("a10").innerText = mess[9].author;
+document.getElementById("a11").innerText = mess[10].author;
+document.getElementById("a12").innerText = mess[11].author;
+document.getElementById("a13").innerText = mess[12].author;
+document.getElementById("a14").innerText = mess[13].author;
+document.getElementById("a15").innerText = mess[14].author;
+document.getElementById("a16").innerText = mess[15].author;
+document.getElementById("a17").innerText = mess[16].author;
+document.getElementById("a18").innerText = mess[17].author;
+document.getElementById("a19").innerText = mess[18].author;
+document.getElementById("a20").innerText = mess[19].author;
+document.getElementById("a21").innerText = mess[20].author;
+document.getElementById("a22").innerText = mess[21].author;
+document.getElementById("a23").innerText = mess[22].author;
+document.getElementById("a24").innerText = mess[23].author;
+document.getElementById("a25").innerText = mess[24].author;
+document.getElementById("a26").innerText = mess[25].author;
+document.getElementById("a27").innerText = mess[26].author;
+document.getElementById("a28").innerText = mess[27].author;
+document.getElementById("a29").innerText = mess[28].author;
+document.getElementById("a30").innerText = mess[29].author;
+document.getElementById("a31").innerText = mess[30].author;
+document.getElementById("a32").innerText = mess[31].author;
+document.getElementById("a33").innerText = mess[32].author;
+document.getElementById("a34").innerText = mess[33].author;
+document.getElementById("a35").innerText = mess[34].author;
+document.getElementById("a36").innerText = mess[35].author;
+document.getElementById("a37").innerText = mess[36].author;
+document.getElementById("a38").innerText = mess[37].author;
+document.getElementById("a39").innerText = mess[38].author;
+document.getElementById("a40").innerText = mess[39].author;
+document.getElementById("a41").innerText = mess[40].author;
+document.getElementById("a42").innerText = mess[41].author;
+document.getElementById("a43").innerText = mess[42].author;
+document.getElementById("a44").innerText = mess[43].author;
+document.getElementById("a45").innerText = mess[44].author;
+document.getElementById("a46").innerText = mess[45].author;
+document.getElementById("a47").innerText = mess[46].author;
+document.getElementById("a48").innerText = mess[47].author;
+document.getElementById("a49").innerText = mess[48].author;
+document.getElementById("a50").innerText = mess[49].author;
+replacea();
+document.getElementById("onemsg").innerText =  mess[0].content ;
+document.getElementById("twomsg").innerText =  mess[1].content ;
+document.getElementById("threemsg").innerText =  mess[2].content ;
+document.getElementById("fourmsg").innerText =  mess[3].content ;
+document.getElementById("fivemsg").innerText =  mess[4].content ;
+document.getElementById("sixmsg").innerText =  mess[5].content ;
+document.getElementById("sevenmsg").innerText =  mess[6].content ;
+document.getElementById("eightmsg").innerText =  mess[7].content ;
+document.getElementById("ninemsg").innerText =  mess[8].content ;
+document.getElementById("tenmsg").innerText =  mess[9].content ;
+document.getElementById("elevenmsg").innerText =  mess[10].content ;
+document.getElementById("twelvemsg").innerText =  mess[11].content ;
+document.getElementById("thirteenmsg").innerText =  mess[12].content ;
+document.getElementById("fourteenmsg").innerText =  mess[13].content ;
+document.getElementById("fifteenmsg").innerText =  mess[14].content ;
+document.getElementById("sixteenmsg").innerText =  mess[15].content ;
+document.getElementById("seventeenmsg").innerText =  mess[16].content ;
+document.getElementById("eighteenmsg").innerText =  mess[17].content ;
+document.getElementById("nineteenmsg").innerText =  mess[18].content ;
+document.getElementById("twentymsg").innerText =  mess[19].content ;
+document.getElementById("twentyonemsg").innerText =  mess[20].content ;
+document.getElementById("twentytwomsg").innerText =  mess[21].content ;
+document.getElementById("twentythreemsg").innerText =  mess[22].content ;
+document.getElementById("twentyfourmsg").innerText =  mess[23].content ;
+document.getElementById("twentyfivemsg").innerText =  mess[24].content ;
+document.getElementById("twentysixmsg").innerText =  mess[25].content ;
+document.getElementById("twentysevenmsg").innerText =  mess[26].content ;
+document.getElementById("twentyeightmsg").innerText =  mess[27].content ;
+document.getElementById("twentyninemsg").innerText =  mess[28].content ;
+document.getElementById("thirtymsg").innerText =  mess[29].content ;
+document.getElementById("thirtyonemsg").innerText =  mess[30].content ;
+document.getElementById("thirtytwomsg").innerText =  mess[31].content ;
+document.getElementById("thirtythreemsg").innerText =  mess[32].content ;
+document.getElementById("thirtyfourmsg").innerText =  mess[33].content ;
+document.getElementById("thirtyfivemsg").innerText =  mess[34].content ;
+document.getElementById("thirtysixmsg").innerText =  mess[35].content ;
+document.getElementById("thirtysevenmsg").innerText =  mess[36].content ;
+document.getElementById("thirtyeightmsg").innerText =  mess[37].content ;
+document.getElementById("thirtyninemsg").innerText =  mess[38].content ;
+document.getElementById("fortymsg").innerText =  mess[39].content ;
+document.getElementById("fortyonemsg").innerText =  mess[40].content ;
+document.getElementById("fortytwomsg").innerText =  mess[41].content ;
+document.getElementById("fortythreemsg").innerText =  mess[42].content ;
+document.getElementById("fortyfourmsg").innerText =  mess[43].content ;
+document.getElementById("fortyfivemsg").innerText =  mess[44].content ;
+document.getElementById("fortysixmsg").innerText =  mess[45].content ;
+document.getElementById("fortysevenmsg").innerText =  mess[46].content ;
+document.getElementById("fortyeightmsg").innerText =  mess[47].content ;
+document.getElementById("fortyninemsg").innerText =  mess[48].content ;
+document.getElementById("fiftymsg").innerText =  mess[49].content ;
 
 document.getElementById("rplca").hidden = false
 }
