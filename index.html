@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Reduct Html</title>
+  </head>
+  <body>
+  <h1>Reduct</h1>
+ <h4>the revolt.chat client held together by duct tape and bad code</h4>
+<div>(it's released under the MIT license)</div>
+ <br/>
+ <div id="loginoe">
+  <input id="token" alt="aaa"/>ENTER TOKEN HERE and press ok
+  <button onclick="login()">ok</button>
+  <br/><br/><br/>
+  </div>
+  <div id="logged" hidden="true">
+  <input id="a"/>
+  <button onclick="sendmessage()">Send</button>
+  <button onclick="getmessage()">Get messages</button>
+  
+  <button onclick="replacea()" id="rplca" hidden="true">Fetch usernames</button>
+  </div>
+<br/>
+<div id="messages" hidden="true">
+  <span id="a1">author </span><h5 id="onemsg">message</h5><br/><br/>
+  <span id="a2">author </span><h5 id="twomsg">message</h5><br/><br/>
+  <span id="a3">author </span><h5 id="threemsg">message</h5><br/><br/>
+  <span id="a4">author </span><h5 id="fourmsg">message</h5><br/><br/>
+  <span id="a5">author </span><h5 id="fivemsg">message</h5><br/><br/>
+  <span id="a6">author </span><h5 id="sixmsg">message</h5><br/><br/>
+  <span id="a7">author </span><h5 id="sevenmsg">message</h5><br/><br/>
+  <span id="a8">author </span><h5 id="eightmsg">message</h5><br/><br/>
+  <span id="a9">author </span><h5 id="ninemsg">message</h5><br/><br/>
+  <span id="a10">author </span><h5 id="tenmsg">message</h5><br/><br/>
+  <span id="a11">author </span><h5 id="elevenmsg">message</h5><br/><br/>
+  <span id="a12">author </span><h5 id="twelvemsg">message</h5><br/><br/>
+  <span id="a13">author </span><h5 id="thirteenmsg">message</h5><br/><br/>
+  <span id="a14">author </span><h5 id="fourteenmsg">message</h5><br/><br/>
+  <span id="a15">author </span><h5 id="fifteenmsg">message</h5><br/><br/>
+  <span id="a16">author </span><h5 id="sixteenmsg">message</h5><br/><br/>
+  <span id="a17">author </span><h5 id="seventeenmsg">message</h5><br/><br/>
+  <span id="a18">author </span><h5 id="eighteenmsg">message</h5><br/><br/>
+  <span id="a19">author </span><h5 id="nineteenmsg">message</h5><br/><br/>
+  <span id="a20">author </span><h5 id="twentymsg">message</h5><br/><br/>
+  <span id="a21">author </span><h5 id="twentyonemsg">message</h5><br/><br/>
+  <span id="a22">author </span><h5 id="twentytwomsg">message</h5><br/><br/>
+  <span id="a23">author </span><h5 id="twentythreemsg">message</h5><br/><br/>
+  <span id="a24">author </span><h5 id="twentyfourmsg">message</h5><br/><br/>
+  <span id="a25">author </span><h5 id="twentyfivemsg">essage</h5><br/><br/>
+  <span id="a26">author </span><h5 id="twentysixmsg">message</h5><br/><br/>
+  <span id="a27">author </span><h5 id="twentysevenmsg">message</h5><br/><br/>
+  <span id="a28">author </span><h5 id="twentyeightmsg">message</h5><br/><br/>
+  <span id="a29">author </span><h5 id="twentyninemsg">message</h5><br/><br/>
+  <span id="a30">author </span><h5 id="thirtymsg">message</h5><br/><br/>
+  <span id="a31">author </span><h5 id="thirtyonemsg">message</h5><br/><br/>
+  <span id="a32">author </span><h5 id="thirtytwomsg">message</h5><br/><br/>
+  <span id="a33">author </span><h5 id="thirtythreemsg">message</h5><br/><br/>
+  <span id="a34">author </span><h5 id="thirtyfourmsg">message</h5><br/><br/>
+  <span id="a35">author </span><h5 id="thirtyfivemsg">message</h5><br/><br/>
+  <span id="a36">author </span><h5 id="thirtysixmsg">message</h5><br/><br/>
+  <span id="a37">author </span><h5 id="thirtysevenmsg">message</h5><br/><br/>
+  <span id="a38">author </span><h5 id="thirtyeightmsg">message</h5><br/><br/>
+  <span id="a39">author </span><h5 id="thirtyninemsg">message</h5><br/><br/>
+  <span id="a40">author </span><h5 id="fortymsg">message</h5><br/><br/>
+  <span id="a41">author </span><h5 id="fortyonemsg">message</h5><br/><br/>
+  <span id="a42">author </span><h5 id="fortytwomsg">message</h5><br/><br/>
+  <span id="a43">author </span><h5 id="fortythreemsg">message</h5><br/><br/>
+  <span id="a44">author </span><h5 id="fortyfourmsg">message</h5><br/><br/>
+  <span id="a45">author </span><h5 id="fortyfivemsg">message</h5><br/><br/>
+  <span id="a46">author </span><h5 id="fortysixmsg">message</h5><br/><br/>
+  <span id="a47">author </span><h5 id="fortysevenmsg">message</h5><br/><br/>
+  <span id="a48">author </span><h5 id="fortyeightmsg">message</h5><br/><br/>
+  <span id="a49">author </span><h5 id="fortyninemsg">message</h5><br/><br/>
+  <span id="a50">author </span><h5 id="fiftymsg">message</h5><br/><br/>
+  </div>
+
+  <style>
+  span {border-style: dotted;}
+  h5 {border-style: solid; border-width: 1px;}
+  </style>
+
+  <script>
+
+  function login()
+  {
+  thetoken = document.getElementById("token").value;
+  document.getElementById("loginoe").hidden = true;
+  document.getElementById("logged").hidden = false;
+  }
+
+
+theserver = prompt("enter server id");
+thechannel = prompt("enter channel id");
+
+  async function sendmessage(){
+ await fetch("https://api.revolt.chat/channels/"+thechannel+"/messages", {
+    "credentials": "omit",
+    "headers": {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        "x-session-token": thetoken
+    },
+    "body": "{\"nonce\":\"\",\"content\":\" " + document.getElementById("a").value + "\",\"replies\":[]}",
+    "method": "POST",
+});
+getmessage();
+}
+
+async function replacea(){
+  for (let i = 1; i<51; i++){
+  await getuser(document.getElementById("a"+i).innerHTML);
+  document.getElementById("a"+i).innerHTML = membo;
+}
+  document.getElementById("rplca").hidden = true;
+  }
+
+async function getuser(id){
+await fetch("https://api.revolt.chat/users/" + id, {
+    "credentials": "omit",
+    "headers": {
+        "Accept": "*/*",
+        "x-session-token": thetoken
+    },
+    "method": "GET",
+})   .then(response => response.json())
+  .then(data => membo = (data.username));
+}
+
+
+async function getmessage(){
+document.getElementById("messages").hidden = false
+await fetch("https://api.revolt.chat/channels/"+thechannel+"/messages?include_users=true", {
+    "credentials": "omit",
+    "headers": {
+        "Accept": "*/*",
+        "x-session-token": thetoken,
+    },
+    "method": "GET",
+})   .then(response => response.json())
+  .then(data => mess = (data.messages))
+document.getElementById("a1").innerHTML = mess[0].author;
+document.getElementById("a2").innerHTML = mess[1].author;
+document.getElementById("a3").innerHTML = mess[2].author;
+document.getElementById("a4").innerHTML = mess[3].author;
+document.getElementById("a5").innerHTML = mess[4].author;
+document.getElementById("a6").innerHTML = mess[5].author;
+document.getElementById("a7").innerHTML = mess[6].author;
+document.getElementById("a8").innerHTML = mess[7].author;
+document.getElementById("a9").innerHTML = mess[8].author;
+document.getElementById("a10").innerHTML = mess[9].author;
+document.getElementById("a11").innerHTML = mess[10].author;
+document.getElementById("a12").innerHTML = mess[11].author;
+document.getElementById("a13").innerHTML = mess[12].author;
+document.getElementById("a14").innerHTML = mess[13].author;
+document.getElementById("a15").innerHTML = mess[14].author;
+document.getElementById("a16").innerHTML = mess[15].author;
+document.getElementById("a17").innerHTML = mess[16].author;
+document.getElementById("a18").innerHTML = mess[17].author;
+document.getElementById("a19").innerHTML = mess[18].author;
+document.getElementById("a20").innerHTML = mess[19].author;
+document.getElementById("a21").innerHTML = mess[20].author;
+document.getElementById("a22").innerHTML = mess[21].author;
+document.getElementById("a23").innerHTML = mess[22].author;
+document.getElementById("a24").innerHTML = mess[23].author;
+document.getElementById("a25").innerHTML = mess[24].author;
+document.getElementById("a26").innerHTML = mess[25].author;
+document.getElementById("a27").innerHTML = mess[26].author;
+document.getElementById("a28").innerHTML = mess[27].author;
+document.getElementById("a29").innerHTML = mess[28].author;
+document.getElementById("a30").innerHTML = mess[29].author;
+document.getElementById("a31").innerHTML = mess[30].author;
+document.getElementById("a32").innerHTML = mess[31].author;
+document.getElementById("a33").innerHTML = mess[32].author;
+document.getElementById("a34").innerHTML = mess[33].author;
+document.getElementById("a35").innerHTML = mess[34].author;
+document.getElementById("a36").innerHTML = mess[35].author;
+document.getElementById("a37").innerHTML = mess[36].author;
+document.getElementById("a38").innerHTML = mess[37].author;
+document.getElementById("a39").innerHTML = mess[38].author;
+document.getElementById("a40").innerHTML = mess[39].author;
+document.getElementById("a41").innerHTML = mess[40].author;
+document.getElementById("a42").innerHTML = mess[41].author;
+document.getElementById("a43").innerHTML = mess[42].author;
+document.getElementById("a44").innerHTML = mess[43].author;
+document.getElementById("a45").innerHTML = mess[44].author;
+document.getElementById("a46").innerHTML = mess[45].author;
+document.getElementById("a47").innerHTML = mess[46].author;
+document.getElementById("a48").innerHTML = mess[47].author;
+document.getElementById("a49").innerHTML = mess[48].author;
+document.getElementById("a50").innerHTML = mess[49].author;
+
+document.getElementById("onemsg").innerHTML = '"' + mess[0].content + '"';
+document.getElementById("twomsg").innerHTML = '"' + mess[1].content + '"';
+document.getElementById("threemsg").innerHTML = '"' + mess[2].content + '"';
+document.getElementById("fourmsg").innerHTML = '"' + mess[3].content + '"';
+document.getElementById("fivemsg").innerHTML = '"' + mess[4].content + '"';
+document.getElementById("sixmsg").innerHTML = '"' + mess[5].content + '"';
+document.getElementById("sevenmsg").innerHTML = '"' + mess[6].content + '"';
+document.getElementById("eightmsg").innerHTML = '"' + mess[7].content + '"';
+document.getElementById("ninemsg").innerHTML = '"' + mess[8].content + '"';
+document.getElementById("tenmsg").innerHTML = '"' + mess[9].content + '"';
+document.getElementById("elevenmsg").innerHTML = '"' + mess[10].content + '"';
+document.getElementById("twelvemsg").innerHTML = '"' + mess[11].content + '"';
+document.getElementById("thirteenmsg").innerHTML = '"' + mess[12].content + '"';
+document.getElementById("fourteenmsg").innerHTML = '"' + mess[13].content + '"';
+document.getElementById("fifteenmsg").innerHTML = '"' + mess[14].content + '"';
+document.getElementById("sixteenmsg").innerHTML = '"' + mess[15].content + '"';
+document.getElementById("seventeenmsg").innerHTML = '"' + mess[16].content + '"';
+document.getElementById("eighteenmsg").innerHTML = '"' + mess[17].content + '"';
+document.getElementById("nineteenmsg").innerHTML = '"' + mess[18].content + '"';
+document.getElementById("twentymsg").innerHTML = '"' + mess[19].content + '"';
+document.getElementById("twentyonemsg").innerHTML = '"' + mess[20].content + '"';
+document.getElementById("twentytwomsg").innerHTML = '"' + mess[21].content + '"';
+document.getElementById("twentythreemsg").innerHTML = '"' + mess[22].content + '"';
+document.getElementById("twentyfourmsg").innerHTML = '"' + mess[23].content + '"';
+document.getElementById("twentyfivemsg").innerHTML = '"' + mess[24].content + '"';
+document.getElementById("twentysixmsg").innerHTML = '"' + mess[25].content + '"';
+document.getElementById("twentysevenmsg").innerHTML = '"' + mess[26].content + '"';
+document.getElementById("twentyeightmsg").innerHTML = '"' + mess[27].content + '"';
+document.getElementById("twentyninemsg").innerHTML = '"' + mess[28].content + '"';
+document.getElementById("thirtymsg").innerHTML = '"' + mess[29].content + '"';
+document.getElementById("thirtyonemsg").innerHTML = '"' + mess[30].content + '"';
+document.getElementById("thirtytwomsg").innerHTML = '"' + mess[31].content + '"';
+document.getElementById("thirtythreemsg").innerHTML = '"' + mess[32].content + '"';
+document.getElementById("thirtyfourmsg").innerHTML = '"' + mess[33].content + '"';
+document.getElementById("thirtyfivemsg").innerHTML = '"' + mess[34].content + '"';
+document.getElementById("thirtysixmsg").innerHTML = '"' + mess[35].content + '"';
+document.getElementById("thirtysevenmsg").innerHTML = '"' + mess[36].content + '"';
+document.getElementById("thirtyeightmsg").innerHTML = '"' + mess[37].content + '"';
+document.getElementById("thirtyninemsg").innerHTML = '"' + mess[38].content + '"';
+document.getElementById("fortymsg").innerHTML = '"' + mess[39].content + '"';
+document.getElementById("fortyonemsg").innerHTML = '"' + mess[40].content + '"';
+document.getElementById("fortytwomsg").innerHTML = '"' + mess[41].content + '"';
+document.getElementById("fortythreemsg").innerHTML = '"' + mess[42].content + '"';
+document.getElementById("fortyfourmsg").innerHTML = '"' + mess[43].content + '"';
+document.getElementById("fortyfivemsg").innerHTML = '"' + mess[44].content + '"';
+document.getElementById("fortysixmsg").innerHTML = '"' + mess[45].content + '"';
+document.getElementById("fortysevenmsg").innerHTML = '"' + mess[46].content + '"';
+document.getElementById("fortyeightmsg").innerHTML = '"' + mess[47].content + '"';
+document.getElementById("fortyninemsg").innerHTML = '"' + mess[48].content + '"';
+document.getElementById("fiftymsg").innerHTML = '"' + mess[49].content + '"';
+
+document.getElementById("rplca").hidden = false
+}
+  </script>
+  </body>
+</html>
