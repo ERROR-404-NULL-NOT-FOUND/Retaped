@@ -85,7 +85,7 @@
         }
         async function login() {
             for (let i = 1; i < 51; i++) {
-                document.getElementById("messages").innerHTML += `<span id="a${i}">author </span>
+                document.getElementById("messages").innerHTML += `<h5 id="a${i}reply" hidden=true>reply<br></h5><span id="a${i}">author </span>
                     <h5 id = "${i}msg" > message</h5 ><br /><br />`
             }
             var theme
@@ -97,8 +97,8 @@
             //if (document.cookie) { let theme = document.cookie.split('; ').find(row => row.startsWith('theme=')).split('=')[1]; }
             theme = document.getElementById("inputTheme").value
             document.getElementById("theme").innerHTML = theme;
-            await getmessage();
-            while (1) { await sleep(10000); await getmessage() }
+            getmessage();
+            while (1) { await sleep(7000); getmessage() }
         }
 
         async function sendmessage() {
@@ -168,7 +168,7 @@
                 id = document.getElementById("a" + i).innerHTML;
                 if (id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/) === -1) { } else {
                     //if()
-                    await fetch("https://api.revolt.chat/users/" + id, {
+                    fetch("https://api.revolt.chat/users/" + id, {
                         "credentials": "omit",
                         "headers": {
                             "Accept": "*/*",
@@ -176,22 +176,29 @@
                         },
                         "method": "GET",
                     }).then(response => response.json())
-                        .then(data => membo = (data.username));
-
-                    document.getElementById("a" + i).innerText = membo;
+                        .then(data => document.getElementById("a" + i).innerText = (data.username))
                 }
             }
             document.getElementById("rplca").hidden = true;
         }
-
-
-        async function getmessage() {
-            document.getElementById("messages").hidden = false
-            await fetch("https://api.revolt.chat/channels/" + thechannel + "/messages?include_users=true", {
+        async function fetchmessage(id) {
+            msg=await fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${id}`, {
                 "credentials": "omit",
                 "headers": {
                     "Accept": "*/*",
-                    "x-session-token": thetoken,
+                    "x-session-token": thetoken
+                },
+                "method": "GET",
+            })
+            return msg
+        }
+        async function getmessage() {
+            document.getElementById("messages").hidden = false
+            await fetch(`https://api.revolt.chat/channels/${thechannel}/messages?include_users=true`, {
+                "credentials": "omit",
+                "headers": {
+                    "Accept": "*/*",
+                    "x-session-token": thetoken
                 },
                 "method": "GET",
             }).then(response => response.json())
@@ -207,7 +214,16 @@
             for (let i = 1; i < 50; i++) {
                 mess[i - 1].content = mess[i - 1].content.replace("\n", "<br>")
                 document.getElementById(`${i}msg`).innerText = mess[i - 1].content;
-                if (!mess[i - 1].attachments == "") { image = mess[i - 1].attachments; document.getElementById(`${i}msg`).innerHTML = document.getElementById(`${i}msg`).innerText + `<br><br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">` }
+                if (!mess[i - 1].attachments == "") {
+                    image = mess[i - 1].attachments;
+                    document.getElementById(`${i}msg`).innerHTML =
+                        document.getElementById(`${i}msg`).innerText +
+                        `<br><br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
+                }
+                if (!mess[i - 1].replies == "") {
+                    document.getElementById(`a${i}reply`).innerText = "> " + JSON.stringify(fetchmessage(mess[i - 1].replies[0]));
+                    document.getElementById(`a${i}reply`).hidden = false;
+                }
             }
 
             document.getElementById("rplca").hidden = false
