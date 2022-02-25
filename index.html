@@ -35,11 +35,16 @@
     </div>
 
     <style>
-        html{
-            background-color:#000000;
-            color:#FFFFFF;
-            font-family:monospace
+        .message {
+            display: inline
         }
+
+        html {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: monospace
+        }
+
         img {
             max-width: 600px;
         }
@@ -47,10 +52,14 @@
         .messages {
             white-space: nowrap;
         }
-        
+
         .loginoe {
             display: flex;
             align-items: center;
+        }
+
+        .message {
+            text-align: left
         }
 
         h5 {
@@ -86,12 +95,12 @@
         }
         async function login() {
             for (let i = 1; i < 51; i++) {
-                document.getElementById("messages").innerHTML += `<h5 id="a${i}reply" hidden=true>reply<br></h5><span id="a${i}">author </span>
-                    <h5 id = "${i}msg" > message</h5 ><br /><br />`
+                document.getElementById("messages").innerHTML += `<h6 id="a${i}reply" hidden=true>reply</h6><div id="message"><h4 id="a${i}">author </h4>
+                    <h5 id = "${i}msg" > message</h5 ></div>`
             }
             var theme
-            thetoken = document.getElementById("token").value;
-            thechannel = document.getElementById("channel").value;
+            thetoken = "GLU9yi1USLwoSXrs8LU51MjrKBskOBzDmJreW47yFcMrz4H4LBQ-3EHapXsJQP5F"//document.getElementById("token").value;
+            thechannel = "01F7ZSBSFHCAAJQ92ZGTY67HMN"//document.getElementById("channel").value;
             document.getElementById("loginoe").hidden = true;
             document.getElementById("logged").hidden = false;
             //if (!document.getElementById("inputTheme").value == '') { document.cookie = `theme=${document.getElementById("inputTheme").value};` }
@@ -182,17 +191,6 @@
             }
             document.getElementById("rplca").hidden = true;
         }
-        async function fetchmessage(id) {
-            msg=await fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${id}`, {
-                "credentials": "omit",
-                "headers": {
-                    "Accept": "*/*",
-                    "x-session-token": thetoken
-                },
-                "method": "GET",
-            })
-            return msg
-        }
         async function getmessage() {
             document.getElementById("messages").hidden = false
             await fetch(`https://api.revolt.chat/channels/${thechannel}/messages?include_users=true`, {
@@ -222,7 +220,15 @@
                         `<br><br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
                 }
                 if (!mess[i - 1].replies == "") {
-                    document.getElementById(`a${i}reply`).innerText = "> " + JSON.stringify(fetchmessage(mess[i - 1].replies[0]));
+                    fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${mess[i - 1].replies[0]}`, {
+                        "credentials": "omit",
+                        "headers": {
+                            "Accept": "*/*",
+                            "x-session-token": thetoken
+                        },
+                        "method": "GET",
+                    }).then(response => response.json())
+                        .then(data => document.getElementById(`a${i}reply`).innerText = (`> ${data.content}`))
                     document.getElementById(`a${i}reply`).hidden = false;
                 }
             }
