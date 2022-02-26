@@ -118,9 +118,9 @@
         }
         async function login() {
             var theme
-            thetoken = "I142Zh1SQSNl4aapa-5ET2ZtZ0PWyDY7e7dW4yU7iCDeGQ2TPfAbt6rmqnj6tS6W"//document.getElementById("token").value;
-            thechannel = "01F7ZSBSFHCAAJQ92ZGTY67HMN"//document.getElementById("channel").value;
-            theserver = "01F7ZSBSFHQ8TA81725KQCSDDP"//document.getElementById("server").value;
+            thetoken = document.getElementById("token").value;
+            thechannel = document.getElementById("channel").value;
+            theserver = document.getElementById("server").value;
             document.getElementById("loginoe").hidden = true;
             document.getElementById("logged").hidden = false;
             //if (!document.getElementById("inputTheme").value == '') { document.cookie = `theme=${document.getElementById("inputTheme").value};` }
@@ -267,7 +267,7 @@
                 }
                 replacea();
                 for (let i = 1; i <= mess.length; i++) {
-                    mess[i - 1].content = mess[i - 1].content.replace("\n", " <br> ")
+                    mess[i - 1].content = mess[i - 1].content
                     document.getElementById(`${i}msg`).innerText = mess[i - 1].content;
                     if (!mess[i - 1].attachments == "") {
                         image = mess[i - 1].attachments;
