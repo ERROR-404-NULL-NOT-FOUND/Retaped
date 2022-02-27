@@ -8,7 +8,7 @@
 
 <body>
     <h1 id="name">Retaped</h1>
-    <h4 id="desc">The revolt.chat client re-taped from the one that's held together by duct tape and bad code</h4>
+    <h4 id="descri">The revolt.chat client re-taped from the one that's held together by duct tape and bad code</h4>
     <br />
     <div id="loginoe">
         <input id="token" alt="aaa" placeholder="Token">
@@ -44,11 +44,12 @@
     </div>
 
     <style>
-        #replymsg{
+        #replymsg {
             padding-bottom: 0px;
         }
+
         #name,
-        #desc {
+        #descri {
             text-align: center;
             font-family: Arial, Helvetica, sans-serif;
         }
@@ -59,6 +60,10 @@
 
         #message {
             display: inline
+        }
+
+        #logged {
+            display: block;
         }
 
         html {
@@ -104,22 +109,22 @@
         let reply = "";
         let image = "";
         async function uploadToAutumn() {
-                const files = document.getElementById("upload").files
-                const formData = new FormData()
-                formData.append('myFile', files[0])
+            const files = document.getElementById("upload").files
+            const formData = new FormData()
+            formData.append('myFile', files[0])
 
-                await fetch('https://autumn.revolt.chat/attachments', {
-                    method: 'POST',
-                    body: formData
+            await fetch('https://autumn.revolt.chat/attachments', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    image = data.id;
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        image=data.id;
-                    })
-                    .catch(error => {
-                        document.getElementById('a').value = error;
-                    })
-            }
+                .catch(error => {
+                    document.getElementById('a').value = error;
+                })
+        }
         function embedmessage() {
             document.getElementById("title").hidden = false;
             document.getElementById("desc").hidden = false;
@@ -158,7 +163,7 @@
         }
 
         async function sendmessage() {
-            if (!(embedSend || sendRawJson || reply!="" || image!="")) {
+            if (!(embedSend || sendRawJson || reply != "" || document.getElementById("upload").files[0])) {
                 fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
                     "credentials": "omit",
                     "headers": {
@@ -174,7 +179,7 @@
                 document.getElementById("a").value = ""
             }
             else {
-                if (reply!="") {
+                if (reply != "") {
                     fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
                         "credentials": "omit",
                         "headers": {
@@ -192,36 +197,37 @@
                     reply = ""
                     document.getElementById('replymsg').innerText = '';
                     document.getElementById('replymsg').hidden = true
-                }
-                if(image!=""){
-                    await uploadToAutumn();
-                    await fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
-                        "credentials": "omit",
-                        "headers": {
-                            "Accept": "*/*",
-                            "Content-Type": "application/json",
-                            "x-session-token": thetoken
-                        },
-                        "body": `{
+                } else {
+                    if (document.getElementById("upload").files[0]) {
+                        await uploadToAutumn();
+                        await fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                            "credentials": "omit",
+                            "headers": {
+                                "Accept": "*/*",
+                                "Content-Type": "application/json",
+                                "x-session-token": thetoken
+                            },
+                            "body": `{
                         "content":"${document.getElementById("a").value}",
-                        "attachments":["${image}"]
+                        "attachments":[${id}]
+
                     }`,
-                        "method": "POST"
-                    })
-                    var file = document.getElementById("upload");
-                    file.value = file.defaultValue;
-                    image=""
-                    document.getElementById("a").value = ""
-                }
-                if (embedSend) {
-                    fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
-                        "credentials": "omit",
-                        "headers": {
-                            "Accept": "*/*",
-                            "Content-Type": "application/json",
-                            "x-session-token": thetoken
-                        },
-                        "body": `{
+                            "method": "POST"
+                        })
+                        var file = document.getElementById("upload");
+                        file.value = file.defaultValue;
+                        image = ""
+                        document.getElementById("a").value = ""
+                    } else {
+                        if (embedSend) {
+                            fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                                "credentials": "omit",
+                                "headers": {
+                                    "Accept": "*/*",
+                                    "Content-Type": "application/json",
+                                    "x-session-token": thetoken
+                                },
+                                "body": `{
                         "nonce":"",
                         "content":"${document.getElementById("a").value}",
                         "embeds":[
@@ -232,28 +238,30 @@
                             }
                         ]
                     }`,
-                        "method": "POST"
-                    })
-                    embedSend = false;
-                    document.getElementById("title").hidden = true;
-                    document.getElementById("desc").hidden = true;
-                    document.getElementById("color").hidden = true;
-                    document.getElementById("title").value = "";
-                    document.getElementById("desc").value = "";
-                    document.getElementById("color").value = "";
-                }
-                else {
-                    fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
-                        "credentials": "omit",
-                        "headers": {
-                            "Accept": "*/*",
-                            "Content-Type": "application/json",
-                            "x-session-token": thetoken
-                        },
-                        "body": document.getElementById("a").value,
-                        "method": "POST"
-                    })
-                    sendRawJson = false;
+                                "method": "POST"
+                            })
+                            embedSend = false;
+                            document.getElementById("title").hidden = true;
+                            document.getElementById("desc").hidden = true;
+                            document.getElementById("color").hidden = true;
+                            document.getElementById("title").value = "";
+                            document.getElementById("desc").value = "";
+                            document.getElementById("color").value = "";
+                        }
+                        else {
+                            fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                                "credentials": "omit",
+                                "headers": {
+                                    "Accept": "*/*",
+                                    "Content-Type": "application/json",
+                                    "x-session-token": thetoken
+                                },
+                                "body": document.getElementById("a").value,
+                                "method": "POST"
+                            })
+                            sendRawJson = false;
+                        }
+                    }
                 }
             }
             getmessage();
@@ -274,7 +282,6 @@
                         .then(data => { uIDs += id; usernames += (data.username) })
                 }
             }
-            document.getElementById("rplca").hidden = true;
         }
         async function getchannel() {
             await fetch(`https://api.revolt.chat/servers/${theserver}/`, {
@@ -349,8 +356,6 @@
                     }
                 }
             } catch { }
-
-            document.getElementById("rplca").hidden = false
         }
     </script>
 </body>
