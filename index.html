@@ -22,7 +22,372 @@
     <div id="logged" hidden="true">
         <button onclick="getmessage()">Get messages</button>
         <button onclick="embedmessage()">Send embed</button>
+        <br><!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Retaped</title>
+</head>
+
+<body>
+    <h1 id="name">Retaped</h1>
+    <h4 id="descri">The revolt.chat client re-taped from the one that's held together by duct tape and bad code</h4>
+    <br />
+    <div id="loginoe">
+        <input id="token" alt="aaa" placeholder="Token">
+        <br><input id="channel" placeholder="Channel ID">
+        <br><input id="server" placeholder="Server ID">
+        <br><input id="refresh" placeholder="Refresh time (default 7 sec)">
+        <br><input id="inputTheme" placeholder="Theme">
+        <br><button onclick="login();">ok</button>
+        <br /><br /><br />
+    </div>
+    <div id="logged" hidden="true">
+        <button onclick="getmessage()">Get messages</button>
+        <button onclick="embedmessage()">Send embed</button>
         <br>
+        <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+        <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
+        <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+        <h5 id="replymsg" hidden="true"></h5>
+        <input type="file" id="upload" accept=".jpg, .jpeg, .png"></input>
+        <div id="messagebar">
+            <button onclick="contentToJson()">JSON</button>
+            <input type="text" style="width: 90%;" autocomplete="off" placeholder="Speak in channel" id="a" />
+            <button onclick="sendmessage()">Send</button>
+        </div>
+        <br>
+    </div>
+    <h2 id="theme"></h2>
+    <br />
+    <div id="data">
+        <div id="channels"></div>
+        <div id="messages" hidden="true">
+        </div>
+    </div>
+
+    <style>
+        #replymsg {
+            padding-bottom: 0px;
+        }
+
+        #name,
+        #descri {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #data {
+            display: inline
+        }
+
+        #message {
+            display: inline
+        }
+        html {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: monospace
+        }
+
+        img {
+            max-width: 600px;
+        }
+
+        #messages {
+            white-space: nowrap;
+        }
+
+        #messagebar {
+            display: flex;
+            align-items: center;
+        }
+
+        #channels {
+            display: block;
+
+        }
+
+        #message {
+            text-align: left
+        }
+
+        h5 {
+            border-style: solid;
+            border-width: 1px;
+        }
+    </style>
+
+    <script>
+        let embedSend = false;
+        let sendRawJson = false;
+        let uIDs = [];
+        let usernames = [];
+        let thechannel = "";
+        let reply = "";
+        let image = "";
+        async function uploadToAutumn() {
+            const files = document.getElementById("upload").files
+            const formData = new FormData()
+            formData.append('myFile', files[0])
+
+            await fetch('https://autumn.revolt.chat/attachments', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    image = data.id;
+                })
+                .catch(error => {
+                    document.getElementById('a').value = error;
+                })
+        }
+        function embedmessage() {
+            document.getElementById("title").hidden = false;
+            document.getElementById("desc").hidden = false;
+            document.getElementById("color").hidden = false;
+            embedSend = true;
+        }
+        document.getElementById("a").onkeypress = function (event) {
+            if (event.keyCode == 13 || event.which == 13) {
+                sendmessage();
+            }
+        };
+        function contentToJson() {
+            if (!sendRawJson) {
+                sendRawJson = true;
+            }
+            else { sendRawJson = false; }
+        }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        async function login() {
+            theme = document.getElementById("theme").value;
+            thechannel = document.getElementById("channel").value;
+            theserver = document.getElementById("server").value;
+            document.getElementById("loginoe").hidden = true;
+            document.getElementById("logged").hidden = false;
+            
+            if (document.getElementById("token").value != '') { document.cookie = `token=${document.getElementById("token").value}; SameSite=Strict; Secure` }
+            
+            if (document.cookie.search('token=')) { thetoken = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1]; console.log(token) } else { thetoken = document.getElementById("token").value }
+            
+            if (document.getElementById("server").value != '') { document.cookie = `server=${document.getElementById("server").value}; SameSite=Strict; Secure` }
+
+            if (document.cookie.search('server=')) { theserver = document.cookie.split('; ').find(row => row.startsWith('server=')).split('=')[1]; console.log(token) } else { theserver = document.getElementById("token").value }
+
+            if(document.getElementById("theme").value){document.getElementById("theme").innerHTML = document.getElementById("theme").value;}
+            
+            if (!document.getElementById("refresh").value == "") { refreshTime = getElementById("refresh").value.toInteger() } else { refreshTime = 7 }
+            getmessage();
+            await getchannel();
+            while (1) { await sleep(7000); getmessage() }
+        }
+
+        async function sendmessage() {
+            if (!(embedSend || sendRawJson || reply != "" || document.getElementById("upload").files[0])) {
+                fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                    "credentials": "omit",
+                    "headers": {
+                        "Accept": "*/*",
+                        "Content-Type": "application/json",
+                        "x-session-token": thetoken
+                    },
+                    "body": `{
+                        "content":"${document.getElementById("a").value}"
+                    }`,
+                    "method": "POST"
+                })
+                document.getElementById("a").value = ""
+            }
+            else {
+                if (reply != "") {
+                    fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                        "credentials": "omit",
+                        "headers": {
+                            "Accept": "*/*",
+                            "Content-Type": "application/json",
+                            "x-session-token": thetoken
+                        },
+                        "body": `{
+                        "content":"${document.getElementById("a").value}",
+                        "replies":[{"id":"${reply}","mention":false}]
+                    }`,
+                        "method": "POST"
+                    })
+                    document.getElementById("a").value = "";
+                    reply = ""
+                    document.getElementById('replymsg').innerText = '';
+                    document.getElementById('replymsg').hidden = true
+                } else {
+                    if (document.getElementById("upload").files[0]) {
+                        await uploadToAutumn();
+                        await fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                            "credentials": "omit",
+                            "headers": {
+                                "Accept": "*/*",
+                                "Content-Type": "application/json",
+                                "x-session-token": thetoken
+                            },
+                            "body": `{
+                        "content":"${document.getElementById("a").value}",
+                        "attachments":["${image}"]
+
+                    }`,
+                            "method": "POST"
+                        })
+                        var file = document.getElementById("upload");
+                        file.value = file.defaultValue;
+                        image = ""
+                        document.getElementById("a").value = ""
+                    } else {
+                        if (embedSend) {
+                            fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                                "credentials": "omit",
+                                "headers": {
+                                    "Accept": "*/*",
+                                    "Content-Type": "application/json",
+                                    "x-session-token": thetoken
+                                },
+                                "body": `{
+                        "nonce":"",
+                        "content":"${document.getElementById("a").value}",
+                        "embeds":[
+                            {
+                                "title":"${document.getElementById("title").value}",
+                                "description":"${document.getElementById("desc").value}",
+                                "colour":"${document.getElementById("color").value}"
+                            }
+                        ]
+                    }`,
+                                "method": "POST"
+                            })
+                            embedSend = false;
+                            document.getElementById("title").hidden = true;
+                            document.getElementById("desc").hidden = true;
+                            document.getElementById("color").hidden = true;
+                            document.getElementById("title").value = "";
+                            document.getElementById("desc").value = "";
+                            document.getElementById("color").value = "";
+                        }
+                        else {
+                            fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
+                                "credentials": "omit",
+                                "headers": {
+                                    "Accept": "*/*",
+                                    "Content-Type": "application/json",
+                                    "x-session-token": thetoken
+                                },
+                                "body": document.getElementById("a").value,
+                                "method": "POST"
+                            })
+                            sendRawJson = false;
+                        }
+                    }
+                }
+            }
+            getmessage();
+        }
+        async function replacea() {
+            for (let i = 1; i < mess.length; i++) {
+                id = document.getElementById("a" + i).innerHTML;
+                if (id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/) === -1) { } else {
+                    fetch("https://api.revolt.chat/users/" + id, {
+                        "credentials": "omit",
+                        "headers": {
+                            "Accept": "*/*",
+                            "x-session-token": thetoken
+                        },
+                        "method": "GET",
+                    }).then(response => response.json())
+                        .then(data => document.getElementById("a" + i).innerText = (data.username))
+                        .then(data => { uIDs += id; usernames += (data.username) })
+                }
+            }
+        }
+        async function getchannel() {
+            await fetch(`https://api.revolt.chat/servers/${theserver}/`, {
+                "credentials": "omit",
+                "headers": {
+                    "Accept": "*/*",
+                    "x-session-token": thetoken
+                },
+                "method": "GET",
+            }).then(response => response.json())
+                .then(data => chann = (data.channels))
+            for (let i = 1; i < chann.length; i++) {
+                document.getElementById(`channels`).innerHTML += `<button onclick="thechannel = '${chann[i - 1]}';getmessage()" id="chann${i}">${chann[i - 1]}</button>`;
+            }
+            for (let i = 1; i < chann.length; i++) {
+                fetch(`https://api.revolt.chat/channels/${chann[i - 1]}/`, {
+                    "credentials": "omit",
+                    "headers": {
+                        "Accept": "*/*",
+                        "x-session-token": thetoken
+                    },
+                    "method": "GET",
+                }).then(response => response.json())
+                    .then(data => { if (data.channel_type === "VoiceChannel") { document.getElementById(`chann${i}`).remove(); return; } document.getElementById(`chann${i}`).innerText = data.name });
+            }
+        }
+        async function getmessage() {
+            try {
+                document.getElementById("messages").hidden = false
+                await fetch(`https://api.revolt.chat/channels/${thechannel}/messages?include_users=true`, {
+                    "credentials": "omit",
+                    "headers": {
+                        "Accept": "*/*",
+                        "x-session-token": thetoken
+                    },
+                    "method": "GET",
+                }).then(response => response.json())
+                    .then(data => mess = (data.messages))
+                document.getElementById("messages").innerHTML = ""
+                for (let i = 1; i <= mess.length; i++) {
+                    document.getElementById("messages").innerHTML += `<h6 id="a${i}reply" hidden=true>reply</h6><div id="message"><h4 id="a${i}">author </h4>
+                    <h5 id = "${i}msg" > message</h5 ><button id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">reply</button></div>`
+                }
+                try {
+                    for (let i = 1; i <= mess.length; i++) {
+                        if (!mess[i - 1].masquerade) {
+                            document.getElementById("a" + i).innerText = mess[i - 1].author;
+                        } else {
+                            document.getElementById("a" + i).innerText = mess[i - 1].masquerade["name"];
+                        }
+                    }
+                    replacea();
+                    for (let i = 1; i <= mess.length; i++) {
+                        mess[i - 1].content = mess[i - 1].content
+                        document.getElementById(`${i}msg`).innerText = mess[i - 1].content;
+                        if (!mess[i - 1].attachments == "") {
+                            image = mess[i - 1].attachments;
+                            document.getElementById(`${i}msg`).innerHTML =
+                                document.getElementById(`${i}msg`).innerText +
+                                `<br><br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
+                        }
+                        if (!mess[i - 1].replies == "") {
+                            fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${mess[i - 1].replies[0]}`, {
+                                "credentials": "omit",
+                                "headers": {
+                                    "Accept": "*/*",
+                                    "x-session-token": thetoken
+                                },
+                                "method": "GET",
+                            }).then(response => response.json())
+                                .then(data => document.getElementById(`a${i}reply`).innerText = (`> ${data.content}`))
+                            document.getElementById(`a${i}reply`).hidden = false;
+                        }
+                    }
+                } catch { }
+            } catch { }
+        }
+    </script>
+</body>
+
+</html>
         <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
         <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
         <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
