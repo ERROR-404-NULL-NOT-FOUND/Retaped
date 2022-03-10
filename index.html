@@ -409,12 +409,10 @@
         }
 
         async function replacea() {
-            let uIDs
-            let usernames
             for (let i = 1; i < mess.length; i++) {
                 id = document.getElementById("a" + i).innerHTML;
                 if(id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/)!=-1){
-                if(!uIDs.includes(id)){
+                if(uIDs.includes(id)==false){
                 await fetch("https://api.revolt.chat/users/" + id, {
                     "credentials": "omit",
                     "headers": {
