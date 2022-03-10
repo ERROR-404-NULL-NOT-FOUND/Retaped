@@ -24,13 +24,13 @@
             <div id="dms"></div>
             <br>
             <div id="servers"></div>
-            <br>
-            <div id="channels"></div>
         </div>
 
         <div id="channelInfo">
             <h2 id="chanName"></h2>
             <h3 id="chanDesc"></h3>
+            <br>
+            <div id="channels"></div>
         </div>
 
         <div id="central">
@@ -61,21 +61,33 @@
     </div>
 
     <style>
+        *{
+            --foreground: #ebdbb2;
+            --background: #32302f;
+            --secondary-background: #3c3836;
+            --usernames: #fbf1c7;
+            --input-color: #323232;
+        }
         #info {
             display: block;
         }
-
-        [id^=server],
-        [id^=chan],
-        [id^=dm] {
+        [id^=server],[id^=chan],[id^=dm] {
             width: 15em
         }
-
+        [id*=msg]{
+            width:400%;;
+            word-break:break-all;
+            white-space: pre-line;
+        }
         [id^=a],
         #reply {
             display: inline-block;
         }
-
+        [id^=a]{
+            color:var(--usernames);
+            margin-left: 0%;
+            border-left: 0%
+        }
         #central {
             display: block;
             flex-direction: column;
@@ -88,20 +100,33 @@
             padding-right:2%;
             word-break: break-all!important;
         }
+        [id^=reply]{
+            display:none
+        }
         #info{
             word-break: break-all!important;
         }
-
+        input{
+            background-color:var(--input-color);
+        }
         #logged {
 
             flex-direction: row;
             align-items: flex-start;
         }
-
-        #messages {
+        .messagecont{
+            padding-bottom:5px;
+            width:25%;
+        }
+        #message {
+            margin:0;
+            white-space: nowrap!important;
             display: inline;
             vertical-align: top;
-            padding-left: 4%;
+            padding-left: 0%;
+            padding-top:0px;
+            padding-bottom:0px;
+            padding-right:0px;
         }
 
         #replymsg {
@@ -113,10 +138,12 @@
             text-align: center;
             font-family: Arial, Helvetica, sans-serif;
         }
-
+        h6,h5,h4{
+            margin:0
+        }
         html {
-            background-color: #000000;
-            color: #FFFFFF;
+            background-color: var(--background);
+            color: var(--foreground);
             font-family: monospace
         }
 
@@ -125,7 +152,7 @@
         }
 
         #messages {
-            white-space: nowrap;
+            white-space: pre-line;
         }
 
         #messagebar {
@@ -139,8 +166,8 @@
         }
 
         button {
-            background-color: #000000;
-            color: #FFFFFF
+            background-color: var(--secondary-background);
+            color: var(--foreground)
         }
 
         #message {
@@ -211,7 +238,6 @@
                     showError(error)
                 })
         }
-
 
         function embedmessage() {
             document.getElementById("title").hidden = false;
@@ -361,9 +387,9 @@
 
             for (let i = 0; i < dm.length; i++) {
                 if (dm[i].channel_type == "Group") {
-                    document.getElementById('dms').innerHTML = `<button onclick="thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i]["name"]}</button>` + document.getElementById('dms').innerHTML
+                    document.getElementById('dms').innerHTML = `<button onclick="theserver='';document.getElementById('channels').innerHTML='';thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i]["name"]}</button>` + document.getElementById('dms').innerHTML
                 } else {
-                    document.getElementById('dms').innerHTML = `<button onclick="thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i].recipients[0]}</button>` + document.getElementById('dms').innerHTML
+                    document.getElementById('dms').innerHTML = `<button onclick="theserver='';document.getElementById('channels').innerHTML='';thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i].recipients[0]}</button>` + document.getElementById('dms').innerHTML
                     if (dm[i].recipients[0] == theuser._id) {
                         id = dm[i].recipients[1]
                     } else {
@@ -383,9 +409,13 @@
         }
 
         async function replacea() {
+            let uIDs
+            let usernames
             for (let i = 1; i < mess.length; i++) {
                 id = document.getElementById("a" + i).innerHTML;
-                fetch("https://api.revolt.chat/users/" + id, {
+                if(id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/)!=-1){
+                if(!uIDs.includes(id)){
+                await fetch("https://api.revolt.chat/users/" + id, {
                     "credentials": "omit",
                     "headers": {
                         "Accept": "*/*",
@@ -394,10 +424,16 @@
                     "method": "GET",
                 }).then(response => response.json())
                     .then(data => {
-                        document.getElementById("a" + i).innerText = (data.username)
+                        document.getElementById("a" + i).innerText = (data.username);
+                        usernames.push(data.username)
+                        uIDs.push(id)
                     })
-            }
+            }else{
+                document.getElementById("a" + i).innerText = usernames[uIDs.indexOf(id)];
+            }}
         }
+        }
+
         async function getserver() {
             await fetch(`https://api.revolt.chat/users/${theuser._id}/mutual`, {
                 "credentials": "omit",
@@ -439,11 +475,11 @@
                 "method": "GET",
             }).then(response => response.json())
                 .then(data => chann = (data.channels))
-            for (let i = 1; i < chann.length; i++) {
-                document.getElementById(`channels`).innerHTML += `<button onclick="thechannel = '${chann[i - 1]}';getmessage();" id="chann${i}">${chann[i - 1]}</button>`;
+            for (let i = 0; i < chann.length; i++) {
+                document.getElementById(`channels`).innerHTML += `<button onclick="thechannel = '${chann[i]}';getmessage();" id="chann${i}">${chann[i]}</button>`;
             }
-            for (let i = 1; i < chann.length; i++) {
-                fetch(`https://api.revolt.chat/channels/${chann[i - 1]}/`, {
+            for (let i = 0; i <= chann.length; i++) {
+                fetch(`https://api.revolt.chat/channels/${chann[i]}/`, {
                     "credentials": "omit",
                     "headers": {
                         "Accept": "*/*",
@@ -454,7 +490,6 @@
                     .then(data => { if (data.channel_type === "VoiceChannel") { document.getElementById(`chann${i}`).remove(); return; } document.getElementById(`chann${i}`).innerText = data.name });
             }
         }
-
 
         async function getmessage() {
             fetch(`https://api.revolt.chat/channels/${thechannel}`, {
@@ -482,8 +517,13 @@
                 .then(data => mess = (data.messages))
             document.getElementById("messages").innerHTML = ""
             for (let i = 1; i <= mess.length; i++) {
-                document.getElementById("messages").innerHTML += `<div id="${i}cont"><h6 id="${i}reply" hidden=true>reply</h6><div id="message"><h4 id="a${i}">author </h4><button style="display: inline" id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">reply</button>
-                    <h5 id = "${i}msg" > message</h5 ></div></div>`
+                document.getElementById("messages").innerHTML += `<div class=messagecont id="${i}cont">
+                    <h6 id="${i}reply" hidden=true>reply</h6>
+                    <div id="message">
+                        <h4 id="a${i}">author </h4><button style="display: inline-block" id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">
+                            reply
+                            </button>
+                    <h5 id = "${i}msg">message</h5 ></div></div>`
             }
             try {
                 for (let i = 1; i <= mess.length; i++) {
@@ -501,7 +541,7 @@
                         image = mess[i - 1].attachments;
                         document.getElementById(`${i}msg`).innerHTML =
                             document.getElementById(`${i}msg`).innerText +
-                            `<br><br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
+                            `<br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
                     }
                     if (!mess[i - 1].replies == "") {
                         fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${mess[i - 1].replies[0]}`, {
