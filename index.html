@@ -508,8 +508,8 @@
                             },
                             "method": "GET",
                         }).then(response => response.json())
-                            .then(data => document.getElementById(`a${i}reply`).innerText = (`> ${data.content}`))
-                        document.getElementById(`a${i}reply`).hidden = false;
+                            .then(data => document.getElementById(`${i}reply`).innerText = (`> ${data.content}`))
+                        document.getElementById(`${i}reply`).hidden = false;
                     }
                 }
             } catch { }
