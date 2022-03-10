@@ -36,7 +36,7 @@
         <div id="central">
 
             <button onclick="getmessage()">Get messages</button>
-            <button onclick="getchannel()">Get channels</button>
+            <button onclick="uIDs=[];usernames=[]">Reload Usernames</button>
             <button onclick="embedmessage()">Send embed</button>
 
             <br>
@@ -46,7 +46,7 @@
             <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
 
             <h5 id="error" hidden="true"></h5>
-            <h5 id="replymsg" hidden="true"></h5>
+            <h5 id="replymsg" style="display:inline" hidden="true"></h5><button style="display:inline" hidden="true" id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button>
             <input type="file" id="upload" accept=".jpg, .jpeg, .png"></input>
 
             <div id="messagebar">
@@ -61,33 +61,44 @@
     </div>
 
     <style>
-        *{
+        * {
             --foreground: #ebdbb2;
             --background: #32302f;
             --secondary-background: #3c3836;
             --usernames: #fbf1c7;
             --input-color: #323232;
         }
+
         #info {
             display: block;
         }
-        [id^=server],[id^=chan],[id^=dm] {
+        #closereply{
+            display:none
+        }
+        [id^=server],
+        [id^=chan],
+        [id^=dm] {
             width: 15em
         }
-        [id*=msg]{
-            width:400%;;
-            word-break:break-all;
+
+        [id*=msg] {
+            width: 400%;
+            ;
+            word-break: break-all;
             white-space: pre-line;
         }
+
         [id^=a],
         #reply {
             display: inline-block;
         }
-        [id^=a]{
-            color:var(--usernames);
+
+        [id^=a] {
+            color: var(--usernames);
             margin-left: 0%;
             border-left: 0%
         }
+
         #central {
             display: block;
             flex-direction: column;
@@ -97,36 +108,42 @@
         #channelInfo {
             padding-left: 2%;
             width: 10%;
-            padding-right:2%;
-            word-break: break-all!important;
+            padding-right: 2%;
+            word-break: break-all !important;
         }
-        [id^=reply]{
-            display:none
+
+        [id^=reply] {
+            display: none
         }
-        #info{
-            word-break: break-all!important;
+
+        #info {
+            word-break: break-all !important;
         }
-        input{
-            background-color:var(--input-color);
+
+        input {
+            background-color: var(--input-color);
         }
+        
         #logged {
 
             flex-direction: row;
             align-items: flex-start;
         }
-        .messagecont{
-            padding-bottom:5px;
-            width:25%;
+
+        .messagecont {
+            padding-bottom: 5px;
+            width: 25%;
         }
+
         #message {
-            margin:0;
-            white-space: nowrap!important;
+            margin: 0;
+            white-space: nowrap !important;
             display: inline;
             vertical-align: top;
             padding-left: 0%;
-            padding-top:0px;
-            padding-bottom:0px;
-            padding-right:0px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding-right: 0px;
         }
 
         #replymsg {
@@ -138,9 +155,13 @@
             text-align: center;
             font-family: Arial, Helvetica, sans-serif;
         }
-        h6,h5,h4{
-            margin:0
+
+        h6,
+        h5,
+        h4 {
+            margin: 0
         }
+
         html {
             background-color: var(--background);
             color: var(--foreground);
@@ -150,7 +171,9 @@
         img {
             max-width: 600px;
         }
-
+        #replymsg{
+            display:block
+        }
         #messages {
             white-space: pre-line;
         }
@@ -208,7 +231,7 @@
             //if (document.cookie) { let theme = document.cookie.split('; ').find(row => row.startsWith('theme=')).split('=')[1]; }
             theme = document.getElementById("inputTheme").value
             document.getElementById("theme").innerHTML = theme;
-            if (!document.getElementById("refresh").value == "") { refreshTime = getElementById("refresh").value.toInteger() } else { refreshTime = 7 }
+            if (!document.getElementById("refresh").value == "") { refreshTime = getElementById("refresh").value.toInteger()*1000 } else { refreshTime = 7 }
             getdms();
             getserver();
             getchannel();
@@ -411,25 +434,26 @@
         async function replacea() {
             for (let i = 1; i < mess.length; i++) {
                 id = document.getElementById("a" + i).innerHTML;
-                if(id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/)!=-1){
-                if(uIDs.includes(id)==false){
-                await fetch("https://api.revolt.chat/users/" + id, {
-                    "credentials": "omit",
-                    "headers": {
-                        "Accept": "*/*",
-                        "x-session-token": thetoken
-                    },
-                    "method": "GET",
-                }).then(response => response.json())
-                    .then(data => {
-                        document.getElementById("a" + i).innerText = (data.username);
-                        usernames.push(data.username)
-                        uIDs.push(id)
-                    })
-            }else{
-                document.getElementById("a" + i).innerText = usernames[uIDs.indexOf(id)];
-            }}
-        }
+                if (id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/) != -1) {
+                    if (uIDs.includes(id) == false) {
+                        await fetch("https://api.revolt.chat/users/" + id, {
+                            "credentials": "omit",
+                            "headers": {
+                                "Accept": "*/*",
+                                "x-session-token": thetoken
+                            },
+                            "method": "GET",
+                        }).then(response => response.json())
+                            .then(data => {
+                                document.getElementById("a" + i).innerText = (data.username);
+                                usernames.push(data.username)
+                                uIDs.push(id)
+                            })
+                    } else {
+                        document.getElementById("a" + i).innerText = usernames[uIDs.indexOf(id)];
+                    }
+                }
+            }
         }
 
         async function getserver() {
