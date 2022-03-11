@@ -235,7 +235,7 @@
             getdms();
             getserver();
             getchannel();
-            while (1) { await sleep(7000); getmessage() }
+            while (1) { await sleep(3000); getmessage() }
         }
 
 
@@ -291,6 +291,13 @@
 
 
         async function sendmessage() {
+            message= document.getElementById('a').value
+            if(message.search(/@[^ ]*/)!=-1){
+                pings=/@[^ ]*/[Symbol.match](message)
+                for(let i=0;i<pings.length;i++){
+                    message=message.replace(pings[i],`<@${uIDs[usernames.indexOf(pings[i].replace("@", ""))]}>`)
+                }
+            }
             if (!(embedSend || sendRawJson || reply != "" || document.getElementById("upload").files[0])) {
                 fetch("https://api.revolt.chat/channels/" + thechannel + "/messages", {
                     "credentials": "omit",
@@ -300,7 +307,7 @@
                         "x-session-token": thetoken
                     },
                     "body": `{
-                        "content":"${document.getElementById("a").value}"
+                        "content":"${message}"
                     }`,
                     "method": "POST"
                 })
@@ -316,7 +323,7 @@
                             "x-session-token": thetoken
                         },
                         "body": `{
-                        "content":"${document.getElementById("a").value}",
+                        "content":"${message}",
                         "replies":[{"id":"${reply}","mention":false}]
                     }`,
                         "method": "POST"
@@ -336,7 +343,7 @@
                                 "x-session-token": thetoken
                             },
                             "body": `{
-                        "content":"${document.getElementById("a").value}",
+                        "content":"${message}}",
                         "attachments":[${id}]
 
                     }`,
@@ -357,7 +364,7 @@
                                 },
                                 "body": `{
                         "nonce":"",
-                        "content":"${document.getElementById("a").value}",
+                        "content":"${message}",
                         "embeds":[
                             {
                                 "title":"${document.getElementById("title").value}",
