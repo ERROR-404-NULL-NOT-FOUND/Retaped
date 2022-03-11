@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>Retaped</title>
+    <link rel="icon" type="image/png" href="Favicon.png" />
 </head>
 
 <body>
@@ -553,6 +554,12 @@
                             reply
                             </button>
                     <h5 id = "${i}msg">message</h5 ></div></div>`
+                    fetch(`https://api.revolt.chat/channels/${thechannel}/ack/${mess[i-1]._id}`, {
+                    "headers": {
+                        "x-session-token": thetoken
+                    },
+                    "method": "PUT",
+                }).catch(response=>showError(error))
             }
             try {
                 for (let i = 1; i <= mess.length; i++) {
