@@ -197,6 +197,10 @@
         #message {
             text-align: left
         }
+        [id*=pfp]{
+            max-width:50px;
+            max-width:50px;
+        }
     </style>
 
     <script>
@@ -236,7 +240,7 @@
             getdms();
             getserver();
             getchannel();
-            while (1) { await sleep(3000); getmessage() }
+            while (1) { await sleep(7000); getmessage() }
         }
 
 
@@ -444,16 +448,18 @@
                 id = document.getElementById("a" + i).innerHTML;
                 if (id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/) != -1) {
                     if (uIDs.includes(id) == false) {
-                        await fetch("https://api.revolt.chat/users/" + id, {
+                        fetch("https://api.revolt.chat/users/" + id, {
                             "credentials": "omit",
                             "headers": {
                                 "Accept": "*/*",
-                                "x-session-token": thetoken
+                                "x-session-token": thetoken,
+                                "Cache-Control": "private"
                             },
                             "method": "GET",
                         }).then(response => response.json())
                             .then(data => {
                                 document.getElementById("a" + i).innerText = (data.username);
+                                document.getElementById("pfp" + i).src = `https://autumn.revolt.chat/avatars/${data.avatar._id}/${data.avatar.filename}`;
                                 usernames.push(data.username)
                                 uIDs.push(id)
                             })
@@ -550,23 +556,20 @@
                 document.getElementById("messages").innerHTML += `<div class=messagecont id="${i}cont">
                     <h6 id="${i}reply" hidden=true>reply</h6>
                     <div id="message">
-                        <h4 id="a${i}">author </h4><button style="display: inline-block" id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">
+                        <img loading="eager" id="pfp${i}"></img>
+                        <h4 id="a${i}">author </h4>
+                        <button style="display: inline-block" id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">
                             reply
                             </button>
                     <h5 id = "${i}msg">message</h5 ></div></div>`
-                    fetch(`https://api.revolt.chat/channels/${thechannel}/ack/${mess[i-1]._id}`, {
-                    "headers": {
-                        "x-session-token": thetoken
-                    },
-                    "method": "PUT",
-                }).catch(response=>showError(error))
             }
             try {
                 for (let i = 1; i <= mess.length; i++) {
                     if (!mess[i - 1].masquerade) {
                         document.getElementById("a" + i).innerText = mess[i - 1].author;
                     } else {
-                        document.getElementById("a" + i).innerText = mess[i - 1].masquerade["name"];
+                        document.getElementById("a" + i).innerText = mess[i - 1].masquerade.name;
+                        document.getElementById(`pfp${i}`).src=mess[i - 1].masquerade.avatar;
                     }
                 }
                 replacea();
