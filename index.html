@@ -113,10 +113,6 @@
             word-break: break-all !important;
         }
 
-        [id^=reply] {
-            display: none
-        }
-
         #info {
             word-break: break-all !important;
         }
@@ -124,7 +120,7 @@
         input {
             background-color: var(--input-color);
         }
-        
+
         #logged {
 
             flex-direction: row;
@@ -212,6 +208,8 @@
         let reply = "";
         let image = "";
         let theuser = "";
+        let messages=[];
+        let pfpsrcs=[]
 
         async function login() {
             let theme;
@@ -240,7 +238,7 @@
             getdms();
             getserver();
             getchannel();
-            while (1) { await sleep(7000); getmessage() }
+            while (1) { await sleep(3000); getmessage() }
         }
 
 
@@ -348,9 +346,8 @@
                                 "x-session-token": thetoken
                             },
                             "body": `{
-                        "content":"${message}}",
-                        "attachments":[${id}]
-
+                        "content":"${message}",
+                        "attachments":["${image}"]
                     }`,
                             "method": "POST"
                         })
@@ -406,7 +403,10 @@
             }
             getmessage();
         }
-
+        function clearmessages(){
+            messages=[];
+            document.getElementById('messages').innerHTML=''
+        }
         async function getdms() {
             await fetch(`https://api.revolt.chat/users/dms`, {
                 "credentials": "omit",
@@ -422,9 +422,9 @@
 
             for (let i = 0; i < dm.length; i++) {
                 if (dm[i].channel_type == "Group") {
-                    document.getElementById('dms').innerHTML = `<button onclick="theserver='';document.getElementById('channels').innerHTML='';thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i]["name"]}</button>` + document.getElementById('dms').innerHTML
+                    document.getElementById('dms').innerHTML = `<button onclick="theserver='';clearmessages();document.getElementById('channels').innerHTML='';thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i]["name"]}</button>` + document.getElementById('dms').innerHTML
                 } else {
-                    document.getElementById('dms').innerHTML = `<button onclick="theserver='';document.getElementById('channels').innerHTML='';thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i].recipients[0]}</button>` + document.getElementById('dms').innerHTML
+                    document.getElementById('dms').innerHTML = `<button onclick="theserver='';clearmessages();document.getElementById('channels').innerHTML='';thechannel = '${dm[i]._id}';getmessage()" id="dm${i}">${dm[i].recipients[0]}</button>` + document.getElementById('dms').innerHTML
                     if (dm[i].recipients[0] == theuser._id) {
                         id = dm[i].recipients[1]
                     } else {
@@ -439,33 +439,6 @@
                         "method": "GET",
                     }).then(response => response.json())
                         .then(data => document.getElementById(`dm${i}`).innerText = (data.username))
-                }
-            }
-        }
-
-        async function replacea() {
-            for (let i = 1; i < mess.length; i++) {
-                id = document.getElementById("a" + i).innerHTML;
-                if (id.search(/^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/) != -1) {
-                    if (uIDs.includes(id) == false) {
-                        fetch("https://api.revolt.chat/users/" + id, {
-                            "credentials": "omit",
-                            "headers": {
-                                "Accept": "*/*",
-                                "x-session-token": thetoken,
-                                "Cache-Control": "private"
-                            },
-                            "method": "GET",
-                        }).then(response => response.json())
-                            .then(data => {
-                                document.getElementById("a" + i).innerText = (data.username);
-                                document.getElementById("pfp" + i).src = `https://autumn.revolt.chat/avatars/${data.avatar._id}/${data.avatar.filename}`;
-                                usernames.push(data.username)
-                                uIDs.push(id)
-                            })
-                    } else {
-                        document.getElementById("a" + i).innerText = usernames[uIDs.indexOf(id)];
-                    }
                 }
             }
         }
@@ -512,7 +485,9 @@
             }).then(response => response.json())
                 .then(data => chann = (data.channels))
             for (let i = 0; i < chann.length; i++) {
-                document.getElementById(`channels`).innerHTML += `<button onclick="thechannel = '${chann[i]}';getmessage();" id="chann${i}">${chann[i]}</button>`;
+                document.getElementById(`channels`).innerHTML += `<button onclick="
+                thechannel = '${chann[i]}';clearmessages();getmessage();"
+                id="chann${i}">${chann[i]}</button>`;
             }
             for (let i = 0; i <= chann.length; i++) {
                 fetch(`https://api.revolt.chat/channels/${chann[i]}/`, {
@@ -548,42 +523,24 @@
                     "Accept": "*/*",
                     "x-session-token": thetoken
                 },
+                "payload":{
+                    "limit":20
+                },
                 "method": "GET",
             }).then(response => response.json())
                 .then(data => mess = (data.messages))
-            document.getElementById("messages").innerHTML = ""
             for (let i = 1; i <= mess.length; i++) {
-                document.getElementById("messages").innerHTML += `<div class=messagecont id="${i}cont">
-                    <h6 id="${i}reply" hidden=true>reply</h6>
-                    <div id="message">
-                        <img loading="eager" id="pfp${i}"></img>
-                        <h4 id="a${i}">author </h4>
-                        <button style="display: inline-block" id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">
-                            reply
-                            </button>
-                    <h5 id = "${i}msg">message</h5 ></div></div>`
-            }
-            try {
-                for (let i = 1; i <= mess.length; i++) {
-                    if (!mess[i - 1].masquerade) {
-                        document.getElementById("a" + i).innerText = mess[i - 1].author;
-                    } else {
-                        document.getElementById("a" + i).innerText = mess[i - 1].masquerade.name;
-                        document.getElementById(`pfp${i}`).src=mess[i - 1].masquerade.avatar;
-                    }
-                }
-                replacea();
-                for (let i = 1; i <= mess.length; i++) {
-                    mess[i - 1].content = mess[i - 1].content
-                    document.getElementById(`${i}msg`).innerText = mess[i - 1].content;
+                if(!messages.includes(mess[i-1]._id)){
+                    let pfpsrc=""
+                    let username=""
+                    let img=""
+                    let replyinmsg=""
                     if (!mess[i - 1].attachments == "") {
                         image = mess[i - 1].attachments;
-                        document.getElementById(`${i}msg`).innerHTML =
-                            document.getElementById(`${i}msg`).innerText +
-                            `<br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
+                        img=`<br><img src="https://autumn.revolt.chat/attachments/${image[0]._id}/${image[0].filename}">`
                     }
-                    if (!mess[i - 1].replies == "") {
-                        fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${mess[i - 1].replies[0]}`, {
+                    if (!mess[i - 1].replies == []) {
+                        await fetch(`https://api.revolt.chat/channels/${thechannel}/messages/${mess[i - 1].replies[0]}`, {
                             "credentials": "omit",
                             "headers": {
                                 "Accept": "*/*",
@@ -591,12 +548,49 @@
                             },
                             "method": "GET",
                         }).then(response => response.json())
-                            .then(data => document.getElementById(`${i}reply`).innerText = (`> ${data.content}`))
-                        document.getElementById(`${i}reply`).hidden = false;
+                            .then(data => replyinmsg=(data.content))
                     }
-                }
-            } catch { }
+                    if(mess[i-1].masquerade){
+                                    username=data.masquerade.name;
+                                    pfpsrc = data.masquerade.avatar;
+                                }else{
+                    if (uIDs.indexOf(mess[i-1].author)===-1) {
+                    await fetch(`https://api.revolt.chat/users/${mess[i-1].author}`, {
+                            "credentials": "omit",
+                            "headers": {
+                                "Accept": "*/*",
+                                "x-session-token": thetoken,
+                                "Cache-Control": "private"
+                            },
+                            "method": "GET",
+                        }).then(response => response.json())
+                            .then(data => {
+                                if(data.avatar){
+                                pfpsrc = `https://autumn.revolt.chat/avatars/${data.avatar._id}/${data.avatar.filename}`;}else{
+                                    pfpsrc=`https://api.revolt.chat/users/${mess[i-1].author}/default_avatar`
+                                }
+                                username=data.username
+                                pfpsrcs.push(pfpsrc)
+                                usernames.push(data.username)
+                                uIDs.push(data._id)
+                            });
+                        }else{
+                            pfpsrc=pfpsrcs[uIDs.indexOf(mess[i-1].author)]
+                            username=usernames[uIDs.indexOf(mess[i-1].author)]
+                            }}
+                    document.getElementById("messages").innerHTML =+ `<div class=messagecont id="${i}cont">
+                        <h6 hidden="false" id="$reply">${replyinmsg}</h6>
+                        <div id="message">
+                            <img src="${pfpsrc}" id="pfp${i}"></img>
+                            <h4 id="a">${username}</h4>
+                            <button style="display: inline-block" id="reply" onclick="reply='${mess[i - 1]._id}';document.getElementById('replymsg').innerText='> ${mess[i - 1].content}';document.getElementById('replymsg').hidden=false">
+                                reply
+                                </button>
+                        <h5 id = "msg">${mess[i-1].content}${img}</h5 ></div></div>`
+                    messages.push(mess[i-1]._id)
+            }
         }
+    }
     </script>
 </body>
 
