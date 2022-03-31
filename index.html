@@ -234,7 +234,7 @@
             //if (document.cookie) { let theme = document.cookie.split('; ').find(row => row.startsWith('theme=')).split('=')[1]; }
             theme = document.getElementById("inputTheme").value
             document.getElementById("theme").innerHTML = theme;
-            if (!document.getElementById("refresh").value == "") { refreshTime = getElementById("refresh").value.toInteger()*1000 } else { refreshTime = 7 }
+            if (!document.getElementById("refresh").value == "") { refreshTime = document.getElementById("refresh").value.toInteger()*1000 } else { refreshTime = 7 }
             getdms();
             getserver();
             getchannel();
@@ -578,7 +578,7 @@
                             pfpsrc=pfpsrcs[uIDs.indexOf(mess[i-1].author)]
                             username=usernames[uIDs.indexOf(mess[i-1].author)]
                             }}
-                    document.getElementById("messages").innerHTML =+ `<div class=messagecont id="${i}cont">
+                    document.getElementById("messages").innerHTML = document.getElementById("messages").innerHTML + `<div class=messagecont id="${i}cont">
                         <h6 hidden="false" id="$reply">${replyinmsg}</h6>
                         <div id="message">
                             <img src="${pfpsrc}" id="pfp${i}"></img>
