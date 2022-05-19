@@ -50,7 +50,7 @@
             <div id="messages" hidden="true"></div>
             <button onclick="bonfire()">Re-establish websocket</button>
             <button onclick="getmessage()">Get messages</button>
-            <button onclick="uIDs=[];usernames=[]">Reload Usernames</button>
+            <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getmessage();">Reload Usernames</button>
             <button onclick="embedmessage()">Send embed</button>
             <br>
             <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
@@ -59,7 +59,7 @@
             <h5 id="error" hidden="true"></h5>
             <h5 id="replymsg" style="display:inline" hidden="true"></h5><button style="display:inline" hidden="true"
                 id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button>
-            <input type="file" id="upload" accept=".jpg, .jpeg, .png"></input>
+            <input type="file" id="upload"></input>
             <div id="messagebar">
                 <button onclick="contentToJson()">JSON</button>
                 <input type="text" style="width: 90%;" autocomplete="off" placeholder="Speak in channel" id="input" />
@@ -219,7 +219,9 @@
             background-color: var(--background);
             color: var(--foreground);
             font-family: monospace
-        }
+        }"></input>
+63
+            <div id="messagebar">
 
         img {
             max-width: 600px;
