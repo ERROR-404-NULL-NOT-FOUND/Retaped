@@ -47,7 +47,8 @@
         </div>
 
         <div id="central">
-            <div id="messages" hidden="true"></div>
+            <div id="messages" hidden="true">
+            </div>
             <button onclick="bonfire()">Re-establish websocket</button>
             <button onclick="getmessage()">Get messages</button>
             <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getmessage();">Reload Usernames</button>
@@ -219,20 +220,18 @@
             background-color: var(--background);
             color: var(--foreground);
             font-family: monospace
-        }"></input>
-63
-            <div id="messagebar">
-
+        }
         img {
             max-width: 600px;
         }
 
         #messages {
             white-space: pre-line;
-            height: 50em;
             overflow: auto;
             backface-visibility: hidden;
             -ms-overflow-style: none;
+            height: 45vw;
+            overflow-y: scroll;
         }
 
         #messagebar {
@@ -278,21 +277,16 @@
         let messcont;
         let errortimeout;
 
+        if(localStorage.getItem("token") !=undefined){
+                    thetoken=localStorage.getItem("token");
+                    login();
+        }
+
         async function login() {
             let theme;
             if (document.getElementById("token").value) {
                 thetoken = document.getElementById("token").value;
-                try {
-                    document.cookie = `token=${JSON.stringify(thetoken)}; SameSite=Lax; Secure`;
-                } catch (error) {
-                    showError(error)
-                }
-            } else {
-                try {
-                    thetoken = document.cookie.split('; ').find(row => row.startsWith("token=")).split('=')[1]
-                } catch (error) {
-                    showError(error); return;
-                }
+                    localStorage.setItem("token",thetoken)
             }
             bonfire()
             await fetch("https://api.revolt.chat/users/@me", {
@@ -721,18 +715,24 @@
                     pfpsrc = pfpsrcs[uIDs.indexOf(message.author)]
                     username = usernames[uIDs.indexOf(message.author)]
                 }
+                if(message.reactions){
+                    console.log(message.reactions)
+                    for(let i=0;i<message.reactions.length;i++){
+                        console.log(message.reactions[i])
+                    }
+                }
                 document.getElementById("messages").innerHTML = document.getElementById("messages").innerHTML + `
-                <div class="messagecont" oncontextmenu="document.getElementById("reply").hidden=false">
-                    <h6 hidden="${replymsg != "" ? "true" : "false"}" id="replymsg" oncontextmenu="document.getElementById("reply").hidden=false">${replyinmsg}</h6>
-                    <div class="message" onclick="document.getElementById("reply").hidden=false">
-                        ${lastmessage != message.author ? `<img src="${pfpsrc}" class="pfp" oncontextmenu="document.getElementById("reply").hidden=false"></img>
+                <div class="messagecont" onclick="button=document.getElementById('reply${message._id}'); if(button.hidden){button.hidden=false}else{button.hidden=true}">
+                    <h6 hidden="${replymsg != "" ? "true" : "false"}" id="replymsg">${replyinmsg}</h6>
+                    <div class="message">
+                        ${lastmessage != message.author ? `<img src="${pfpsrc}" class="pfp"></img>
                         <h4 id="author">${username}</h4>` : ""}
-                        <button class="reply" id="reply" onclick="
+                        <button hidden=true class="reply" id="reply${message._id}" onclick="
                         reply='${message._id}';
                         document.getElementById('replymsg').innerText='> ${message.content}';
                         document.getElementById('replymsg').hidden=false">
                             reply</button>
-                        <h5 class="msg" onclick="document.getElementById("reply").hidden=false">${message.content}${img}</h5>
+                        <h5 class="msg">${message.content}${img}</h5>
                     </div>
                 </div>`
                 messages.push(message._id);
@@ -757,7 +757,7 @@
 
             document.getElementById("messages").hidden = false;
             document.getElementById("messages").innerHTML = "";
-            await fetch(`https://api.revolt.chat/channels/${thechannel}/messages?include_users=true&limit=20`, {
+            await fetch(`https://api.revolt.chat/channels/${thechannel}/messages?include_users=true`, {
                 "credentials": "omit",
                 "headers": {
                     "Accept": "*/*",
@@ -765,7 +765,20 @@
                 },
                 "method": "GET",
             }).then(response => response.json())
-                .then(data => mess = (data.messages))
+                .then(data => {mess = (data.messages); users = (data.users)})
+            
+            for(let i=0;i<users.length;i++){
+                console.log(users[i])
+                if(uIDs.indexOf(users[i]._id) === -1){
+                    uIDs.push(users[i]._id)
+                    usernames.push(users[i].username)
+                    if(users[i].avatar){
+                        pfpsrcs.push(`https://autumn.revolt.chat/avatars/${users[i].avatar._id}/${users[i].avatar.filename}`)
+                    } else {
+                        pfpsrcs.push(`https://autumn.revolt.chat/avatars/${users[i]._id}/default_avatar`)
+                    }
+                }
+            }
             mess.reverse()
             for (let i = 1; i <= mess.length; i++) {
                 await parsemessage(mess[i - 1])
