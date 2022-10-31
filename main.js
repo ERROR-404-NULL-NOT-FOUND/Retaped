@@ -5,11 +5,17 @@
 //
 
 var cache = {
+    //0 is id, 1 is username, 2 is pfp
     users: [],
+    //0 is id, 1 is name
     channels: [],
+    //0 is id, 1 is name
     servers: [],
+    //0 is id, 1 is author, 2 is content
     messages : []
 }
+
+var activeReplies = [];
 
 var activeChannel;
 var currentReply;
@@ -33,7 +39,7 @@ function cacheLookup (resource, ID) {
     for (let i=0; i<cache[resource].length; i++){
         if (cache[resource][i][0] === ID) return cache[resource][i];
     }
-    return 'Unable to load message'
+    return 'Unable to load resource';
 }
 
 async function fetchResource (target) {
@@ -76,7 +82,7 @@ async function bonfire (){
                 buildServerCache(data.servers);
                 buildChannelCache(data.channels);
                 buildUserCache(data.users);
-                loadServers();
+                getServers();
         }
     });
 
@@ -105,16 +111,21 @@ async function login(){
     //Showing elements
     document.getElementById('logged').hidden = false;
     document.getElementById('messages').hidden = false;
+    document.getElementById('replyMsg').hidden = false;
 }
 
-async function loadServers() {
+async function getServers() {
     let serverContainer = document.getElementById('servers');
     while (serverContainer.hasChildNodes()) {
         serverContainer.removeChild(serverContainer.lastChild)
     }
     for (let i=0; i<cache.servers.length; i++) {
         let server = document.createElement('button');
-        server.addEventListener('click', function () { getChannels(cache.servers[i][0])});
+
+        server.onclick =  function () {
+            getChannels(cache.servers[i][0])
+        };
+        
         server.id = cache.servers[i][0];
 
         let serverText = document.createElement('span');
@@ -137,7 +148,10 @@ async function getChannels(id) {
         if (cache.channels[i][2] !== 'TextChannel') continue;
         if (cache.channels[i][3] !== id) continue;
         let channel = document.createElement('button');
-        channel.addEventListener('click', function () { getMessages(cache.channels[i][0])});
+
+        channel.onclick = function () {
+            getMessages(cache.channels[i][0])
+        };
 
         let channelText = document.createElement('span');
         channelText.className = 'channel';
@@ -152,7 +166,7 @@ async function getChannels(id) {
 function clearMessages() {
     const messageContainer = document.getElementById('messages');
     while (messageContainer.hasChildNodes()) {
-        messageContainer.removeChild(messageContainer.lastChild)
+        messageContainer.removeChild(messageContainer.lastChild);
     }
 }
 //
@@ -183,11 +197,59 @@ async function buildServerCache(servers) {
     for(let i=0; i<servers.length; i++) {
         cache.servers.push([servers[i]['_id'], servers[i]['name']]);
     }
-    loadServers();
+    getServers();
 }
 
-function parseMessage(data){
-    console.log(data);
+function parseMessage(message){
+    const messageContainer = document.getElementById('messages');
+    cache.messages.push([message._id, message.author, message.content]);
+
+    let messageDisplay = document.createElement('div');
+    let messageContent = document.createElement('p');
+    let userdata = document.createElement('div');
+    let username = document.createElement('span');
+    let profilepicture = document.createElement('img');
+    let reply = document.createElement('div');
+    let replyButton = document.createElement('button');
+
+    const user = cacheLookup('users', message.author);
+
+    username.textContent = user[1];
+    profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
+
+    userdata.appendChild(profilepicture);
+    userdata.appendChild(username);
+
+    messageContent.textContent = message.content;
+    if( message.replies ){
+        for( let j=0; j < message.replies.length; j++){
+            let replyContent = document.createElement('span'); 
+            replyContent.textContent = '> ' + cacheLookup('messages', message.replies[j])[2];
+            reply.appendChild(replyContent)
+        }
+    }
+
+    replyButton.onclick = function () {
+        activeReplies.push(
+            {
+                'id': message['_id'],
+                'mention': false
+            });
+        const replyText = document.createElement('span');
+        replyText.textContent = '> ' + message.content;
+        document.getElementById('replyMsg').appendChild(replyText);
+    };
+    replyButton.innerText = 'Reply';
+
+    messageDisplay.appendChild(userdata);
+    messageDisplay.appendChild(reply);
+    messageDisplay.appendChild(replyButton);
+    messageDisplay.appendChild(messageContent);
+
+    messageDisplay.id = message._id;
+    messageDisplay.class = 'message';
+
+    messageContainer.appendChild(messageDisplay);
 }
 
 async function getMessages(id){
@@ -212,43 +274,37 @@ async function getMessages(id){
     clearMessages();
     
     const messages = placeholder.messages;
-    
-    const messageContainer = document.getElementById('messages');
+
     for (let i = messages.length - 1; i>=0; i--) {
-        
-        cache.messages.push([messages[i]._id, messages[i].author, messages[i].content])
-
-        let message = document.createElement('div');
-        let messageContent = document.createElement('p');
-        let userdata = document.createElement('div');
-        let username = document.createElement('span');
-        let profilepicture = document.createElement('img');
-        let reply = document.createElement('div');
-
-        const user = cacheLookup('users', messages[i].author);
-
-        username.textContent = user[1];
-        profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
-
-        userdata.appendChild(profilepicture);
-        userdata.appendChild(username);
-
-        messageContent.textContent = messages[i].content;
-        if( messages[i].replies ){
-            for( let j=0; j < messages[i].replies.length; j++){
-                let replyContent = document.createElement('span'); 
-                replyContent.textContent = '> ' + cacheLookup('messages', messages[i].replies[j])[2];
-                reply.appendChild(replyContent)
-            }
-        }
-
-        message.appendChild(userdata);
-        message.appendChild(reply);
-        message.appendChild(messageContent);
-
-        message.id = messages[i]._id;
-        message.class = 'message';
-
-        messageContainer.appendChild(message);
+        parseMessage(messages[i]);
     }
+}
+
+//
+// Message Sending
+//
+
+async function sendMessage () {
+    const messageContainer = document.getElementById('input');
+    let message = messageContainer.value;
+    //Checking for valid pings, and replacing with an actual ping
+    if (message.search(/ @[^ ]*/) != -1) {
+        pings = /@[^ ]*/[Symbol.match](message);
+        for (let i = 0; i < pings.length; i++) {
+            message = message.replace(pings[i], `<@${cacheLookup('users',pings[i].replace("@", ""))[1]}>`);
+        }
+    }
+
+    await fetch(`https://api.revolt.chat/channels/${activeChannel}/messages`, {
+        'headers': {
+            'x-session-token': token
+        },
+        'method': 'POST',
+        'body': JSON.stringify({
+            content: message,
+            replies: activeReplies
+        })
+    });
+    messageContainer.value = '';
+    activeReplies = [];
 }
