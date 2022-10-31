@@ -432,10 +432,7 @@
 
 
         function contentToJson() {
-            if (!sendRawJson) {
-                sendRawJson = true;
-            }
-            else { sendRawJson = false; }
+            sendRawJson = sendRawJson ? false : true
         }
 
 
