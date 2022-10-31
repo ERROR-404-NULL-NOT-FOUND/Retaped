@@ -128,11 +128,22 @@ async function getServers() {
         
         server.id = cache.servers[i][0];
 
-        let serverText = document.createElement('span');
-        serverText.className = 'server';
-        serverText.innerText = cache.servers[i][1];
-        
-        server.appendChild(serverText);
+        let serverIcon = document.createElement('img');
+        serverIcon.className = 'server';
+        if (cache.servers[i][2] == null){
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const context = canvas.getContext('2d');
+            const text = cache.servers[i][1].charAt(0);
+            context.font = '64px Arial';
+            context.fillStyle = '0,0,0';
+            context.fillText(text, 8, 48);
+            serverIcon.src = canvas.toDataURL();
+        } else {
+            serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[i][2]}?max_side=64`;
+        }
+        server.appendChild(serverIcon);
         serverContainer.appendChild(server);
     }
 }
@@ -195,7 +206,7 @@ async function buildUserCache(users) {
 
 async function buildServerCache(servers) {
     for(let i=0; i<servers.length; i++) {
-        cache.servers.push([servers[i]['_id'], servers[i]['name']]);
+        cache.servers.push([servers[i]['_id'], servers[i]['name'], servers[i].icon ? servers[i].icon._id : null]);
     }
     getServers();
 }
@@ -215,7 +226,7 @@ function parseMessage(message){
     const user = cacheLookup('users', message.author);
 
     username.textContent = user[1];
-    profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
+    profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=32`;
 
     userdata.appendChild(profilepicture);
     userdata.appendChild(username);
