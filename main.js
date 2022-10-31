@@ -7,7 +7,8 @@
 var cache = {
     users: [],
     channels: [],
-    servers: []
+    servers: [],
+    messages : []
 }
 
 var activeChannel;
@@ -28,23 +29,22 @@ window.onload = function () {
 // Functions
 //
 
-function userlookup (uid) {
-    for (let i=0; i<cache.users.length; i++){
-        if (cache.users[i][0] === uid) return cache.users[i]
+function cacheLookup (resource, ID) {
+    for (let i=0; i<cache[resource].length; i++){
+        if (cache[resource][i][0] === ID) return cache[resource][i];
     }
+    return 'Unable to load message'
 }
 
 async function fetchResource (target) {
     //Return of false means that it failed
-    await fetch(`https://api.revolt.chat/${target}`, {
+    const res = await fetch(`https://api.revolt.chat/${target}`, {
         'headers': {
             'x-session-token': token
         },
         'method': 'GET'
-    })
-    .then(response => response.json())
-    .then(data => { return(data) })
-    .catch(err => { return(false) });
+    });
+    return res.json()
 }
 
 //
@@ -149,6 +149,12 @@ async function getChannels(id) {
     }
 }
 
+function clearMessages() {
+    const messageContainer = document.getElementById('messages');
+    while (messageContainer.hasChildNodes()) {
+        messageContainer.removeChild(messageContainer.lastChild)
+    }
+}
 //
 // * Processing
 //
@@ -185,43 +191,61 @@ function parseMessage(data){
 }
 
 async function getMessages(id){
+    cache.messages = [];
+
     activeChannel = id;
-    fetchResource(`channels/${id}`).then( data => {
+    
+    fetchResource(`channels/${id}`)
+    .then( data => {
         document.getElementById('chanName').innerText = 
         data.channel_type === 'DirectMessage' ? 
         data.recipients[0] : data.name
     });
 
-    let placeholder;
-    placeholder = await fetchResource(`channels/${id}/messages?include_users=true`);
-    let users = placeholder.users;
+    const placeholder = await fetchResource(`channels/${id}/messages?include_users=true&sort=latest`);
+    const users = placeholder.users;
 
     for (let i=0; i<users.length; i++){
         cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
     }
+
+    clearMessages();
     
-    let messages = placeholder.messages;
+    const messages = placeholder.messages;
     
-    let messageContainer = document.getElementById('messages');
-    for (let i=0; i<messages.length; i++) {
+    const messageContainer = document.getElementById('messages');
+    for (let i = messages.length - 1; i>=0; i--) {
+        
+        cache.messages.push([messages[i]._id, messages[i].author, messages[i].content])
+
         let message = document.createElement('div');
         let messageContent = document.createElement('p');
         let userdata = document.createElement('div');
         let username = document.createElement('span');
         let profilepicture = document.createElement('img');
+        let reply = document.createElement('div');
 
-        let user = userlookup(messsage[i].author);
+        const user = cacheLookup('users', messages[i].author);
 
         username.textContent = user[1];
-        profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]}`;
+        profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
 
         userdata.appendChild(profilepicture);
         userdata.appendChild(username);
 
         messageContent.textContent = messages[i].content;
-        
+        if( messages[i].replies ){
+            for( let j=0; j < messages[i].replies.length; j++){
+                let replyContent = document.createElement('span'); 
+                replyContent.textContent = '> ' + cacheLookup('messages', messages[i].replies[j])[2];
+                reply.appendChild(replyContent)
+            }
+        }
+
         message.appendChild(userdata);
+        message.appendChild(reply);
         message.appendChild(messageContent);
+
         message.id = messages[i]._id;
         message.class = 'message';
 
