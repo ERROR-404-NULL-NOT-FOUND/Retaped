@@ -1,7 +1,7 @@
 
 
 //
-// Variables
+// variables
 //
 
 var cache = {
@@ -106,10 +106,9 @@ async function login(){
 
     bonfire();
     //Hiding elements
-    document.getElementById('loginoe').hidden = true;
-    document.getElementById('name').hidden = true;
-    document.getElementById('descri').hidden = true;
+    document.querySelector('.login-screen').style.display = "none";
     //Showing elements
+    document.getElementById('logged').style.display = "grid";
     document.getElementById('logged').hidden = false;
     document.getElementById('messages').hidden = false;
     document.getElementById('replyMsg').hidden = false;
@@ -370,3 +369,12 @@ async function sendMessage () {
     messageContainer.value = '';
     activeReplies = [];
 }
+
+//
+// UX
+//
+let toolbar = document.querySelector(".toolbar");
+let toolbarBtn = document.querySelector(".toolbar-btn");
+toolbarBtn.addEventListener("click", () => {
+    toolbar.classList.toggle("show-toolbar");
+});
