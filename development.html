@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <title>Retaped</title>
-    <link rel="icon" type="image/png" href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png"/>
+    <link rel="icon" type="image/png"
+        href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png" />
     <link rel="stylesheet" href="./style.css">
 </head>
 
@@ -46,23 +47,34 @@
         </div>
 
         <div id="central">
+            <div id="userProfile" hidden="true">
+                <img id="profilePicture"></img>
+                <h3 id="username"></h3>
+                <img id="profileBackground"></img>
+                <p id="bio"></p>
+                <button id="closeProfile" onclick="document.getElementById('userProfile').hidden=true">Close
+                    Profile</button>
+            </div>
+
             <div id="messages" hidden="true">
             </div>
             <button onclick="bonfire()">Re-establish websocket</button>
             <button onclick="embedMessage()">Send embed</button>
             <br>
-            
+
             <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
             <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
             <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
-            
+
+
             <h5 id="error" hidden="true"></h5>
             <div id="replyMsg" hidden="true"></div>
-            <button hidden="true" id=closereply onclick="document.getElementById('replyMsg').innerText='';reply=[]">X</button>
+            <button hidden="true" id=closereply
+                onclick="document.getElementById('replyMsg').innerText='';reply=[]">X</button>
             <input type="file" id="upload"></input>
 
             <div id="messageBar">
-                
+
                 <button onclick="contentToJson()">JSON</button>
                 <input type="text" autocomplete="off" placeholder="Speak in channel" id="input" />
                 <button onclick="sendMessage()">Send</button>
