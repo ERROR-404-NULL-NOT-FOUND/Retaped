@@ -1,0 +1,334 @@
+@import url('https://api.fonts.coollabs.io/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+:root{
+    /* COLORS / THEME */
+    --accent: 341,100%,55%;
+    --servers-bg: #1a1a1a;
+    --channels-bg: #141414;
+    --foreground: 0, 0%, 100%;
+    --background: #0f0f0f;
+    --secondary-background: #1A1A1A;
+
+    /* VARS */
+    --border-radius: 5px;
+    --img-radius: 5px;
+    --inner-gap: 0;
+    --outer-gap: 0;
+}
+
+* {-webkit-box-sizing: border-box;box-sizing: border-box}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: var(--background);
+    color: hsl(var(--foreground));
+    font-family: 'Roboto', sans-serif;
+}
+
+button {
+    background-color: var(--secondary-background);
+    color: hsl(var(--foreground));
+    font-size: 0.9em;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+}
+
+img {
+    max-width: 50px;
+    border-radius: var(--border-radius);
+}
+
+.login-screen {
+    width: 100%;
+    height: 100%;
+}
+
+.login-screen, #innercontainer {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+}
+
+#name,
+#descri {
+    text-align: center;
+
+}
+
+#name {
+    font-size: 4em;
+    text-transform: uppercase;
+}
+
+.hl {
+    color: hsl(var(--accent));
+}
+
+#loginoe {
+    width: 45rem;
+}
+
+#innercontainer {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    gap: 1rem;
+}
+
+#login-btn {
+    color: hsl(var(--foreground));
+    background: var(--secondary-background);
+    border-radius: var(--border-radius);
+    border: none;
+    padding: .7rem 1.5rem;
+}
+
+.login-screen input {
+    color: hsl(var(--foreground));
+    background: var(--secondary-background);
+    border-radius: var(--border-radius);
+    line-height: 200%;
+    width: 400px;
+    border: none;
+    padding: .3rem 1rem;
+}
+
+.login-screen input:focus {
+    outline: 1px solid hsl(var(--accent));
+}
+
+#logged {
+    display: none;
+    -ms-grid-columns: 4rem var(--inner-gap) 14rem var(--inner-gap) 1fr;
+    grid-template-columns: 4rem 14rem 1fr;
+    height: 100%;
+    gap: var(--inner-gap);
+    padding: var(--outer-gap);
+}
+
+#info {
+    height: 100%;
+    background: var(--servers-bg);
+    border-radius: var(--border-radius);
+    overflow-y: auto;
+}
+
+#servers {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    gap: .5rem;
+}
+
+#servers button {
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    display: -ms-grid;
+    display: grid;
+    place-content: center;
+    padding: .1rem;
+    border: none;
+    border-radius: var(--img-radius);
+}
+
+.server {
+    width: 45px;
+    height: 45px;
+    border-radius: var(--img-radius);
+    -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px;
+    -webkit-transition: .1s;
+    -o-transition: .1s;
+    transition: .1s;
+}
+
+/* .active-server { */
+/*     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, hsl(var(--accent)) 0px 0px 0px 3px; */
+/* } */
+
+.server:hover {
+    -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, hsl(var(--accent)) 0px 0px 0px 3px;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, hsl(var(--accent)) 0px 0px 0px 3px;
+}
+
+.server-hr {
+    width: 20px;
+}
+
+#channels {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    gap: .3rem;
+}
+
+#channels button, #dms {
+    padding: .7rem 0;
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+#dms {
+    width: 100%;
+    background: hsla(var(--accent), 15%);
+    color: hsl(var(--accent));
+    font-weight: bold;
+}
+
+#channels button {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    padding: .5rem 0;
+    color: hsla(var(--foreground), 60%);
+    font-weight: bold;
+    -webkit-transition: .1s;
+    -o-transition: .1s;
+    transition: .1s;
+    text-align: left;
+}
+
+#channels button::before {
+    content: "# ";
+    font-size: 1.1em;
+    padding: 0 .6rem;
+}
+
+#channels button:hover {
+    background: hsla(var(--accent), 15%);
+    color: hsl(var(--accent));
+}
+
+/* #closereply { */
+/*     display: none */
+/* } */
+
+/* .msg, */
+/* .messagecont { */
+/*     word-break: break-all; */
+/*     white-space: pre-wrap; */
+/*     padding-bottom: 5px; */
+/*     max-width: 80% !important; */
+/* } */
+
+/* #author { */
+/*     display: inline-block; */
+/* } */
+
+#info, #channelInfo, #central {
+    height: 100%;
+}
+
+#central {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+}
+
+#channelInfo {
+    padding: 0 .4rem;
+    border-radius: var(--border-radius);
+    background: var(--channels-bg);
+    overflow-y: auto;
+}
+
+#messages {
+    white-space: pre-line;
+    overflow: auto;
+    -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+    -ms-overflow-style: none;
+    height: 0vw;
+    overflow-y: scroll;
+    -webkit-box-flex: 1;
+        -ms-flex: auto;
+            flex: auto;
+    padding-left: 1rem;
+}
+
+#messagebar {
+    font-size: 1.3rem;
+}
+
+.messagebar-container button, #input, .upload-label{
+    color: white;
+    background-color: var(--secondary-background);
+    border: none;
+    padding: .7rem;
+}
+
+#upload {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+#input {
+    width: 100%;
+    outline: none;
+}
+
+.send-btn {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.toolbar {
+    display: none;
+}
+
+.show-toolbar {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+#replymsg {
+    padding-bottom: 0px;
+    display: block
+}
+
+#messagebar {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+#upload {
+    background-color: var(--background)
+}
