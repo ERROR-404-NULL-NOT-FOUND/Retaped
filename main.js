@@ -22,6 +22,7 @@ var currentReply;
 var token;
 var socket;
 var userProfile;
+var activeRequests = 0;
 
 //
 // Run on page load
@@ -97,7 +98,7 @@ async function login(){
         token = document.getElementById('token').value;
 
     }
-    if (await fetchResource('users/@me') === false) {
+    if ((userProfile = await fetchResource('users/@me')) === false) {
         showError("Login failed");
         return;
     }
@@ -105,6 +106,9 @@ async function login(){
 
     bonfire();
     //Hiding elements
+    document.querySelector('.login-screen').style.display = "none";
+    //Showing elements
+    document.getElementById('logged').style.display = "grid";
     document.getElementById('loginoe').hidden = true;
     document.getElementById('name').hidden = true;
     document.getElementById('descri').hidden = true;
@@ -122,7 +126,7 @@ async function getServers() {
     for (let i=0; i<cache.servers.length; i++) {
         let server = document.createElement('button');
 
-        server.onclick =  function () {
+        server.onclick = () => {
             getChannels(cache.servers[i][0])
         };
         
@@ -160,7 +164,7 @@ async function getChannels(id) {
         if (cache.channels[i][3] !== id) continue;
         let channel = document.createElement('button');
 
-        channel.onclick = function () {
+        channel.onclick = () => {
             getMessages(cache.channels[i][0])
         };
 
@@ -186,11 +190,15 @@ function clearMessages() {
 
 async function buildChannelCache(channels) {
     for(let i=0; i<channels.length; i++) {
-        if(channels[i].channel_type === "TextChannel") {
-            cache.channels.push([channels[i]._id, channels[i].name,  channels[i].channel_type, channels[i].server]);
-        } else {
-            cache.channels.push([channels[i]._id, channels[i].name, channels[i].channel_type])
-        }
+        switch(channels[i].channel_type) {
+            case 'TextChannel':
+                cache.channels.push([channels[i]._id, channels[i].name,  channels[i].channel_type, channels[i].server]);
+                break;
+            case 'Group':
+                cache.channels.push([channels[i]._id, channels[i].name, channels[i].channel_type]);
+                break;
+            case 'DirectMessage':
+                cache.channels.push([channels[i]._id, channels[i].recipients, channels[i].channel_type]);
     }
 }
 
@@ -226,8 +234,9 @@ function parseMessage(message){
     const user = cacheLookup('users', message.author);
 
     username.textContent = user[1];
-    profilepicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=32`;
-
+    profilepicture.src = user[2] ?
+    `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`:
+    `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
     userdata.appendChild(profilepicture);
     userdata.appendChild(username);
 
@@ -240,7 +249,7 @@ function parseMessage(message){
         }
     }
 
-    replyButton.onclick = function () {
+    replyButton.onclick = () => {
         activeReplies.push(
             {
                 'id': message['_id'],
@@ -291,6 +300,49 @@ async function getMessages(id){
     }
 }
 
+async function loadDMUserName (userID) {
+    while (true) { 
+        if(activeRequests<10) break;
+        await new Promise(resolve => setTimeout(resolve, 1000))
+    };
+    activeRequests++;
+    let returnValue = await fetchResource(`users/${userID}`);
+    activeRequests--;
+    return returnValue;
+
+}
+
+async function loadDMs() {
+    let channelContainer = document.getElementById('channels');
+    //Clear channel field
+    while (channelContainer.hasChildNodes()) { channelContainer.removeChild(channelContainer.lastChild); }
+    activeRequests = 0;
+    
+    for( let i=0; i<cache.channels.length; i++) {
+        //Checking for only DMs
+        if (!['DirectMessage','Group'].includes(cache.channels[i][2])) continue;
+
+        const dmButton = document.createElement('button');
+    
+        dmButton.textContent = cache.channels[i][2] === 'Group' ?
+            cache.channels[i][1] : 
+                cache.channels[i][1][0] === userProfile._id ?
+                    cache.channels[i][1][1] :
+                    cache.channels[i][1][0];
+
+        dmButton.onClick = () => {
+            getMessages(cache.channels[i][0]);
+        };
+
+        dmButton.class = 'channel';
+        dmButton.id = cache.channels[i][0];
+        
+        channelContainer.appendChild(dmButton);
+        if (cache.channels[i][2] === 'DirectMessage')
+            loadDMUserName(dmButton.textContent).then(data => document.getElementById(cache.channels[i][0]).textContent = data.username); 
+    }
+}
+
 //
 // Message Sending
 //
@@ -318,4 +370,14 @@ async function sendMessage () {
     });
     messageContainer.value = '';
     activeReplies = [];
+}
+
+//
+// UX
+//
+let toolbar = document.querySelector(".toolbar");
+let toolbarBtn = document.querySelector(".toolbar-btn");
+toolbarBtn.addEventListener("click", () => {
+    toolbar.classList.toggle("show-toolbar");
+});
 }
