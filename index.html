@@ -15,7 +15,8 @@
     <div class="login-screen">
         <div class="title">
             <h1 id="name"><span class="hl">Re</span>taped</h1>
-            <h4 id="descri">The revolt.chat client re-taped from the one <br>that's held together by duct tape and bad code</h4>
+            <h4 id="descri">The revolt.chat client re-taped from the one <br>that's held together by duct tape and bad
+                code</h4>
         </div>
         <div id="loginoe">
 
@@ -37,7 +38,7 @@
     </div>
     <div id="logged" hidden="true">
         <div id="info">
-            <button id="dms" onclick="getdms()">DMS</button>
+            <button id="dms" onclick="loadDMs()">DMS</button>
             <hr class="server-hr">
             <div id="servers"></div>
         </div>
@@ -56,9 +57,8 @@
             <div class="messagebar-container">
                 <div class="toolbar">
                     <button onclick="bonfire()">Re-establish websocket</button>
-                    <button onclick="getmessage()">Get messages</button>
-                    <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getmessage();">Reload Usernames</button>
-                    <button onclick="embedmessage()">Send embed</button>
+                    <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">Reload Usernames</button>
+                    <button onclick="embedMessage()">Send embed</button>
                     <button onclick="contentToJson()">JSON</button>
                 </div>
                 <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
@@ -73,7 +73,7 @@
                     <button class="toolbar-btn">↑</button>
                     <label class="upload-label" for="upload">+</label>
                     <input type="text" autocomplete="off" placeholder="Speak in channel" id="input" />
-                    <button class="send-btn" onclick="sendmessage()">⟶</button>
+                    <button class="send-btn" onclick="sendMessage()">⟶</button>
                 </div>
             </div>
         </div>
