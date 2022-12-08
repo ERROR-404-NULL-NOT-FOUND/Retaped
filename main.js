@@ -226,7 +226,7 @@ function parseMessage(message){
     let messageDisplay = document.createElement('div');
     let messageContent = document.createElement('p');
     let userdata = document.createElement('div');
-    let username = document.createElement('span');
+    let username = document.createElement('button');
     let profilepicture = document.createElement('img');
     let reply = document.createElement('div');
     let replyButton = document.createElement('button');
@@ -234,6 +234,7 @@ function parseMessage(message){
     const user = cacheLookup('users', message.author);
 
     username.textContent = user[1];
+    username.onclick = () => { loadProfile(user[0]) };
     profilepicture.src = user[2] ?
     `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`:
     `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
@@ -341,6 +342,23 @@ async function loadDMs() {
         if (cache.channels[i][2] === 'DirectMessage')
             loadDMUserName(dmButton.textContent).then(data => document.getElementById(cache.channels[i][0]).textContent = data.username); 
     }
+}
+//
+//Profiles
+//
+
+async function loadProfile(userID) {
+    let userProfile = await fetchResource(`/users/${userID}/profile`);
+    let username = document.getElementById('username');
+    let profilePicture = document.getElementById('profilePicture');
+    let profileBackground = document.getElementById('profileBackground');
+    let bio = document.getElementById('bio');
+    
+    username.textContent = cacheLookup('users', userID)[1];
+    profilePicture.src = `https://autumn.revolt.chat/avatars/${cacheLookup('users', userID)[2]._id}`;
+    profileBackground.src = `https://autumn.revolt.chat/backgrounds/${userProfile.background._id}`;
+    bio.textContent = userProfile.content;
+    document.getElementById('userProfile').hidden=false;
 }
 
 //

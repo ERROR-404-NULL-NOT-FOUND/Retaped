@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Retaped</title>
+    <link rel="icon" type="image/png"
+        href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png" />
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <h1 id="name">Retaped</h1>
+    <h4 id="descri">The revolt.chat client re-taped from the one that's held together by duct tape and bad code</h4>
+    <br />
+    <div id="loginoe">
+
+        <div id="innercontainer">
+            <h4 id="loginerror" hidden="false"></h4>
+            <input id="token" type="password" autocomplete="on" placeholder="Token">
+            <br><input id="inputTheme" placeholder="Theme">
+            <br><button id="login" onclick="login();">Login</button>
+        </div>
+        <!--
+        <div id="innercontainer">
+            <input id="email" autocomplete="on" placeholder="Email address">
+            <input id="password" autocomplete="on" placeholder="Password" type="password">
+            <div class="h-captcha" data-sitekey="3daae85e-09ab-4ff6-9f24-e8f4f335e433"></div>
+            <input type="submit" value="Submit"/>
+        </div>
+    -->
+    </div>
+    <div id="logged" hidden="true">
+        <div id="info">
+            <button id="dms" onclick="loadDMs()">DMS</button>
+            <br>
+            <br>
+            <div id="servers"></div>
+        </div>
+
+        <div id="channelInfo">
+            <h3 id="connected">Disconnected</h3>
+            <h2 id="chanName"></h2>
+            <h3 id="chanDesc"></h3>
+            <br>
+            <div id="channels"></div>
+        </div>
+
+        <div id="central">
+            <div id="userProfile" hidden="true">
+                <img id="profilePicture"></img>
+                <h3 id="username"></h3>
+                <img id="profileBackground"></img>
+                <p id="bio"></p>
+                <button id="closeProfile" onclick="document.getElementById('userProfile').hidden=true">Close
+                    Profile</button>
+            </div>
+
+            <div id="messages" hidden="true">
+            </div>
+            <button onclick="bonfire()">Re-establish websocket</button>
+            <button onclick="embedMessage()">Send embed</button>
+            <br>
+
+            <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+            <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
+            <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+
+
+            <h5 id="error" hidden="true"></h5>
+            <div id="replyMsg" hidden="true"></div>
+            <button hidden="true" id=closereply
+                onclick="document.getElementById('replyMsg').innerText='';reply=[]">X</button>
+            <input type="file" id="upload"></input>
+
+            <div id="messageBar">
+
+                <button onclick="contentToJson()">JSON</button>
+                <input type="text" autocomplete="off" placeholder="Speak in channel" id="input" />
+                <button onclick="sendMessage()">Send</button>
+
+            </div>
+        </div>
+        <h2 id="theme"></h2>
+    </div>
+    <script src="./main.js"></script>
+</body>
+
+</html>
