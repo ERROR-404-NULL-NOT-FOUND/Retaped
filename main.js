@@ -1,7 +1,7 @@
 
 
 //
-// variables
+// Variables
 //
 
 var cache = {
@@ -109,6 +109,10 @@ async function login(){
     document.querySelector('.login-screen').style.display = "none";
     //Showing elements
     document.getElementById('logged').style.display = "grid";
+    document.getElementById('loginoe').hidden = true;
+    document.getElementById('name').hidden = true;
+    document.getElementById('descri').hidden = true;
+    //Showing elements
     document.getElementById('logged').hidden = false;
     document.getElementById('messages').hidden = false;
     document.getElementById('replyMsg').hidden = false;
@@ -195,7 +199,6 @@ async function buildChannelCache(channels) {
                 break;
             case 'DirectMessage':
                 cache.channels.push([channels[i]._id, channels[i].recipients, channels[i].channel_type]);
-        }
     }
 }
 
@@ -234,7 +237,6 @@ function parseMessage(message){
     profilepicture.src = user[2] ?
     `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`:
     `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
-
     userdata.appendChild(profilepicture);
     userdata.appendChild(username);
 
@@ -378,3 +380,4 @@ let toolbarBtn = document.querySelector(".toolbar-btn");
 toolbarBtn.addEventListener("click", () => {
     toolbar.classList.toggle("show-toolbar");
 });
+}
