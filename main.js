@@ -199,6 +199,7 @@ async function buildChannelCache(channels) {
                 break;
             case 'DirectMessage':
                 cache.channels.push([channels[i]._id, channels[i].recipients, channels[i].channel_type]);
+        }
     }
 }
 
@@ -398,4 +399,3 @@ let toolbarBtn = document.querySelector(".toolbar-btn");
 toolbarBtn.addEventListener("click", () => {
     toolbar.classList.toggle("show-toolbar");
 });
-}
