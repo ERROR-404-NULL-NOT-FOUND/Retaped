@@ -72,7 +72,6 @@ async function loadTheme() {
         method: "POST",
     }).then((response) => response.json());
     let theme = JSON.parse(rawTheme.theme[1])["appearance:theme:overrides"];
-    console.log(theme);
     let themeVars = document.querySelector(":root");
     themeVars.style.setProperty("--accent", theme.accent);
     themeVars.style.setProperty("--servers-bg", theme.background);
@@ -270,6 +269,7 @@ function parseMessage(message) {
     let profilepicture = document.createElement("img");
     let reply = document.createElement("div");
     let replyButton = document.createElement("button");
+    let attachments = document.createElement("div");
 
     messageDisplay.classList.add("message-display");
     profilepicture.classList.add("pfp");
@@ -302,6 +302,7 @@ function parseMessage(message) {
     userdata.appendChild(username);
 
     messageContent.textContent = message.content;
+
     if (message.replies) {
         for (let j = 0; j < message.replies.length; j++) {
             let replyContent = document.createElement("span");
@@ -309,6 +310,47 @@ function parseMessage(message) {
                 "> " + cacheLookup("messages", message.replies[j])[2];
             reply.appendChild(replyContent);
         }
+    }
+
+    if (message.attachments) {
+        message.attachments.forEach((tmpAtchmntAttrs) => {
+            let tmpAttachment;
+            if (tmpAtchmntAttrs.content_type.startsWith("image")) {
+                tmpAttachment = document.createElement("img");
+                tmpAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+            } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
+                tmpAttachment = document.createElement("video");
+                tmpAttachment.controls = true;
+                tmpAttachment.style.maxWidth = "20%";
+                tmpAttachment.style.maxHeight = "20%";
+                let subAttachment = document.createElement("source");
+                subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+                subAttachment.type = tmpAtchmntAttrs.content_type;
+                tmpAttachment.appendChild(subAttachment);
+            } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
+                tmpAttachment = document.createElement("div");
+
+                let tmpContainer = document.createElement("audio");
+                tmpContainer.controls = true;
+                tmpContainer.textContent = tmpAtchmntAttrs.filename;
+
+                let subAttachment = document.createElement("source");
+                subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+                subAttachment.type = tmpAtchmntAttrs.content_type;
+
+                tmpContainer.appendChild(subAttachment);
+                let name = document.createElement("span");
+                name.textContent = tmpAtchmntAttrs.filename + "\n";
+
+                tmpAttachment.appendChild(name);
+                tmpAttachment.appendChild(tmpContainer);
+            } else {
+                tmpAttachment = document.createElement("a");
+                tmpAttachment.textContent = tmpAtchmntAttrs.filename;
+                tmpAttachment.href = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+            }
+            attachments.appendChild(tmpAttachment);
+        });
     }
 
     replyButton.onclick = () => {
@@ -326,6 +368,7 @@ function parseMessage(message) {
     messageDisplay.appendChild(userdata);
     messageDisplay.appendChild(reply);
     messageDisplay.appendChild(messageContent);
+    messageDisplay.appendChild(attachments);
 
     messageDisplay.id = message._id;
     messageDisplay.class = "message";
@@ -424,9 +467,7 @@ async function loadProfile(userID) {
     if (cacheLookup("users", userID)[2])
         profilePicture.src = `https://autumn.revolt.chat/avatars/${cacheLookup("users", userID)[2]._id
             }`;
-    console.log(Object.keys(userProfile));
     if (Object.keys(userProfile).indexOf("background") > -1) {
-        console.log("test");
         profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
     } else profileBackground.style.background = "";
