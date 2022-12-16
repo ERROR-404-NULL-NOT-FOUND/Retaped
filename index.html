@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Retaped</title>
+        <link rel="icon" type="image/png" href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png" />
+        <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+        <!--<script src="https://js.hcaptcha.com/1/api.js" async defer></script>-->
+        <script src="main.js" type="text/javascript" defer></script>
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <title>Retaped</title>
-    <link rel="icon" type="image/png"
-        href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png" />
-    <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
-    <!--<script src="https://js.hcaptcha.com/1/api.js" async defer></script>-->
-    <script src="main.js" type="text/javascript" defer></script>
-</head>
-
-<body>
-    <div class="login-screen">
-        <div class="title">
-            <h1 id="name"><span class="hl">Re</span>taped</h1>
-            <h4 id="descri">The revolt.chat client re-taped from the one <br>that's held together by duct tape and bad
-                code</h4>
-        </div>
-        <div id="loginoe">
-
-            <div id="innercontainer">
-                <h4 id="loginerror" hidden="false"></h4>
-                <input id="token" type="password" autocomplete="on" placeholder="Token">
-                <input id="inputTheme" placeholder="Theme">
-                <button id="login-btn" onclick="login();">Login</button>
+    <body>
+        <div class="login-screen">
+            <div class="title">
+                <h1 id="name"><span class="hl">Re</span>taped</h1>
+                <h4 id="descri">
+                    The revolt.chat client re-taped from the one <br />
+                    that's held together by duct tape and bad code
+                </h4>
             </div>
-            <!--
+            <div id="loginoe">
+                <div id="innercontainer">
+                    <h4 id="loginerror" hidden="false"></h4>
+                    <input id="token" type="password" autocomplete="on" placeholder="Token" />
+                    <input id="inputTheme" placeholder="Theme" />
+                    <button id="login-btn" onclick="login();">Login</button>
+                </div>
+                <!--
             <div id="innercontainer">
                 <input id="email" autocomplete="on" placeholder="Email address">
                 <input id="password" autocomplete="on" placeholder="Password" type="password">
@@ -34,50 +33,60 @@
                 <input type="submit" value="Submit"/>
             </div>
         -->
-        </div>
-    </div>
-    <div id="logged" hidden="true">
-        <div id="info">
-            <button id="dms" onclick="loadDMs()">DMS</button>
-            <hr class="server-hr">
-            <div id="servers"></div>
-        </div>
-
-        <div id="channelInfo">
-            <h3 id="connected">Disconnected</h3>
-            <h2 id="chanName"></h2>
-            <h3 id="chanDesc"></h3>
-            <div id="channels"></div>
-        </div>
-
-        <div id="central">
-            <h2 id="theme"></h2>
-            <div id="messages" hidden="true">
             </div>
-            <div class="messagebar-container">
-                <div class="toolbar">
-                    <button onclick="bonfire()">Re-establish websocket</button>
-                    <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">Reload Usernames</button>
-                    <button onclick="embedMessage()">Send embed</button>
-                    <button onclick="contentToJson()">JSON</button>
+        </div>
+        <div id="logged" hidden="true">
+            <div id="info">
+                <button id="dms" onclick="loadDMs()">DMS</button>
+                <hr class="server-hr" />
+                <div id="servers"></div>
+            </div>
+
+            <div id="channelInfo">
+                <p id="theme"></p>
+                <h3 id="connected">Disconnected</h3>
+                <h2 id="chanName"></h2>
+                <h3 id="chanDesc"></h3>
+                <div id="channels"></div>
+            </div>
+
+            <div id="central">
+                <div id="userProfile">
+                    <div id="profileMedia" class="profile-top">
+                        <div class="profile-name">
+                            <img id="profilePicture" />
+                            <h3 id="username"></h3>
+                        </div>
+                    </div>
+                    <p id="bio"></p>
+                    <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">Close Profile</button>
                 </div>
-                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
-                <h5 id="error" hidden="true"></h5>
-                <h5 id="replymsg" style="display:inline" hidden="true"></h5>
-                <!-- <button hidden="true"
+
+                <div id="messages" hidden="true"></div>
+                <div class="messagebar-container">
+                    <div class="toolbar">
+                        <button onclick="bonfire()">Re-establish websocket</button>
+                        <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">Reload Usernames</button>
+                        <button onclick="embedMessage()">Send embed</button>
+                        <button onclick="contentToJson()">JSON</button>
+                    </div>
+                    <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+                    <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
+                    <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+                    <h5 id="error" hidden="true"></h5>
+                    <h5 id="replyMsg" style="display: inline;" hidden="true"></h5>
+                    <!-- <button hidden="true"
                      id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
-                <input type="file" id="upload"></input>
-                <div id="messagebar">
-                    <button class="toolbar-btn">↑</button>
-                    <label class="upload-label" for="upload">+</label>
-                    <input type="text" autocomplete="off" placeholder="Speak in channel" id="input" />
-                    <button class="send-btn" onclick="sendMessage()">⟶</button>
+                    <input type="file" id="upload" />
+                    <div id="messagebar">
+                        <button class="toolbar-btn">↑</button>
+                        <label class="upload-label" for="upload">+</label>
+                        <input type="text" autocomplete="off" placeholder="Speak in channel" id="input" />
+                        <button class="send-btn" onclick="sendMessage()">⟶</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>
+
