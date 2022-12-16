@@ -109,9 +109,6 @@ async function login(){
     document.querySelector('.login-screen').style.display = "none";
     //Showing elements
     document.getElementById('logged').style.display = "grid";
-    document.getElementById('loginoe').hidden = true;
-    document.getElementById('name').hidden = true;
-    document.getElementById('descri').hidden = true;
     //Showing elements
     document.getElementById('logged').hidden = false;
     document.getElementById('messages').hidden = false;
@@ -232,10 +229,20 @@ function parseMessage(message){
     let reply = document.createElement('div');
     let replyButton = document.createElement('button');
 
+    messageDisplay.classList.add("message-display");
+    profilepicture.classList.add("pfp");
+    userdata.classList.add("userdata");
+    username.classList.add("username");
+    reply.classList.add("reply-content");
+    replyButton.classList.add("reply-btn");
+    messageContent.classList.add("message-content");
+    
     const user = cacheLookup('users', message.author);
 
     username.textContent = user[1];
     username.onclick = () => { loadProfile(user[0]) };
+    profilepicture.onclick = () => { loadProfile(user[0]) };
+    
     profilepicture.src = user[2] ?
     `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`:
     `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
@@ -262,10 +269,10 @@ function parseMessage(message){
         document.getElementById('replyMsg').appendChild(replyText);
     };
     replyButton.innerText = 'Reply';
-
+    
+    userdata.appendChild(replyButton);
     messageDisplay.appendChild(userdata);
     messageDisplay.appendChild(reply);
-    messageDisplay.appendChild(replyButton);
     messageDisplay.appendChild(messageContent);
 
     messageDisplay.id = message._id;
@@ -352,14 +359,15 @@ async function loadProfile(userID) {
     let userProfile = await fetchResource(`/users/${userID}/profile`);
     let username = document.getElementById('username');
     let profilePicture = document.getElementById('profilePicture');
-    let profileBackground = document.getElementById('profileBackground');
+    let profileBackground = document.getElementById('profileMedia');
     let bio = document.getElementById('bio');
     
     username.textContent = cacheLookup('users', userID)[1];
     profilePicture.src = `https://autumn.revolt.chat/avatars/${cacheLookup('users', userID)[2]._id}`;
-    profileBackground.src = `https://autumn.revolt.chat/backgrounds/${userProfile.background._id}`;
+    profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
+        url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
     bio.textContent = userProfile.content;
-    document.getElementById('userProfile').hidden=false;
+    document.getElementById('userProfile').style.display = "flex";
 }
 
 //

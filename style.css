@@ -27,16 +27,21 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
-button {
+button, #input, .upload-label {
     background-color: var(--secondary-background);
+    border: none;
     color: hsl(var(--foreground));
     font-size: 0.9em;
     font-family: 'Roboto', sans-serif;
+    padding: .4rem .7rem;
+}
+
+button {
     cursor: pointer;
 }
 
 img {
-    max-width: 50px;
+    width: 80px;
     border-radius: var(--border-radius);
 }
 
@@ -61,10 +66,16 @@ img {
             justify-content: center;
 }
 
+#theme {
+    padding: 0;
+    margin: 0;
+    margin-top: .7rem;
+    color: hsl(0, 0%, 80%);
+}
+
 #name,
 #descri {
     text-align: center;
-
 }
 
 #name {
@@ -227,22 +238,6 @@ img {
     color: hsl(var(--accent));
 }
 
-/* #closereply { */
-/*     display: none */
-/* } */
-
-/* .msg, */
-/* .messagecont { */
-/*     word-break: break-all; */
-/*     white-space: pre-wrap; */
-/*     padding-bottom: 5px; */
-/*     max-width: 80% !important; */
-/* } */
-
-/* #author { */
-/*     display: inline-block; */
-/* } */
-
 #info, #channelInfo, #central {
     height: 100%;
 }
@@ -264,18 +259,116 @@ img {
     overflow-y: auto;
 }
 
+/* -- CHAT -- */
+#userProfile {
+    display: none;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    background: var(--servers-bg);
+    text-align: center;
+}
+
+.profile-top {
+    height: 15rem;
+    width: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: end;
+        -ms-flex-align: end;
+            align-items: flex-end;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.profile-name {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    gap: 1rem;
+}
+
+#profilePicture {
+    width: 70px;
+}
+
+#bio {
+    width: 80%;
+    max-height: 15rem;
+    padding: 0 1rem;
+    overflow: auto;
+}
+
+.userdata {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.pfp {
+    width: 40px;
+    cursor: pointer;
+}
+
+.username {
+    font-weight: bold;
+    background: none;
+}
+
+.username:hover {
+    text-decoration: underline;
+}
+
 #messages {
     white-space: pre-line;
     overflow: auto;
     -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
     -ms-overflow-style: none;
-    height: 0vw;
+    height: 0;
     overflow-y: scroll;
     -webkit-box-flex: 1;
         -ms-flex: auto;
             flex: auto;
-    padding-left: 1rem;
+    padding: 1rem 0;
+}
+
+.message-display {
+    padding: .5rem 1rem;
+}
+
+.message-display:hover {
+    background: var(--channels-bg);
+}
+
+.message-display:hover .reply-btn {
+    display: block;
+}
+
+.message-content {
+    margin-top: .3rem;
+    margin-bottom: 0;
+}
+
+.reply-btn {
+    display: none;
+}
+
+.reply-content {
+    color: hsl(0, 0%, 70%);
+    font-style: italic;
+    padding-top: .3rem;
 }
 
 #messagebar {
@@ -301,6 +394,7 @@ img {
 #input {
     width: 100%;
     outline: none;
+    font-size: initial;
 }
 
 .send-btn {
@@ -319,16 +413,14 @@ img {
 }
 
 #replymsg {
-    padding-bottom: 0px;
-    display: block
+    display: block;
+    padding: .5rem;
+    background: var(--secondary-background);
+    margin: 0;
 }
 
 #messagebar {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-}
-
-#upload {
-    background-color: var(--background)
 }
