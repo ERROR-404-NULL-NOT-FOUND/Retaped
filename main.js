@@ -300,14 +300,32 @@ function parseMessage(message) {
 
     userdata.appendChild(profilepicture);
     userdata.appendChild(username);
+    if (message.mentions) {
+        let parsedMessage = document.createElement("p");
+        parsedMessage.textContent = message.content;
 
-    messageContent.textContent = message.content;
+        message.mentions.forEach((mention) => {
+            let segConcat = document.createElement("p");
+            parsedMessage.innerHTML.split(`@${mention}`).forEach((segment) => {
+                let ping = document.createElement("span");
+                ping.class = "mention";
+                ping.textContent = cacheLookup("users", mention)[1];
+                let segElement = document.createElement("p");
+                segElement.innerText = segment;
+                segConcat.appendChild(segElement);
+                segConcat.appendChild(ping);
+            });
+            parsedMessage = segConcat;
+        });
+        parsedMessage.style.display = "inline";
+        messageContent.appendChild(parsedMessage);
+    } else messageContent.textContent = message.content;
 
     if (message.replies) {
         for (let j = 0; j < message.replies.length; j++) {
             let replyContent = document.createElement("span");
             replyContent.textContent =
-                "> " + cacheLookup("messages", message.replies[j])[2];
+                "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
             reply.appendChild(replyContent);
         }
     }
