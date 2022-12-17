@@ -1,3 +1,4 @@
+
 //
 // Variables
 //
@@ -25,6 +26,7 @@ var activeRequests = 0;
 //
 // Run on page load
 //
+
 window.onload = function() {
     token = localStorage.getItem("token");
     if (token) login();
@@ -61,6 +63,7 @@ async function fetchResource(target) {
 //
 // Main stuff
 //
+
 async function loadTheme() {
     const rawTheme = await fetch("https://api.revolt.chat/sync/settings/fetch", {
         headers: {
@@ -77,7 +80,7 @@ async function loadTheme() {
     themeVars.style.setProperty("--servers-bg", theme.background);
     themeVars.style.setProperty("--channels-bg", theme["secondary-background"]);
     themeVars.style.setProperty("--secondary-background", theme["message-box"]);
-    themeVars.style.setProperty("--accent", theme.accent);
+    // themeVars.style.setProperty("--accent", theme.accent);
     themeVars.style.setProperty("--background", theme["primary-background"]);
     themeVars.style.setProperty("--foreground", theme["foreground"]);
     themeVars.style.setProperty("--hover", theme.hover);
@@ -119,6 +122,8 @@ async function bonfire() {
 }
 
 async function login() {
+    let toggleTheme = document.querySelector("#toggleTheme");
+
     if (document.getElementById("token").value) {
         token = document.getElementById("token").value;
     }
@@ -127,7 +132,9 @@ async function login() {
         return;
     }
     localStorage.setItem("token", token);
-    loadTheme();
+    if (toggleTheme.checked == true) {
+        loadTheme();
+    }
     bonfire();
     //Hiding elements
     document.querySelector(".login-screen").style.display = "none";
@@ -205,6 +212,7 @@ function clearMessages() {
         messageContainer.removeChild(messageContainer.lastChild);
     }
 }
+
 //
 // * Processing
 //
@@ -470,6 +478,7 @@ async function loadDMs() {
             );
     }
 }
+
 //
 //Profiles
 //
@@ -528,6 +537,7 @@ async function sendMessage() {
 //
 // UX
 //
+
 let toolbar = document.querySelector(".toolbar");
 let toolbarBtn = document.querySelector(".toolbar-btn");
 toolbarBtn.addEventListener("click", () => {

@@ -2,11 +2,11 @@
 
 :root {
   /* COLORS / THEME */
-  --hover: 341, 100%, 55%;
-  --accent: 341, 100%, 55%;
+  --hover: rgba(0, 0, 0, 0.1);
+  --accent: #ff1a62;
   --servers-bg: #1a1a1a;
   --channels-bg: #141414;
-  --foreground: 0, 0%, 100%;
+  --foreground: #ffffff;
   --background: #0f0f0f;
   --secondary-background: #1a1a1a;
 
@@ -36,7 +36,7 @@ button,
 .upload-label {
   background-color: var(--secondary-background);
   border: none;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   font-size: 0.9em;
   font-family: "Roboto", sans-serif;
   padding: 0.4rem 0.7rem;
@@ -47,7 +47,7 @@ button {
 }
 
 img {
-  width: 80px;
+  width: 450px;
   border-radius: var(--border-radius);
 }
 
@@ -91,11 +91,12 @@ img {
 }
 
 .hl {
-  color: hsl(var(--accent));
+  color: var(--accent);
 }
 
 #loginoe {
-  width: 45rem;
+  width: 400px;
+  max-width: 100%;
 }
 
 #innercontainer {
@@ -107,25 +108,37 @@ img {
 }
 
 #login-btn {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   background: var(--secondary-background);
   border-radius: var(--border-radius);
   border: none;
   padding: 0.7rem 1.5rem;
 }
 
-.login-screen input {
-  color: hsl(var(--foreground));
+.theme-cb {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  font-size: small;
+}
+
+#toggleTheme {
+  width: 1.5rem;
+  outline: none;
+}
+
+.login-screen input, .theme-cb {
+  color: var(--foreground);
   background: var(--secondary-background);
   border-radius: var(--border-radius);
   line-height: 200%;
-  width: 400px;
+  width: 100%;
   border: none;
   padding: 0.3rem 1rem;
 }
 
 .login-screen input:focus {
-  outline: 1px solid hsl(var(--accent));
+  outline: 1px solid var(--accent);
 }
 
 #logged {
@@ -183,14 +196,14 @@ img {
 }
 
 /* .active-server { */
-/*     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, hsl(var(--accent)) 0px 0px 0px 3px; */
+/*     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, var(--accent) 0px 0px 0px 3px; */
 /* } */
 
 .server:hover {
   -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px,
-    hsl(var(--accent)) 0px 0px 0px 3px;
+    var(--accent) 0px 0px 0px 3px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px,
-    hsl(var(--accent)) 0px 0px 0px 3px;
+    var(--accent) 0px 0px 0px 3px;
 }
 
 .server-hr {
@@ -217,8 +230,8 @@ img {
 
 #dms {
   width: 100%;
-  background: hsla(var(--accent), 15%);
-  color: hsl(var(--accent));
+  background: var(--accent);
+  color: var(--foreground);
   font-weight: bold;
 }
 
@@ -230,7 +243,7 @@ img {
   -ms-flex-align: center;
   align-items: center;
   padding: 0.5rem 0;
-  color: hsla(var(--foreground), 60%);
+  color: var(--foreground);
   font-weight: bold;
   -webkit-transition: 0.1s;
   -o-transition: 0.1s;
@@ -330,6 +343,8 @@ img {
 
 .pfp {
   width: 40px;
+  -o-object-fit: cover;
+     object-fit: cover;
   cursor: pointer;
 }
 

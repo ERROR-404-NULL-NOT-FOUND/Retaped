@@ -25,6 +25,10 @@
                 <h4 id="loginerror" hidden="false"></h4>
                 <input id="token" type="password" autocomplete="on" placeholder="Token" />
                 <input id="inputTheme" placeholder="Theme" />
+                <div class="theme-cb">
+                    <input type="checkbox" id="toggleTheme" name="toggle-theme" value="yes">
+                    <label for="toggle-theme">Use my Revolt theme</label>
+                </div>
                 <button id="login-btn" onclick="login();">Login</button>
             </div>
             <!--
@@ -37,7 +41,7 @@
         -->
         </div>
     </div>
-    <div id="logged" hidden="true">
+    <div id="logged">
         <div id="info">
             <button id="dms" onclick="loadDMs()">DMS</button>
             <hr class="server-hr" />
