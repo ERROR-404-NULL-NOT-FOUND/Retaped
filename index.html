@@ -2,11 +2,12 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <title>Retaped</title>
     <link rel="icon" type="image/png"
-        href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png" />
-    <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+        href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png">
+    <link rel="stylesheet" href="style.css" type="text/css" media="screen">
+    <link rel="canonical" href="https://error-404-null-not-found.github.io/Retaped/">
     <!--<script src="https://js.hcaptcha.com/1/api.js" async defer></script>-->
     <script src="main.js" type="text/javascript" defer></script>
 </head>
@@ -16,7 +17,7 @@
         <div class="title">
             <h1 id="name"><span class="hl">Re</span>taped</h1>
             <h4 id="descri">
-                The revolt.chat client re-taped from the one <br />
+                The revolt.chat client re-taped from the one <br>
                 that's held together by duct tape and bad code
             </h4>
         </div>
@@ -25,8 +26,12 @@
                 <h4 id="loginerror" hidden="false"></h4>
                 <input id="token" type="password" autocomplete="on" placeholder="Token" />
                 <input id="inputTheme" placeholder="Theme" />
-                <div class="theme-cb">
-                    <input type="checkbox" id="toggleTheme" name="toggle-theme" value="yes">
+                <div class="login-cb">
+                    <input type="checkbox" id="toggleToken" name="toggle-token">
+                    <label for="toggle-token">Remember me</label>
+                </div>
+                <div class="login-cb">
+                    <input type="checkbox" id="toggleTheme" name="toggle-theme">
                     <label for="toggle-theme">Use my Revolt theme</label>
                 </div>
                 <button id="login-btn" onclick="login();">Login</button>
@@ -49,8 +54,6 @@
         </div>
 
         <div id="channelInfo">
-            <p id="theme"></p>
-            <h3 id="connected">Disconnected</h3>
             <h2 id="chanName"></h2>
             <h3 id="chanDesc"></h3>
             <div id="channels"></div>
@@ -70,8 +73,31 @@
                 </button>
             </div>
 
-            <div id="messages" hidden="true"></div>
+            <div class="app-status">
+                <p id="status">Disconnected</p>
+                -
+                <p id="theme-label">Default theme</p>
+            </div>
+
+            <div id="messages"></div>
+
             <div class="messagebar-container">
+                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
+                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+
+                <div class="error-container">
+                    <p class="error-content"></p>
+                </div>
+
+                <div class="replying-container"></div>
+                <!-- replying-message
+                     replying-content
+                     close-reply -->
+                <!-- <button hidden="true"
+                     id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
+
+                <input type="file" id="upload" />
                 <div class="toolbar">
                     <button onclick="bonfire()">Re-establish websocket</button>
                     <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
@@ -80,14 +106,6 @@
                     <button onclick="embedMessage()">Send embed</button>
                     <button onclick="contentToJson()">JSON</button>
                 </div>
-                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
-                <h5 id="error" hidden="true"></h5>
-                <h5 id="replyMsg" style="display: inline" hidden="true"></h5>
-                <!-- <button hidden="true"
-                     id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
-                <input type="file" id="upload" />
                 <div id="messagebar">
                     <button class="toolbar-btn">↑</button>
                     <label class="upload-label" for="upload">+</label>

@@ -77,13 +77,15 @@ async function loadTheme() {
     let theme = JSON.parse(rawTheme.theme[1])["appearance:theme:overrides"];
     let themeVars = document.querySelector(":root");
     themeVars.style.setProperty("--accent", theme.accent);
+    themeVars.style.setProperty("--error", theme.error);
     themeVars.style.setProperty("--servers-bg", theme.background);
     themeVars.style.setProperty("--channels-bg", theme["secondary-background"]);
     themeVars.style.setProperty("--secondary-background", theme["message-box"]);
-    // themeVars.style.setProperty("--accent", theme.accent);
     themeVars.style.setProperty("--background", theme["primary-background"]);
     themeVars.style.setProperty("--foreground", theme["foreground"]);
     themeVars.style.setProperty("--hover", theme.hover);
+    
+    document.querySelector("#theme-label").textContent = "Revolt theme";
 }
 
 async function bonfire() {
@@ -98,7 +100,7 @@ async function bonfire() {
         data = JSON.parse(event.data);
         switch (data.type) {
             case "Authenticated":
-                document.getElementById("connected").innerText = "Connected";
+                document.getElementById("status").innerText = "Connected";
                 break;
             case "Message":
                 if (data.channel == activeChannel) {
@@ -106,7 +108,8 @@ async function bonfire() {
                 }
                 break;
             case "Error":
-                document.getElementById("error").innerText = data.error;
+                document.querySelector(".error-container").style.display = "block";
+                document.querySelector(".error-content").textContent = data.error;
                 break;
             case "Ready":
                 buildServerCache(data.servers);
@@ -123,6 +126,7 @@ async function bonfire() {
 
 async function login() {
     let toggleTheme = document.querySelector("#toggleTheme");
+    let toggleToken = document.querySelector("#toggleToken");
 
     if (document.getElementById("token").value) {
         token = document.getElementById("token").value;
@@ -131,19 +135,16 @@ async function login() {
         showError("Login failed");
         return;
     }
-    localStorage.setItem("token", token);
+    if (toggleToken.checked == true) {
+        localStorage.setItem("token", token);
+    }
     if (toggleTheme.checked == true) {
         loadTheme();
     }
     bonfire();
-    //Hiding elements
+    // Hide & show
     document.querySelector(".login-screen").style.display = "none";
-    //Showing elements
     document.getElementById("logged").style.display = "grid";
-    //Showing elements
-    document.getElementById("logged").hidden = false;
-    document.getElementById("messages").hidden = false;
-    document.getElementById("replyMsg").hidden = false;
 }
 
 async function getServers() {
@@ -275,15 +276,12 @@ function parseMessage(message) {
     let userdata = document.createElement("div");
     let username = document.createElement("button");
     let profilepicture = document.createElement("img");
-    let reply = document.createElement("div");
     let replyButton = document.createElement("button");
-    let attachments = document.createElement("div");
 
     messageDisplay.classList.add("message-display");
     profilepicture.classList.add("pfp");
     userdata.classList.add("userdata");
     username.classList.add("username");
-    reply.classList.add("reply-content");
     replyButton.classList.add("reply-btn");
     messageContent.classList.add("message-content");
 
@@ -313,32 +311,48 @@ function parseMessage(message) {
         parsedMessage.textContent = message.content;
 
         message.mentions.forEach((mention) => {
-            let segConcat = document.createElement("p");
+            let segConcat = document.createElement("div");
+            segConcat.classList.add("mention-container");
+            
             parsedMessage.innerHTML.split(`@${mention}`).forEach((segment) => {
                 let ping = document.createElement("span");
-                ping.class = "mention";
+                ping.classList.add("mention");
                 ping.textContent = cacheLookup("users", mention)[1];
                 let segElement = document.createElement("p");
-                segElement.innerText = segment;
+                segElement.innerHTML = segment;
                 segConcat.appendChild(segElement);
                 segConcat.appendChild(ping);
             });
             parsedMessage = segConcat;
         });
-        parsedMessage.style.display = "inline";
+        // parsedMessage.style.display = "inline";
         messageContent.appendChild(parsedMessage);
+        /* message content > mention + paragraph */
     } else messageContent.textContent = message.content;
 
     if (message.replies) {
+        let reply = document.createElement("div");
+        reply.classList.add("reply-content");
         for (let j = 0; j < message.replies.length; j++) {
             let replyContent = document.createElement("span");
             replyContent.textContent =
                 "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
             reply.appendChild(replyContent);
         }
+        messageDisplay.appendChild(reply);  
     }
 
+    messageDisplay.appendChild(userdata);
+    messageDisplay.appendChild(messageContent);
+
+    messageDisplay.id = message._id;
+    messageDisplay.class = "message";
+
+    messageContainer.appendChild(messageDisplay);
+
     if (message.attachments) {
+        let attachments = document.createElement("div");
+        attachments.classList.add("message-attachments");
         message.attachments.forEach((tmpAtchmntAttrs) => {
             let tmpAttachment;
             if (tmpAtchmntAttrs.content_type.startsWith("image")) {
@@ -347,8 +361,8 @@ function parseMessage(message) {
             } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
                 tmpAttachment = document.createElement("video");
                 tmpAttachment.controls = true;
-                tmpAttachment.style.maxWidth = "20%";
-                tmpAttachment.style.maxHeight = "20%";
+                tmpAttachment.style.maxWidth = "30%";
+                tmpAttachment.style.maxHeight = "30%";
                 let subAttachment = document.createElement("source");
                 subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
                 subAttachment.type = tmpAtchmntAttrs.content_type;
@@ -377,6 +391,7 @@ function parseMessage(message) {
             }
             attachments.appendChild(tmpAttachment);
         });
+        messageDisplay.appendChild(attachments);
     }
 
     replyButton.onclick = () => {
@@ -384,22 +399,13 @@ function parseMessage(message) {
             id: message["_id"],
             mention: false,
         });
-        const replyText = document.createElement("span");
-        replyText.textContent = "> " + message.content;
-        document.getElementById("replyMsg").appendChild(replyText);
+        const replyText = document.createElement("p");
+        replyText.textContent = message.content;
+        document.querySelector(".replying-container").appendChild(replyText);
+        replyText.classList.add("replying-content");
     };
     replyButton.innerText = "Reply";
-
     userdata.appendChild(replyButton);
-    messageDisplay.appendChild(userdata);
-    messageDisplay.appendChild(reply);
-    messageDisplay.appendChild(messageContent);
-    messageDisplay.appendChild(attachments);
-
-    messageDisplay.id = message._id;
-    messageDisplay.class = "message";
-
-    messageContainer.appendChild(messageDisplay);
 }
 
 async function getMessages(id) {
@@ -480,7 +486,7 @@ async function loadDMs() {
 }
 
 //
-//Profiles
+// Profiles
 //
 
 async function loadProfile(userID) {
@@ -532,6 +538,7 @@ async function sendMessage() {
     });
     messageContainer.value = "";
     activeReplies = [];
+    document.querySelector(".replying-container").replaceChildren();
 }
 
 //
