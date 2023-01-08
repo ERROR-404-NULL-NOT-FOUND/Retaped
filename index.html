@@ -16,45 +16,44 @@
     <div class="login-screen">
         <div class="title">
             <h1 id="name"><span class="hl">Re</span>taped</h1>
-            <h4 id="descri">
+            <h4 id="desc">
                 The revolt.chat client re-taped from the one <br>
                 that's held together by duct tape and bad code
             </h4>
         </div>
         <div id="loginoe">
-            <div id="innercontainer">
-                <h4 id="loginerror" hidden="false"></h4>
-                <div style="display:inline">
-                <h1>Login method</h1>
-                <div style="display:inline">
-                    <h2>Token</h2>
-                    <input id="token" type="password" autocomplete="on" placeholder="Token" />
-                </div tokenlogin>
-                <h1 style="display:inline"> or </h1>
-                <div id='passwordAuth' style="display:inline">
-                    <h2>Email/Password<h2>
-                    <input id="email" autocomplete="on" placeholder="Email address">
-                    <input id="password" autocomplete="on" placeholder="Password" type="password">
-                </div>
-                </div>
-                <h1>Preferences</h1>
-                <div class="login-cb">
-                    <input type="checkbox" id="toggleTheme" name="toggle-theme">
-                    <label for="toggle-theme">Use my Revolt theme</label>
-                </div>
-                <div class="login-cb">
-                    <input type="checkbox" id="toggleToken" name="toggle-token" default=true>
-                    <label for="toggle-token">Remember me</label>
-                </div>
-                <button id="login-btn" onclick="login();">Login</button>
+            <span id="loginerror" hidden="false"></span>
+            <form class="login-form">
+	            <fieldset>
+	            	<legend>Login method</legend>
 
-        </div>
+	                <label>Email/Password</label>
+	                <input id="email" autocomplete="on" placeholder="Email address" type="email">
+	                <input id="password" placeholder="Password" type="password">
+
+		            <p class="login-sep">OR</p>
+
+	            	<label>Token</label>
+	                <input id="token" type="password" autocomplete="off" placeholder="Token">
+	            </fieldset>
+
+	            <fieldset>
+	            	<legend>Preferences</legend>
+	                <input type="checkbox" id="toggleTheme" name="toggle-theme" default="false">
+	                <label for="toggle-theme">Use my Revolt theme</label>
+
+	                <input type="checkbox" id="toggleToken" name="toggle-token" default="false">
+	                <label for="toggle-token">Remember me</label>
+	            </fieldset>
+	            <button id="login-btn" onclick="login();">Login</button>
+            </form>
+	        </div>
     </div>
     </div>
     <div id="logged">
         <div id="info">
             <button id="dms" onclick="loadDMs()">DMS</button>
-            <hr class="server-hr" />
+            <hr class="server-hr">
             <div id="servers"></div>
         </div>
 
