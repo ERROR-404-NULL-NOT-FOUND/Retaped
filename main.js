@@ -7,7 +7,7 @@ var cache = {
   users: [],
   //0 is id, 1 is name
   channels: [],
-  //0 is id, 1 is name
+  //0 is id, 1 is name, 2 is server icon id, 3 is roles, 4 is members
   servers: [],
   //0 is id, 1 is author, 2 is content
   messages: [],
@@ -15,8 +15,8 @@ var cache = {
 
 var activeReplies = [];
 
+var activeServer;
 var activeChannel;
-var currentReply;
 var token;
 var socket;
 var userProfile;
@@ -41,11 +41,35 @@ function processKeyPress(event) {
   }
 }
 
-function cacheLookup(resource, ID) {
+function cacheLookup(resource, ID, serverID = null) {
+  if (resource === 'members' || resource === 'roles') {
+    for (let i = 0; i < cache.servers.length; i++) {
+      if (cache.servers[i][0] === serverID) {
+        const index = resource === 'members' ? 4 : 3;
+        if (resource === 'members'){
+          for (let j=0; j < cache.servers[i][index].length; j++) {
+            if (cache.servers[i][index][j]._id.user === ID) return cache.servers[i][index][j];
+          }
+        } else {
+          for (const role in cache.servers[i][index]){
+            if (role === ID) return cache.servers[i][index][role];
+          }
+        }
+      }
+    }
+    return 1;
+  }
   for (let i = 0; i < cache[resource].length; i++) {
     if (cache[resource][i][0] === ID) return cache[resource][i];
   }
-  return "Unable to load resource";
+  return 1;
+}
+
+function cacheIndexLookup(resource, ID) {
+  for (let i = 0; i < cache[resource].length; i++) {
+    if (cache[resource][i][0] === ID) return i;
+  }
+  return 1;
 }
 
 async function fetchResource(target) {
@@ -178,6 +202,7 @@ async function getServers() {
     let server = document.createElement("button");
 
     server.onclick = () => {
+      activeServer = cache.servers[i][0];
       getChannels(cache.servers[i][0]);
     };
 
@@ -284,12 +309,16 @@ async function buildServerCache(servers) {
       servers[i]["_id"],
       servers[i]["name"],
       servers[i].icon ? servers[i].icon._id : null,
+      servers[i].roles,
+      []
     ]);
   }
   getServers();
 }
 
 function parseMessage(message) {
+  const member = cacheLookup('members', message.author, activeServer);
+
   const messageContainer = document.getElementById("messages");
   cache.messages.push([message._id, message.author, message.content]);
 
@@ -309,15 +338,33 @@ function parseMessage(message) {
 
   const user = cacheLookup("users", message.author);
   if (!message.masquerade) {
-    username.textContent = user[1];
 
-    profilepicture.src = user[2]
+    username.textContent = member.nickname ? member.nickname : user[1];
+
+    profilepicture.src = member.avatar ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
+    : user[2]
       ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
       : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+
+    if (member.roles) {
+      for (let i=member.roles.length+1; i >= 0; i--) {
+        let tmpColour;
+        if (tmpColour = cacheLookup('roles', member.roles[i], activeServer)['colour']) {
+          username.style.color = tmpColour;
+          break;
+        }
+      }
+    }
   } else {
     username.textContent = message.masquerade.name;
-    profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
+
+    if (message.masquerade.avatar) {
+      profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`
+    } else { profilepicture.src = user[2]
+    ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+    : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
     username.style.color = message.masquerade.colour;
+    }
   }
   username.onclick = () => {
     loadProfile(user[0]);
@@ -446,7 +493,13 @@ async function getMessages(id) {
   const users = placeholder.users;
 
   for (let i = 0; i < users.length; i++) {
+    if (cacheLookup('users', users[i] === 1))
     cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
+  }
+  const members = placeholder.members
+  for (let i=0; i < members.length; i++) {
+    if (cacheLookup('members', members[i]._id.user, activeServer) === 1)
+    cache.servers[cacheIndexLookup("servers", activeServer)][4].push(members[i]);
   }
 
   clearMessages();
