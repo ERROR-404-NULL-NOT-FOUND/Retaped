@@ -7,6 +7,7 @@ var cache = {
   users: [],
   //0 is id, 1 is name
   channels: [],
+  categories: [],
   //0 is id, 1 is name, 2 is server icon id, 3 is roles, 4 is members
   servers: [],
   //0 is id, 1 is author, 2 is content
@@ -200,7 +201,6 @@ async function getServers() {
   }
   for (let i = 0; i < cache.servers.length; i++) {
     let server = document.createElement("button");
-
     server.onclick = () => {
       activeServer = cache.servers[i][0];
       getChannels(cache.servers[i][0]);
@@ -235,23 +235,37 @@ async function getChannels(id) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
 
-  for (let i = 0; i < cache.channels.length; i++) {
-    if (cache.channels[i][2] !== "TextChannel") continue;
-    if (cache.channels[i][3] !== id) continue;
-    let channel = document.createElement("button");
+  cache.servers[cacheIndexLookup('servers',activeServer)][5].forEach((category) => {
+    let categoryContainer = document.createElement('div');
+    let categoryText = document.createElement('span');
+    console.log(category)
+    categoryText.textContent = category.title;
+    categoryText.classList.add('categoryText');
+    categoryContainer.appendChild(categoryText);
 
-    channel.onclick = () => {
-      getMessages(cache.channels[i][0]);
-    };
+    for (let j = 0; j < category.channels.length; j++){
 
-    let channelText = document.createElement("span");
-    channelText.className = "channel";
-    channelText.id = cache.channels[i][0];
-    channelText.innerText = cache.channels[i][1];
+      const currentChannel = cacheLookup('channels', category.channels[j]);
 
-    channel.appendChild(channelText);
-    channelContainer.appendChild(channel);
-  }
+      if (currentChannel[2] !== "TextChannel") continue;
+      if (currentChannel[3] !== id) continue;
+
+      let channel = document.createElement("button");
+
+      channel.onclick = () => {
+        getMessages(currentChannel[0]);
+      };
+
+      let channelText = document.createElement("span");
+      channelText.className = "channel";
+      channelText.id = currentChannel[0];
+      channelText.innerText = currentChannel[1];
+
+      channel.appendChild(channelText);
+      categoryContainer.appendChild(channel);
+    }
+    channelContainer.appendChild(categoryContainer);
+  });
 }
 
 function clearMessages() {
@@ -266,6 +280,7 @@ function clearMessages() {
 //
 
 async function buildChannelCache(channels) {
+  let categories = {};
   for (let i = 0; i < channels.length; i++) {
     switch (channels[i].channel_type) {
       case "TextChannel":
@@ -291,6 +306,24 @@ async function buildChannelCache(channels) {
         ]);
     }
   }
+
+  for (const server in cache.servers) {
+    cache.servers[server][5].forEach((category) => {
+      let tmpCategory = [];
+      category.channels.forEach((channel) => {
+        let anthTmpChannel;
+        for(tmpChannel in channels) {
+          if(channels[tmpChannel]._id === channel)  {
+            anthTmpChannel = tmpChannel;
+            break;
+          }
+        }
+        tmpCategory.push(channels[anthTmpChannel]);
+      })
+      
+      cache.categories.push({[category]: tmpCategory});
+    });
+  }
 }
 
 async function buildUserCache(users) {
@@ -310,7 +343,8 @@ async function buildServerCache(servers) {
       servers[i]["name"],
       servers[i].icon ? servers[i].icon._id : null,
       servers[i].roles,
-      []
+      [],
+      servers[i].categories
     ]);
   }
   getServers();
