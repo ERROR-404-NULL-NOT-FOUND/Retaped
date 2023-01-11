@@ -7,7 +7,8 @@ var cache = {
   users: [],
   //0 is id, 1 is name
   channels: [],
-  //0 is id, 1 is name
+  categories: [],
+  //0 is id, 1 is name, 2 is server icon id, 3 is roles, 4 is members
   servers: [],
   //0 is id, 1 is author, 2 is content
   messages: [],
@@ -15,8 +16,8 @@ var cache = {
 
 var activeReplies = [];
 
+var activeServer;
 var activeChannel;
-var currentReply;
 var token;
 var socket;
 var userProfile;
@@ -41,11 +42,35 @@ function processKeyPress(event) {
   }
 }
 
-function cacheLookup(resource, ID) {
+function cacheLookup(resource, ID, serverID = null) {
+  if (resource === 'members' || resource === 'roles') {
+    for (let i = 0; i < cache.servers.length; i++) {
+      if (cache.servers[i][0] === serverID) {
+        const index = resource === 'members' ? 4 : 3;
+        if (resource === 'members'){
+          for (let j=0; j < cache.servers[i][index].length; j++) {
+            if (cache.servers[i][index][j]._id.user === ID) return cache.servers[i][index][j];
+          }
+        } else {
+          for (const role in cache.servers[i][index]){
+            if (role === ID) return cache.servers[i][index][role];
+          }
+        }
+      }
+    }
+    return 1;
+  }
   for (let i = 0; i < cache[resource].length; i++) {
     if (cache[resource][i][0] === ID) return cache[resource][i];
   }
-  return "Unable to load resource";
+  return 1;
+}
+
+function cacheIndexLookup(resource, ID) {
+  for (let i = 0; i < cache[resource].length; i++) {
+    if (cache[resource][i][0] === ID) return i;
+  }
+  return 1;
 }
 
 async function fetchResource(target) {
@@ -123,6 +148,7 @@ async function bonfire() {
   });
 }
 
+
 async function login() {
   let toggleTheme = document.querySelector("#toggleTheme");
   let toggleToken = document.querySelector("#toggleToken");
@@ -176,8 +202,8 @@ async function getServers() {
   }
   for (let i = 0; i < cache.servers.length; i++) {
     let server = document.createElement("button");
-
     server.onclick = () => {
+      activeServer = cache.servers[i][0];
       getChannels(cache.servers[i][0]);
     };
 
@@ -204,29 +230,47 @@ async function getServers() {
 }
 
 async function getChannels(id) {
-  let channelContainer = document.getElementById("channels");
+	let channelContainer = document.getElementById("channels");
 
   while (channelContainer.hasChildNodes()) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
 
-  for (let i = 0; i < cache.channels.length; i++) {
-    if (cache.channels[i][2] !== "TextChannel") continue;
-    if (cache.channels[i][3] !== id) continue;
-    let channel = document.createElement("button");
+  cache.servers[cacheIndexLookup('servers',activeServer)][5].forEach((category) => {
+    let categoryContainer = document.createElement('details');
+    let categoryText = document.createElement('summary');
 
-    channel.onclick = () => {
-      getMessages(cache.channels[i][0]);
-    };
+	categoryContainer.open = true;
+	categoryContainer.classList.add("channel-category");
 
-    let channelText = document.createElement("span");
-    channelText.className = "channel";
-    channelText.id = cache.channels[i][0];
-    channelText.innerText = cache.channels[i][1];
+    console.log(category)
+    categoryText.textContent = category.title;
+    categoryText.classList.add('categoryText');
+    categoryContainer.appendChild(categoryText);
 
-    channel.appendChild(channelText);
-    channelContainer.appendChild(channel);
-  }
+    for (let j = 0; j < category.channels.length; j++){
+
+      const currentChannel = cacheLookup('channels', category.channels[j]);
+
+      if (currentChannel[2] !== "TextChannel") continue;
+      if (currentChannel[3] !== id) continue;
+
+      let channel = document.createElement("button");
+      channel.classList.add("channel");
+
+      channel.onclick = () => {
+        getMessages(currentChannel[0]);
+      };
+
+      let channelText = document.createElement("span");
+      channelText.id = currentChannel[0];
+      channelText.innerText = currentChannel[1];
+
+      channel.appendChild(channelText);
+      categoryContainer.appendChild(channel);
+    }
+    channelContainer.appendChild(categoryContainer);
+  });
 }
 
 function clearMessages() {
@@ -241,6 +285,7 @@ function clearMessages() {
 //
 
 async function buildChannelCache(channels) {
+  let categories = {};
   for (let i = 0; i < channels.length; i++) {
     switch (channels[i].channel_type) {
       case "TextChannel":
@@ -266,6 +311,24 @@ async function buildChannelCache(channels) {
         ]);
     }
   }
+
+  for (const server in cache.servers) {
+    cache.servers[server][5].forEach((category) => {
+      let tmpCategory = [];
+      category.channels.forEach((channel) => {
+        let anthTmpChannel;
+        for(tmpChannel in channels) {
+          if(channels[tmpChannel]._id === channel)  {
+            anthTmpChannel = tmpChannel;
+            break;
+          }
+        }
+        tmpCategory.push(channels[anthTmpChannel]);
+      })
+      
+      cache.categories.push({[category]: tmpCategory});
+    });
+  }
 }
 
 async function buildUserCache(users) {
@@ -284,12 +347,17 @@ async function buildServerCache(servers) {
       servers[i]["_id"],
       servers[i]["name"],
       servers[i].icon ? servers[i].icon._id : null,
+      servers[i].roles,
+      [],
+      servers[i].categories
     ]);
   }
   getServers();
 }
 
 function parseMessage(message) {
+  const member = cacheLookup('members', message.author, activeServer);
+
   const messageContainer = document.getElementById("messages");
   cache.messages.push([message._id, message.author, message.content]);
 
@@ -301,7 +369,7 @@ function parseMessage(message) {
   let replyButton = document.createElement("button");
 
   messageDisplay.classList.add("message-display");
-  profilepicture.classList.add("pfp");
+  profilepicture.classList.add("chat-pfp");
   userdata.classList.add("userdata");
   username.classList.add("username");
   replyButton.classList.add("reply-btn");
@@ -309,15 +377,33 @@ function parseMessage(message) {
 
   const user = cacheLookup("users", message.author);
   if (!message.masquerade) {
-    username.textContent = user[1];
 
-    profilepicture.src = user[2]
+    username.textContent = member.nickname ? member.nickname : user[1];
+
+    profilepicture.src = member.avatar ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
+    : user[2]
       ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
       : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+
+    if (member.roles) {
+      for (let i=member.roles.length+1; i >= 0; i--) {
+        let tmpColour;
+        if (tmpColour = cacheLookup('roles', member.roles[i], activeServer)['colour']) {
+          username.style.color = tmpColour;
+          break;
+        }
+      }
+    }
   } else {
     username.textContent = message.masquerade.name;
-    profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
+
+    if (message.masquerade.avatar) {
+      profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`
+    } else { profilepicture.src = user[2]
+    ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+    : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
     username.style.color = message.masquerade.colour;
+    }
   }
   username.onclick = () => {
     loadProfile(user[0]);
@@ -347,9 +433,7 @@ function parseMessage(message) {
       });
       parsedMessage = segConcat;
     });
-    // parsedMessage.style.display = "inline";
     messageContent.appendChild(parsedMessage);
-    /* message content > mention + paragraph */
   } else messageContent.textContent = message.content;
 
   if (message.replies) {
@@ -446,7 +530,13 @@ async function getMessages(id) {
   const users = placeholder.users;
 
   for (let i = 0; i < users.length; i++) {
+    if (cacheLookup('users', users[i] === 1))
     cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
+  }
+  const members = placeholder.members
+  for (let i=0; i < members.length; i++) {
+    if (cacheLookup('members', members[i]._id.user, activeServer) === 1)
+    cache.servers[cacheIndexLookup("servers", activeServer)][4].push(members[i]);
   }
 
   clearMessages();
@@ -477,11 +567,14 @@ async function loadDMs() {
   }
   activeRequests = 0;
 
+  let dmBody = document.createElement("div");
+
   for (let i = 0; i < cache.channels.length; i++) {
     //Checking for only DMs
     if (!["DirectMessage", "Group"].includes(cache.channels[i][2])) continue;
 
     const dmButton = document.createElement("button");
+    dmButton.classList.add("channel");
 
     dmButton.textContent =
       cache.channels[i][2] === "Group"
@@ -494,10 +587,9 @@ async function loadDMs() {
       getMessages(cache.channels[i][0]);
     };
 
-    dmButton.class = "channel";
     dmButton.id = cache.channels[i][0];
 
-    channelContainer.appendChild(dmButton);
+    dmBody.appendChild(dmButton);
     if (cache.channels[i][2] === "DirectMessage")
       loadDMUserName(dmButton.textContent).then(
         (data) =>
@@ -505,6 +597,7 @@ async function loadDMs() {
             data.username)
       );
   }
+  channelContainer.appendChild(dmBody);
 }
 
 //
@@ -565,7 +658,7 @@ async function sendMessage() {
 }
 
 //
-// UX
+// UI/UX
 //
 
 let toolbar = document.querySelector(".toolbar");
