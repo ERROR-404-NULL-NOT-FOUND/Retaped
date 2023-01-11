@@ -441,7 +441,6 @@ fieldset legend {
   max-width: 550px;
   max-height: 550px;
   object-fit: contain;
-  border-radius: var(--border-radius);
 }
 
 .reply-btn {

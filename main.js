@@ -254,7 +254,6 @@ async function getChannels(id) {
 
       if (currentChannel[2] !== "TextChannel") continue;
       if (currentChannel[3] !== id) continue;
-      // currentChannel.classList.add("current-channel");
 
       let channel = document.createElement("button");
       channel.classList.add("channel");
@@ -264,7 +263,6 @@ async function getChannels(id) {
       };
 
       let channelText = document.createElement("span");
-      // channelText.className = "channel";
       channelText.id = currentChannel[0];
       channelText.innerText = currentChannel[1];
 
@@ -435,9 +433,7 @@ function parseMessage(message) {
       });
       parsedMessage = segConcat;
     });
-    // parsedMessage.style.display = "inline";
     messageContent.appendChild(parsedMessage);
-    /* message content > mention + paragraph */
   } else messageContent.textContent = message.content;
 
   if (message.replies) {
@@ -662,7 +658,7 @@ async function sendMessage() {
 }
 
 //
-// UX
+// UI/UX
 //
 
 let toolbar = document.querySelector(".toolbar");
