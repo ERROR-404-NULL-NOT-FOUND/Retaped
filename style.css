@@ -39,6 +39,8 @@ a:hover {
   text-decoration: underline;
 }
 
+img { border-radius: var(--border-radius); }
+
 button,
 #input,
 .upload-label {
@@ -52,11 +54,6 @@ button,
 
 button {
   cursor: pointer;
-}
-
-img {
-  width: 450px;
-  border-radius: var(--border-radius);
 }
 
 .login-screen {
@@ -204,13 +201,11 @@ fieldset legend {
     var(--accent) 0px 0px 0px 3px;
 }
 
-.server-hr {
-  width: 20px;
-}
+.server-hr { width: 20px; }
 
 #chanName { font-size: 1.4em; }
 
-#channels {
+#channels, .channel-category {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -221,9 +216,12 @@ fieldset legend {
   gap: 0.3rem;
 }
 
-#channels button,
+#channels { gap: 1rem; }
+
+.channel-category summary { cursor: pointer; }
+
+.channel,
 #dms {
-  padding: 0.7rem 0;
   border-radius: var(--border-radius);
   border: none;
 }
@@ -233,16 +231,19 @@ fieldset legend {
   background: var(--accent);
   color: var(--foreground);
   font-weight: bold;
+  padding: 0.7rem 0;
 }
 
-#channels button {
+.channel {
+	width: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  padding: 0.5rem 0;
+  padding: 0.4rem 0;
+  margin: 0.3rem 0;
   color: var(--foreground);
   font-weight: bold;
   -webkit-transition: 0.1s;
@@ -260,6 +261,10 @@ fieldset legend {
 
 #channels button:hover {
   background: var(--hover);
+}
+
+.current-channel {
+	background: red;
 }
 
 #info,
@@ -326,7 +331,10 @@ fieldset legend {
 }
 
 #profilePicture {
-  width: 70px;
+	--ratio: 70px;
+	width: var(--ratio);
+	height: var(--ratio);
+	object-fit: cover;
 }
 
 #bio {
@@ -342,7 +350,7 @@ fieldset legend {
   display: flex;
 }
 
-.pfp {
+.chat-pfp {
   --ratio: 40px;
   width: var(--ratio);
   height: var(--ratio);
@@ -352,8 +360,8 @@ fieldset legend {
 }
 
 .username {
-  font-weight: bold;
-  background: none;
+	font-weight: bold;
+	background: none;
 }
 
 .username:hover {
@@ -391,7 +399,8 @@ fieldset legend {
 }
 
 .message-display {
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 1rem;
+  margin: 0.3rem 0;
 }
 
 .message-display:hover {
@@ -424,7 +433,14 @@ fieldset legend {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
+  align-items: flex-start;
   gap: .3rem;
+}
+
+.message-attachments img {
+  max-width: 550px;
+  max-height: 550px;
+  object-fit: contain;
 }
 
 .reply-btn {

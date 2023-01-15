@@ -148,6 +148,7 @@ async function bonfire() {
   });
 }
 
+
 async function login() {
   let toggleTheme = document.querySelector("#toggleTheme");
   let toggleToken = document.querySelector("#toggleToken");
@@ -229,15 +230,19 @@ async function getServers() {
 }
 
 async function getChannels(id) {
-  let channelContainer = document.getElementById("channels");
+	let channelContainer = document.getElementById("channels");
 
   while (channelContainer.hasChildNodes()) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
 
   cache.servers[cacheIndexLookup('servers',activeServer)][5].forEach((category) => {
-    let categoryContainer = document.createElement('div');
-    let categoryText = document.createElement('span');
+    let categoryContainer = document.createElement('details');
+    let categoryText = document.createElement('summary');
+
+	categoryContainer.open = true;
+	categoryContainer.classList.add("channel-category");
+
     console.log(category)
     categoryText.textContent = category.title;
     categoryText.classList.add('categoryText');
@@ -251,13 +256,13 @@ async function getChannels(id) {
       if (currentChannel[3] !== id) continue;
 
       let channel = document.createElement("button");
+      channel.classList.add("channel");
 
       channel.onclick = () => {
         getMessages(currentChannel[0]);
       };
 
       let channelText = document.createElement("span");
-      channelText.className = "channel";
       channelText.id = currentChannel[0];
       channelText.innerText = currentChannel[1];
 
@@ -364,7 +369,7 @@ function parseMessage(message) {
   let replyButton = document.createElement("button");
 
   messageDisplay.classList.add("message-display");
-  profilepicture.classList.add("pfp");
+  profilepicture.classList.add("chat-pfp");
   userdata.classList.add("userdata");
   username.classList.add("username");
   replyButton.classList.add("reply-btn");
@@ -428,9 +433,7 @@ function parseMessage(message) {
       });
       parsedMessage = segConcat;
     });
-    // parsedMessage.style.display = "inline";
     messageContent.appendChild(parsedMessage);
-    /* message content > mention + paragraph */
   } else messageContent.textContent = message.content;
 
   if (message.replies) {
@@ -564,11 +567,14 @@ async function loadDMs() {
   }
   activeRequests = 0;
 
+  let dmBody = document.createElement("div");
+
   for (let i = 0; i < cache.channels.length; i++) {
     //Checking for only DMs
     if (!["DirectMessage", "Group"].includes(cache.channels[i][2])) continue;
 
     const dmButton = document.createElement("button");
+    dmButton.classList.add("channel");
 
     dmButton.textContent =
       cache.channels[i][2] === "Group"
@@ -581,10 +587,9 @@ async function loadDMs() {
       getMessages(cache.channels[i][0]);
     };
 
-    dmButton.class = "channel";
     dmButton.id = cache.channels[i][0];
 
-    channelContainer.appendChild(dmButton);
+    dmBody.appendChild(dmButton);
     if (cache.channels[i][2] === "DirectMessage")
       loadDMUserName(dmButton.textContent).then(
         (data) =>
@@ -592,6 +597,7 @@ async function loadDMs() {
             data.username)
       );
   }
+  channelContainer.appendChild(dmBody);
 }
 
 //
@@ -652,7 +658,7 @@ async function sendMessage() {
 }
 
 //
-// UX
+// UI/UX
 //
 
 let toolbar = document.querySelector(".toolbar");
