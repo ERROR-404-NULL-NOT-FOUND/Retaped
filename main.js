@@ -27,7 +27,7 @@ var activeRequests = 0;
 // Run on page load
 //
 
-window.onload = function () {
+window.onload = function() {
   token = localStorage.getItem("token");
   if (token) login();
 };
@@ -43,16 +43,17 @@ function processKeyPress(event) {
 }
 
 function cacheLookup(resource, ID, serverID = null) {
-  if (resource === 'members' || resource === 'roles') {
+  if (resource === "members" || resource === "roles") {
     for (let i = 0; i < cache.servers.length; i++) {
       if (cache.servers[i][0] === serverID) {
-        const index = resource === 'members' ? 4 : 3;
-        if (resource === 'members'){
-          for (let j=0; j < cache.servers[i][index].length; j++) {
-            if (cache.servers[i][index][j]._id.user === ID) return cache.servers[i][index][j];
+        const index = resource === "members" ? 4 : 3;
+        if (resource === "members") {
+          for (let j = 0; j < cache.servers[i][index].length; j++) {
+            if (cache.servers[i][index][j]._id.user === ID)
+              return cache.servers[i][index][j];
           }
         } else {
-          for (const role in cache.servers[i][index]){
+          for (const role in cache.servers[i][index]) {
             if (role === ID) return cache.servers[i][index][role];
           }
         }
@@ -80,8 +81,13 @@ async function fetchResource(target) {
       "x-session-token": token,
     },
     method: "GET",
-  });
-  return res.json();
+  })
+    .then((res) => res.json())
+    .catch((error) => {
+      console.log(error);
+      return false;
+    });
+  return res;
 }
 
 //
@@ -115,11 +121,11 @@ async function loadTheme() {
 async function bonfire() {
   socket = new WebSocket("wss://ws.revolt.chat");
 
-  socket.addEventListener("open", async function (event) {
+  socket.addEventListener("open", async function(event) {
     socket.send(`{"type": "Authenticate","token": "${token}"}`);
   });
 
-  socket.addEventListener("message", async function (event) {
+  socket.addEventListener("message", async function(event) {
     let data;
     data = JSON.parse(event.data);
     switch (data.type) {
@@ -143,17 +149,16 @@ async function bonfire() {
     }
   });
 
-  socket.addEventListener("error", async function (event) {
+  socket.addEventListener("error", async function(event) {
     document.getElementById("error");
   });
 }
-
 
 async function login() {
   let toggleTheme = document.querySelector("#toggleTheme");
   let toggleToken = document.querySelector("#toggleToken");
 
-  if (document.getElementById("token").value) {
+  if (document.getElementById("token").value !== "") {
     token = document.getElementById("token").value;
   } else if (
     document.getElementById("email").value != "" &&
@@ -178,13 +183,18 @@ async function login() {
     } else {
       console.log("login failed");
     }
-  }
-  if ((userProfile = await fetchResource("users/@me")) === false) {
-    showError("Login failed");
+  } else {
+    console.log(
+      "No login method provided, how the fuck do you expect to log in?"
+    );
     return;
   }
+  //if ((userProfile = await fetchResource("users/@me")) === false) {
+  //  console.log("Login failed");
+  //  return 1;
+  //}
+  localStorage.setItem("token", token);
   if (toggleToken.checked == true) {
-    localStorage.setItem("token", token);
   }
   if (toggleTheme.checked == true) {
     loadTheme();
@@ -230,47 +240,48 @@ async function getServers() {
 }
 
 async function getChannels(id) {
-	let channelContainer = document.getElementById("channels");
+  let channelContainer = document.getElementById("channels");
 
   while (channelContainer.hasChildNodes()) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
 
-  cache.servers[cacheIndexLookup('servers',activeServer)][5].forEach((category) => {
-    let categoryContainer = document.createElement('details');
-    let categoryText = document.createElement('summary');
+  cache.servers[cacheIndexLookup("servers", activeServer)][5].forEach(
+    (category) => {
+      let categoryContainer = document.createElement("details");
+      let categoryText = document.createElement("summary");
 
-	categoryContainer.open = true;
-	categoryContainer.classList.add("channel-category");
+      categoryContainer.open = true;
+      categoryContainer.classList.add("channel-category");
 
-    console.log(category)
-    categoryText.textContent = category.title;
-    categoryText.classList.add('categoryText');
-    categoryContainer.appendChild(categoryText);
+      console.log(category);
+      categoryText.textContent = category.title;
+      categoryText.classList.add("categoryText");
+      categoryContainer.appendChild(categoryText);
 
-    for (let j = 0; j < category.channels.length; j++){
+      for (let j = 0; j < category.channels.length; j++) {
+        const currentChannel = cacheLookup("channels", category.channels[j]);
 
-      const currentChannel = cacheLookup('channels', category.channels[j]);
+        if (currentChannel[2] !== "TextChannel") continue;
+        if (currentChannel[3] !== id) continue;
 
-      if (currentChannel[2] !== "TextChannel") continue;
-      if (currentChannel[3] !== id) continue;
+        let channel = document.createElement("button");
+        channel.classList.add("channel");
 
-      let channel = document.createElement("button");
-      channel.classList.add("channel");
+        channel.onclick = () => {
+          getMessages(currentChannel[0]);
+        };
 
-      channel.onclick = () => {
-        getMessages(currentChannel[0]);
-      };
+        let channelText = document.createElement("span");
+        channelText.id = currentChannel[0];
+        channelText.innerText = currentChannel[1];
 
-      let channelText = document.createElement("span");
-      channelText.id = currentChannel[0];
-      channelText.innerText = currentChannel[1];
-
-      channel.appendChild(channelText);
-      categoryContainer.appendChild(channel);
+        channel.appendChild(channelText);
+        categoryContainer.appendChild(channel);
+      }
+      channelContainer.appendChild(categoryContainer);
     }
-    channelContainer.appendChild(categoryContainer);
-  });
+  );
 }
 
 function clearMessages() {
@@ -317,16 +328,16 @@ async function buildChannelCache(channels) {
       let tmpCategory = [];
       category.channels.forEach((channel) => {
         let anthTmpChannel;
-        for(tmpChannel in channels) {
-          if(channels[tmpChannel]._id === channel)  {
+        for (tmpChannel in channels) {
+          if (channels[tmpChannel]._id === channel) {
             anthTmpChannel = tmpChannel;
             break;
           }
         }
         tmpCategory.push(channels[anthTmpChannel]);
-      })
-      
-      cache.categories.push({[category]: tmpCategory});
+      });
+
+      cache.categories.push({ [category]: tmpCategory });
     });
   }
 }
@@ -349,14 +360,14 @@ async function buildServerCache(servers) {
       servers[i].icon ? servers[i].icon._id : null,
       servers[i].roles,
       [],
-      servers[i].categories
+      servers[i].categories,
     ]);
   }
   getServers();
 }
 
 function parseMessage(message) {
-  const member = cacheLookup('members', message.author, activeServer);
+  const member = cacheLookup("members", message.author, activeServer);
 
   const messageContainer = document.getElementById("messages");
   cache.messages.push([message._id, message.author, message.content]);
@@ -377,18 +388,22 @@ function parseMessage(message) {
 
   const user = cacheLookup("users", message.author);
   if (!message.masquerade) {
-
     username.textContent = member.nickname ? member.nickname : user[1];
 
-    profilepicture.src = member.avatar ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
-    : user[2]
-      ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-      : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+    profilepicture.src = member.avatar
+      ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
+      : user[2]
+        ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+        : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
 
     if (member.roles) {
-      for (let i=member.roles.length+1; i >= 0; i--) {
+      for (let i = member.roles.length + 1; i >= 0; i--) {
         let tmpColour;
-        if (tmpColour = cacheLookup('roles', member.roles[i], activeServer)['colour']) {
+        if (
+          (tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
+            "colour"
+          ])
+        ) {
           username.style.color = tmpColour;
           break;
         }
@@ -398,11 +413,12 @@ function parseMessage(message) {
     username.textContent = message.masquerade.name;
 
     if (message.masquerade.avatar) {
-      profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`
-    } else { profilepicture.src = user[2]
-    ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-    : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
-    username.style.color = message.masquerade.colour;
+      profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
+    } else {
+      profilepicture.src = user[2]
+        ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+        : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+      username.style.color = message.masquerade.colour;
     }
   }
   username.onclick = () => {
@@ -530,13 +546,15 @@ async function getMessages(id) {
   const users = placeholder.users;
 
   for (let i = 0; i < users.length; i++) {
-    if (cacheLookup('users', users[i] === 1))
-    cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
+    if (cacheLookup("users", users[i] === 1))
+      cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
   }
-  const members = placeholder.members
-  for (let i=0; i < members.length; i++) {
-    if (cacheLookup('members', members[i]._id.user, activeServer) === 1)
-    cache.servers[cacheIndexLookup("servers", activeServer)][4].push(members[i]);
+  const members = placeholder.members;
+  for (let i = 0; i < members.length; i++) {
+    if (cacheLookup("members", members[i]._id.user, activeServer) === 1)
+      cache.servers[cacheIndexLookup("servers", activeServer)][4].push(
+        members[i]
+      );
   }
 
   clearMessages();
@@ -580,8 +598,8 @@ async function loadDMs() {
       cache.channels[i][2] === "Group"
         ? cache.channels[i][1]
         : cache.channels[i][1][0] === userProfile._id
-        ? cache.channels[i][1][1]
-        : cache.channels[i][1][0];
+          ? cache.channels[i][1][1]
+          : cache.channels[i][1][0];
 
     dmButton.onClick = () => {
       getMessages(cache.channels[i][0]);
@@ -593,8 +611,8 @@ async function loadDMs() {
     if (cache.channels[i][2] === "DirectMessage")
       loadDMUserName(dmButton.textContent).then(
         (data) =>
-          (document.getElementById(cache.channels[i][0]).textContent =
-            data.username)
+        (document.getElementById(cache.channels[i][0]).textContent =
+          data.username)
       );
   }
   channelContainer.appendChild(dmBody);
@@ -613,9 +631,8 @@ async function loadProfile(userID) {
 
   username.textContent = cacheLookup("users", userID)[1];
   if (cacheLookup("users", userID)[2])
-    profilePicture.src = `https://autumn.revolt.chat/avatars/${
-      cacheLookup("users", userID)[2]._id
-    }`;
+    profilePicture.src = `https://autumn.revolt.chat/avatars/${cacheLookup("users", userID)[2]._id
+      }`;
   if (Object.keys(userProfile).indexOf("background") > -1) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
