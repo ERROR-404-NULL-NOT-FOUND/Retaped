@@ -27,25 +27,27 @@
 	            <fieldset>
 	            	<legend>Login method</legend>
 
-	                <label>Email/Password</label>
-	                <input id="email" autocomplete="on" placeholder="Email address" type="email">
-	                <input id="password" placeholder="Password" type="password">
+	                <label for="email">Email</label>
+	                <input id="email" name="email" autocomplete="on" placeholder="Email address" type="email">
+
+	                <label for="password">Password</label>
+	                <input id="password" name="password" placeholder="Password" type="password">
 
 		            <p class="login-sep">OR</p>
 
-	            	<label>Token</label>
-	                <input id="token" type="password" autocomplete="off" placeholder="Token">
+	            	<label for="token">Token</label>
+	                <input id="token" name="token" type="password" autocomplete="off" placeholder="Token">
 	            </fieldset>
 
 	            <fieldset>
 	            	<legend>Preferences</legend>
 	                <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
-	                <label for="toggle-theme">Use my Revolt theme</label>
+	                <label for="toggleTheme">Use my Revolt theme</label>
 
 	                <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
-	                <label for="toggle-token">Remember me</label>
+	                <label for="toggleToken">Remember me</label>
 	            </fieldset>
-	            <button id="login-btn" onclick="login();">Login</button>
+	            <button id="login-btn" onclick="login();" type="button">Login</button>
             </form>
 	        </div>
     </div>
