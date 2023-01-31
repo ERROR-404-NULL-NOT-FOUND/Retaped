@@ -3,7 +3,7 @@
 //
 
 var cache = {
-  //0 is id, 1 is username, 2 is pfp
+  //0 is id, 1 is username, 2 is pfp, 3 is bot
   users: [],
   //0 is id, 1 is name
   channels: [],
@@ -27,20 +27,27 @@ var activeRequests = 0;
 // Run on page load
 //
 
-window.onload = function() {
+window.onload = function () {
+  if (!localStorage.getItem("token")) return;
   token = localStorage.getItem("token");
-  if (token) login();
+  login();
 };
 
 //
 // Functions
 //
 
-function processKeyPress(event) {
-  if (event.key == "Enter") {
-    sendMessage();
+document.addEventListener("keydown", (event) => {
+  switch (event.key) {
+    case "Enter":
+      sendMessage();
+      break;
+    case "Escape":
+      activeReplies.pop();
+      document.querySelector(".replying-container").lastChild.remove();
+      break;
   }
-}
+});
 
 function cacheLookup(resource, ID, serverID = null) {
   if (resource === "members" || resource === "roles") {
@@ -121,11 +128,11 @@ async function loadTheme() {
 async function bonfire() {
   socket = new WebSocket("wss://ws.revolt.chat");
 
-  socket.addEventListener("open", async function(event) {
+  socket.addEventListener("open", async function (event) {
     socket.send(`{"type": "Authenticate","token": "${token}"}`);
   });
 
-  socket.addEventListener("message", async function(event) {
+  socket.addEventListener("message", async function (event) {
     let data;
     data = JSON.parse(event.data);
     switch (data.type) {
@@ -149,7 +156,7 @@ async function bonfire() {
     }
   });
 
-  socket.addEventListener("error", async function(event) {
+  socket.addEventListener("error", async function (event) {
     document.getElementById("error");
   });
 }
@@ -158,8 +165,8 @@ async function login() {
   let toggleTheme = document.querySelector("#toggleTheme");
   let toggleToken = document.querySelector("#toggleToken");
 
-  if (document.getElementById("token").value !== "") {
-    token = document.getElementById("token").value;
+  if (document.getElementById("token").value || token) {
+    if (!token) token = document.getElementById("token").value;
   } else if (
     document.getElementById("email").value != "" &&
     document.getElementById("password").value != ""
@@ -177,7 +184,6 @@ async function login() {
     )
       .then((res) => res.json())
       .then((data) => data);
-    console.log(tokenResponse);
     if (tokenResponse.result === "Success") {
       token = tokenResponse.token;
     } else {
@@ -189,12 +195,12 @@ async function login() {
     );
     return;
   }
-  //if ((userProfile = await fetchResource("users/@me")) === false) {
-  //  console.log("Login failed");
-  //  return 1;
-  //}
-  localStorage.setItem("token", token);
+  if ((userProfile = await fetchResource("users/@me")) === false) {
+    console.log("Login failed");
+    return 1;
+  }
   if (toggleToken.checked == true) {
+    if (!localStorage.getItem("token")) localStorage.setItem("token", token);
   }
   if (toggleTheme.checked == true) {
     loadTheme();
@@ -254,7 +260,6 @@ async function getChannels(id) {
       categoryContainer.open = true;
       categoryContainer.classList.add("channel-category");
 
-      console.log(category);
       categoryText.textContent = category.title;
       categoryText.classList.add("categoryText");
       categoryContainer.appendChild(categoryText);
@@ -345,9 +350,19 @@ async function buildChannelCache(channels) {
 async function buildUserCache(users) {
   for (let i = 0; i < users.length; i++) {
     if (users[i].avatar) {
-      cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
+      cache.users.push([
+        users[i]._id,
+        users[i].username,
+        users[i].avatar,
+        users[i].bot,
+      ]);
     } else {
-      cache.users.push([users[i]._id, users[i].username, undefined]);
+      cache.users.push([
+        users[i]._id,
+        users[i].username,
+        undefined,
+        users[i].bot,
+      ]);
     }
   }
 }
@@ -378,6 +393,7 @@ function parseMessage(message) {
   let username = document.createElement("button");
   let profilepicture = document.createElement("img");
   let replyButton = document.createElement("button");
+  let masqueradeBadge = document.createElement("span");
 
   messageDisplay.classList.add("message-display");
   profilepicture.classList.add("chat-pfp");
@@ -389,12 +405,13 @@ function parseMessage(message) {
   const user = cacheLookup("users", message.author);
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user[1];
-
+    if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
+    username.appendChild(masqueradeBadge);
     profilepicture.src = member.avatar
       ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
       : user[2]
-        ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-        : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+      ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+      : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
 
     if (member.roles) {
       for (let i = member.roles.length + 1; i >= 0; i--) {
@@ -410,7 +427,9 @@ function parseMessage(message) {
       }
     }
   } else {
+    masqueradeBadge.textContent = "Masq";
     username.textContent = message.masquerade.name;
+    username.appendChild(masqueradeBadge);
 
     if (message.masquerade.avatar) {
       profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
@@ -547,14 +566,21 @@ async function getMessages(id) {
 
   for (let i = 0; i < users.length; i++) {
     if (cacheLookup("users", users[i] === 1))
-      cache.users.push([users[i]._id, users[i].username, users[i].avatar]);
+      cache.users.push([
+        users[i]._id,
+        users[i].username,
+        users[i].avatar,
+        users[i].bot,
+      ]);
   }
-  const members = placeholder.members;
-  for (let i = 0; i < members.length; i++) {
-    if (cacheLookup("members", members[i]._id.user, activeServer) === 1)
-      cache.servers[cacheIndexLookup("servers", activeServer)][4].push(
-        members[i]
-      );
+  if (placeholder.members) {
+    const members = placeholder.members;
+    for (let i = 0; i < members.length; i++) {
+      if (cacheLookup("members", members[i]._id.user, activeServer) === 1)
+        cache.servers[cacheIndexLookup("servers", activeServer)][4].push(
+          members[i]
+        );
+    }
   }
 
   clearMessages();
@@ -583,9 +609,6 @@ async function loadDMs() {
   while (channelContainer.hasChildNodes()) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
-  activeRequests = 0;
-
-  let dmBody = document.createElement("div");
 
   for (let i = 0; i < cache.channels.length; i++) {
     //Checking for only DMs
@@ -598,24 +621,16 @@ async function loadDMs() {
       cache.channels[i][2] === "Group"
         ? cache.channels[i][1]
         : cache.channels[i][1][0] === userProfile._id
-          ? cache.channels[i][1][1]
-          : cache.channels[i][1][0];
-
-    dmButton.onClick = () => {
+        ? cache.channels[i][1][1]
+        : cacheLookup("users", cache.channels[i][1][0])[1];
+    dmButton.onclick = () => {
       getMessages(cache.channels[i][0]);
     };
 
     dmButton.id = cache.channels[i][0];
 
-    dmBody.appendChild(dmButton);
-    if (cache.channels[i][2] === "DirectMessage")
-      loadDMUserName(dmButton.textContent).then(
-        (data) =>
-        (document.getElementById(cache.channels[i][0]).textContent =
-          data.username)
-      );
+    channelContainer.appendChild(dmButton);
   }
-  channelContainer.appendChild(dmBody);
 }
 
 //
@@ -631,8 +646,9 @@ async function loadProfile(userID) {
 
   username.textContent = cacheLookup("users", userID)[1];
   if (cacheLookup("users", userID)[2])
-    profilePicture.src = `https://autumn.revolt.chat/avatars/${cacheLookup("users", userID)[2]._id
-      }`;
+    profilePicture.src = `https://autumn.revolt.chat/avatars/${
+      cacheLookup("users", userID)[2]._id
+    }`;
   if (Object.keys(userProfile).indexOf("background") > -1) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
