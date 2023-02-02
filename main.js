@@ -22,6 +22,7 @@ var token;
 var socket;
 var userProfile;
 var activeRequests = 0;
+var currentlyTyping = [];
 
 //
 // Run on page load
@@ -122,6 +123,7 @@ async function bonfire() {
   socket.addEventListener("message", async function (event) {
     let data;
     data = JSON.parse(event.data);
+    const typingBar = document.getElementById("typingBar");
     switch (data.type) {
       case "Authenticated":
         document.getElementById("status").innerText = "Connected";
@@ -140,6 +142,34 @@ async function bonfire() {
         buildChannelCache(data.channels);
         buildUserCache(data.users);
         getServers();
+        break;
+      case "ChannelStartTyping":
+        if (data.id !== activeChannel || currentlyTyping.indexOf(data.user) !== -1) break;
+        const typingMember = cacheLookup('members', data.user, activeServer);
+        const typingUser = cacheLookup('users', data.user);
+        const typingUserContainer = document.createElement("div");
+        const typingUserName = document.createElement("span");
+        const typingUserPfp = document.createElement('img');
+        
+        typingUserPfp.src = typingMember[2] === undefined ? `https://autumn.revolt.chat/avatars/${typingUser[2]._id}?max_side=25` : `https://autumn.revolt.chat/avatars/${typingMember[2]._id}?max_side=25`;
+        typingUserContainer.appendChild(typingUserPfp);
+        typingUserName.textContent = typingUser[1];
+        typingUserContainer.appendChild(typingUserName);
+        typingUserContainer.id = typingUser[0];
+        currentlyTyping.push(data.user);
+        
+        document.getElementById('typingBarContainer').hidden = false;
+        typingBar.appendChild(typingUserContainer);
+        break;
+      case "ChannelStopTyping":
+        if (data.id !== activeChannel) break;
+        const typingUserContainerz = document.getElementById(data.user);
+        if (typingUserContainerz) {
+          typingUserContainerz.remove();
+          currentlyTyping.splice(currentlyTyping.indexOf(data.user), 1);
+        };
+        console.log(typingBar.children)
+        if (typingBar.children.length === 0) document.getElementById('typingBarContainer').hidden = true;
     }
   });
 
@@ -172,7 +202,6 @@ async function login() {
     )
       .then((res) => res.json())
       .then((data) => data);
-    console.log(tokenResponse);
     if (tokenResponse.result === "Success") {
       token = tokenResponse.token;
     } else {
@@ -242,8 +271,6 @@ async function getChannels(id) {
 
 	categoryContainer.open = true;
 	categoryContainer.classList.add("channel-category");
-
-    console.log(category)
     categoryText.textContent = category.title;
     categoryText.classList.add('categoryText');
     categoryContainer.appendChild(categoryText);
