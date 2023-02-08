@@ -47,6 +47,8 @@ document.addEventListener("keydown", (event) => {
       activeReplies.pop();
       document.querySelector(".replying-container").lastChild.remove();
       break;
+    default:
+      
   }
 });
 
@@ -281,6 +283,7 @@ async function getChannels(id) {
   while (channelContainer.hasChildNodes()) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
+  let addedChannels = [];
 
   cache.servers[cacheIndexLookup("servers", activeServer)][5].forEach(
     (category) => {
@@ -296,6 +299,7 @@ async function getChannels(id) {
 
       for (let j = 0; j < category.channels.length; j++) {
         const currentChannel = cacheLookup("channels", category.channels[j]);
+        addedChannels.push(currentChannel[0]);
 
         if (currentChannel[2] !== "TextChannel") continue;
         if (currentChannel[3] !== id) continue;
@@ -317,6 +321,30 @@ async function getChannels(id) {
       channelContainer.appendChild(categoryContainer);
     }
   );
+  let channels = cache.channels;
+  for (let i = 0; i < channels.length; i++) {
+    if (channels[i][3] !== id) continue;
+    if (channels[i][2] !== "TextChannel") continue;
+    if (addedChannels.indexOf(channels[i][0]) !== -1) continue;
+    const currentChannel = cacheLookup("channels", channels[i][0]);
+        addedChannels.push(currentChannel[0]);
+        if (currentChannel[2] !== "TextChannel") continue;
+        if (currentChannel[3] !== id) continue;
+
+        let channel = document.createElement("button");
+    channel.classList.add("channel");
+
+        channel.onclick = () => {
+          getMessages(currentChannel[0]);
+        };
+
+        let channelText = document.createElement("span");
+        channelText.id = currentChannel[0];
+        channelText.innerText = currentChannel[1];
+
+        channel.appendChild(channelText);
+    channelContainer.insertBefore(channel, channelContainer.children[0]);
+  }
 }
 
 function clearMessages() {
@@ -446,8 +474,8 @@ function parseMessage(message) {
     if (member.roles) {
       for (let i = member.roles.length + 1; i >= 0; i--) {
         let tmpColour;
-        if (
-          (tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
+        if ((
+          tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
             "colour"
           ])
         ) {
@@ -669,10 +697,12 @@ async function loadDMs() {
 
 async function loadProfile(userID) {
   let userProfile = await fetchResource(`/users/${userID}/profile`);
+  const memberData = cacheLookup('members', userID, activeServer);
   let username = document.getElementById("username");
   let profilePicture = document.getElementById("profilePicture");
   let profileBackground = document.getElementById("profileMedia");
   let bio = document.getElementById("bio");
+  let roleContainer = document.getElementById("roleContainer")
 
   username.textContent = cacheLookup("users", userID)[1];
   if (cacheLookup("users", userID)[2])
@@ -684,6 +714,19 @@ async function loadProfile(userID) {
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
   bio.textContent = userProfile.content;
+
+  while (roleContainer.hasChildNodes()) {
+    roleContainer.removeChild(roleContainer.lastChild);
+  }
+  if (memberData.roles) for (let i = 0; i < memberData.roles.length; i++) { 
+    const role = document.createElement("span");
+    const roleData = cacheLookup('roles', memberData.roles[i], activeServer);
+
+    role.textContent = roleData["name"];
+    role.style.color = roleData["colour"];
+    roleContainer.appendChild(role);
+  }
+  
   document.getElementById("userProfile").style.display = "flex";
 }
 
