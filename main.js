@@ -23,6 +23,8 @@ var socket;
 var userProfile;
 var activeRequests = 0;
 var currentlyTyping = [];
+var mutedChannels = [];
+var unreads = [];
 
 //
 // Run on page load
@@ -104,17 +106,29 @@ async function fetchResource(target) {
 // Main stuff
 //
 
-async function loadTheme() {
-  const rawTheme = await fetch("https://api.revolt.chat/sync/settings/fetch", {
+async function loadSyncSettings() {
+  const rawSettings = await fetch("https://api.revolt.chat/sync/settings/fetch", {
     headers: {
       "x-session-token": token,
     },
     body: JSON.stringify({
-      keys: ["theme"],
+      keys: ["theme","notifications","ordering"],
     }),
     method: "POST",
   }).then((response) => response.json());
-  let theme = JSON.parse(rawTheme.theme[1])["appearance:theme:overrides"];
+  fetch("https://api.revolt.chat/sync/unreads", {
+    headers: {
+      "x-session-token": token,
+    },
+    method: "GET",
+  }).then((response) => response.json()).then((data) => {unreads = data; console.log(unreads)});
+   
+
+  let theme = JSON.parse(rawSettings.theme[1])["appearance:theme:overrides"];
+  let notifications = JSON.parse(rawSettings.notifications[1]);
+  Object.keys(notifications.channel).forEach((channel) => {
+    if (notifications.channel[channel] === "muted") mutedChannels.push(channel)
+  })
   let themeVars = document.querySelector(":root");
   themeVars.style.setProperty("--accent", theme.accent);
   themeVars.style.setProperty("--error", theme.error);
@@ -235,7 +249,7 @@ async function login() {
     if (!localStorage.getItem("token")) localStorage.setItem("token", token);
   }
   if (toggleTheme.checked == true) {
-    loadTheme();
+    loadSyncSettings();
   }
   bonfire();
   // Hide & show
@@ -314,8 +328,15 @@ async function getChannels(id) {
         let channelText = document.createElement("span");
         channelText.id = currentChannel[0];
         channelText.innerText = currentChannel[1];
-
+        unreads.every((unread) => {
+          if(unread._id.channel === currentChannel[0]) {
+            channelText.style.bold = true;
+            return false;
+          }
+        })
         channel.appendChild(channelText);
+
+        if(mutedChannels.indexOf(currentChannel[0]) !== -1) channel.style.color = "#777777"
         categoryContainer.appendChild(channel);
       }
       channelContainer.appendChild(categoryContainer);
