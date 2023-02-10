@@ -245,7 +245,7 @@ fieldset legend {
   padding: 0.4rem 0;
   margin: 0.3rem 0;
   color: var(--foreground);
-  font-weight: bold;
+  font-weight: normal;
   -webkit-transition: 0.1s;
   -o-transition: 0.1s;
   overflow: hidden;

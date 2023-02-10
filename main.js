@@ -5,7 +5,7 @@
 var cache = {
   //0 is id, 1 is username, 2 is pfp, 3 is bot
   users: [],
-  //0 is id, 1 is name
+  //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
   categories: [],
   //0 is id, 1 is name, 2 is server icon id, 3 is roles, 4 is members
@@ -23,6 +23,10 @@ var socket;
 var userProfile;
 var activeRequests = 0;
 var currentlyTyping = [];
+var mutedChannels = [];
+var unreads = [];
+var unreadChannels = [];
+var cssVars = getComputedStyle(document.querySelector(':root'));
 
 //
 // Run on page load
@@ -104,17 +108,29 @@ async function fetchResource(target) {
 // Main stuff
 //
 
-async function loadTheme() {
-  const rawTheme = await fetch("https://api.revolt.chat/sync/settings/fetch", {
+async function loadSyncSettings() {
+  const rawSettings = await fetch("https://api.revolt.chat/sync/settings/fetch", {
     headers: {
       "x-session-token": token,
     },
     body: JSON.stringify({
-      keys: ["theme"],
+      keys: ["theme","notifications","ordering"],
     }),
     method: "POST",
   }).then((response) => response.json());
-  let theme = JSON.parse(rawTheme.theme[1])["appearance:theme:overrides"];
+  fetch("https://api.revolt.chat/sync/unreads", {
+    headers: {
+      "x-session-token": token,
+    },
+    method: "GET",
+  }).then((response) => response.json()).then((data) => {unreads = data});
+   
+
+  let theme = JSON.parse(rawSettings.theme[1])["appearance:theme:overrides"];
+  let notifications = JSON.parse(rawSettings.notifications[1]);
+  Object.keys(notifications.channel).forEach((channel) => {
+    if (notifications.channel[channel] === "muted") mutedChannels.push(channel)
+  })
   let themeVars = document.querySelector(":root");
   themeVars.style.setProperty("--accent", theme.accent);
   themeVars.style.setProperty("--error", theme.error);
@@ -144,9 +160,29 @@ async function bonfire() {
         document.getElementById("status").innerText = "Connected";
         break;
       case "Message":
-        if (data.channel == activeChannel) {
+        if (data.channel === activeChannel) {
           parseMessage(data);
+        } else {
+          if (channel = document.getElementById(data.channel)) {
+            channel.style.color = data.mentions && data.mentions.indexOf(userProfile._id) !== -1 ?
+              cssVars.getPropertyValue('--accent') :
+              cssVars.getPropertyValue('--foreground');
+            channel.style.fontWeight = 'bold';
+          }
+            document.getElementById(cacheLookup('channels', data.channel)[3]).style.boxShadow =
+            data.mentions && data.mentions.indexOf(userProfile._id) !== -1 ?
+              cssVars.getPropertyValue('--accent') :
+              cssVars.getPropertyValue('--foreground');
         }
+        break;
+      case 'ChannelAck':
+        if (channel = document.getElementById(data.id)) {
+            channel.style.colour = cssVars.getPropertyValue('--foreground');
+            channel.style.fontWeight = 'normal';
+          }
+            document.getElementById(cacheLookup('channels', data.id)[3]).style.boxShadow =
+            'rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px';
+          
         break;
       case "Error":
         document.querySelector(".error-container").style.display = "block";
@@ -183,7 +219,6 @@ async function bonfire() {
           typingUserContainerz.remove();
           currentlyTyping.splice(currentlyTyping.indexOf(data.user), 1);
         };
-        console.log(typingBar.children)
         if (typingBar.children.length === 0) document.getElementById('typingBarContainer').hidden = true;
     }
   });
@@ -235,7 +270,7 @@ async function login() {
     if (!localStorage.getItem("token")) localStorage.setItem("token", token);
   }
   if (toggleTheme.checked == true) {
-    loadTheme();
+    loadSyncSettings();
   }
   bonfire();
   // Hide & show
@@ -248,12 +283,20 @@ async function getServers() {
   while (serverContainer.hasChildNodes()) {
     serverContainer.removeChild(serverContainer.lastChild);
   }
+  unreads.forEach((unread) => {
+    if(unread.last_id < cacheLookup('channels',unread._id.channel)[4] && mutedChannels.indexOf(unread._id.channel) === -1){
+unreadChannels.push(unread._id.channel);
+    }  
+  }) 
   for (let i = 0; i < cache.servers.length; i++) {
     let server = document.createElement("button");
     server.onclick = () => {
       activeServer = cache.servers[i][0];
       getChannels(cache.servers[i][0]);
     };
+    cache.servers[i][6].forEach((channel) => {
+      if(unreadChannels.indexOf(channel) !== -1 && mutedChannels.indexOf(channel) === -1) server.style.boxShadow = `${cssVars.getPropertyValue('--foreground')} 0px 0px 0px 3px`;
+    }); 
 
     server.id = cache.servers[i][0];
 
@@ -312,15 +355,24 @@ async function getChannels(id) {
         };
 
         let channelText = document.createElement("span");
-        channelText.id = currentChannel[0];
+        channel.id = currentChannel[0];
         channelText.innerText = currentChannel[1];
+        for (let i = 0; i < unreads.length; i++){
+          if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
+            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.fontWeight = 'bold';
 
+            break;
+          }
+        }
         channel.appendChild(channelText);
+
+        if(mutedChannels.indexOf(currentChannel[0]) !== -1) channel.style.color = "#777777"
         categoryContainer.appendChild(channel);
       }
       channelContainer.appendChild(categoryContainer);
     }
   );
+
   let channels = cache.channels;
   for (let i = 0; i < channels.length; i++) {
     if (channels[i][3] !== id) continue;
@@ -337,7 +389,14 @@ async function getChannels(id) {
         channel.onclick = () => {
           getMessages(currentChannel[0]);
         };
+        for (let i = 0; i < unreads.length; i++){
+          if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
+            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.fontWeight = 'bold';
 
+            break;
+          }
+        }
+        
         let channelText = document.createElement("span");
         channelText.id = currentChannel[0];
         channelText.innerText = currentChannel[1];
@@ -368,6 +427,7 @@ async function buildChannelCache(channels) {
           channels[i].name,
           channels[i].channel_type,
           channels[i].server,
+          channels[i].last_message_id,
         ]);
         break;
       case "Group":
@@ -434,12 +494,14 @@ async function buildServerCache(servers) {
       servers[i].roles,
       [],
       servers[i].categories,
+      servers[i].channels,
     ]);
   }
   getServers();
 }
 
 function parseMessage(message) {
+  
   const member = cacheLookup("members", message.author, activeServer);
 
   const messageContainer = document.getElementById("messages");
@@ -459,8 +521,22 @@ function parseMessage(message) {
   username.classList.add("username");
   replyButton.classList.add("reply-btn");
   messageContent.classList.add("message-content");
-
-  const user = cacheLookup("users", message.author);
+  let user;
+  if ((user = cacheLookup("users", message.author)) === 1) {
+    if (Object.keys(message).indexOf('system') !== -1) {
+      if(message.system.id) {
+        user = [message.system.id, message.system.id, undefined, undefined];
+      } else{
+        user = [message.system.by, message.system.by, undefined, undefined];
+      }
+    } else {
+      user = [message.author, message.author, undefined, undefined];
+    }
+  }
+  if (message.system) {
+    username.textContent = cacheLookup('users',message.system.id)[0];
+    messageContent.textContent = message.system.type;
+  } else {
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user[1];
     if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
@@ -497,6 +573,7 @@ function parseMessage(message) {
         : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
       username.style.color = message.masquerade.colour;
     }
+    }
   }
   username.onclick = () => {
     loadProfile(user[0]);
@@ -527,7 +604,7 @@ function parseMessage(message) {
       parsedMessage = segConcat;
     });
     messageContent.appendChild(parsedMessage);
-  } else messageContent.textContent = message.content;
+  } else if (!message.system) messageContent.textContent = message.content;
 
   if (message.replies) {
     let reply = document.createElement("div");
@@ -645,9 +722,16 @@ async function getMessages(id) {
 
   const messages = placeholder.messages;
 
-  for (let i = messages.length - 1; i >= 0; i--) {
+  for (let i = messages.length - 1; i >= 1; i--) {
     parseMessage(messages[i]);
   }
+  fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${messages[0]._id}`, {
+    headers: {
+      'x-session-token': token
+    },
+    method: "PUT"
+  });
+  parseMessage(messages[0]);
 }
 
 async function loadDMUserName(userID) {
@@ -696,7 +780,7 @@ async function loadDMs() {
 //
 
 async function loadProfile(userID) {
-  let userProfile = await fetchResource(`/users/${userID}/profile`);
+  const userProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup('members', userID, activeServer);
   let username = document.getElementById("username");
   let profilePicture = document.getElementById("profilePicture");
@@ -704,11 +788,11 @@ async function loadProfile(userID) {
   let bio = document.getElementById("bio");
   let roleContainer = document.getElementById("roleContainer")
 
-  username.textContent = cacheLookup("users", userID)[1];
-  if (cacheLookup("users", userID)[2])
-    profilePicture.src = `https://autumn.revolt.chat/avatars/${
-      cacheLookup("users", userID)[2]._id
-    }`;
+  username.textContent = userProfile.username;
+  if (userProfile.avatar) {
+    profilePicture.src = `https://autumn.revolt.chat/avatars/${userProfile.avatar._id}`;
+  }
+  console.log(userProfile)
   if (Object.keys(userProfile).indexOf("background") > -1) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
@@ -757,7 +841,7 @@ async function sendMessage() {
       content: message,
       replies: activeReplies,
     }),
-  });
+  }).then(response => response.json()).then(data => fetch(`https://api.revolt.chat/${activeChannel}/ack/${data._id}`));
   messageContainer.value = "";
   activeReplies = [];
   document.querySelector(".replying-container").replaceChildren();
