@@ -25,6 +25,7 @@ var activeRequests = 0;
 var currentlyTyping = [];
 var mutedChannels = [];
 var unreads = [];
+var unreadChannels = [];
 var cssVars = getComputedStyle(document.querySelector(':root'));
 
 //
@@ -166,8 +167,8 @@ async function bonfire() {
             channel.style.color = data.mentions ? data.mentions.indexOf(userProfile._id) === -1 ? cssVars.getPropertyValue('--foreground') : cssVars.getPropertyValue('--accent') : cssVars.getPropertyValue('--foreground');
             channel.style.fontWeight = 'bold';
           } else {
-            const server = document
-            document.getElementById(cacheLookup('channels', data.channel)[3]).style.boxShadow = `${cssVars.getPropertyValue('--accent')} 0px 0px 0px 3px`;
+            console.log(data.channel);
+            document.getElementById(cacheLookup('channels', data.channel)[3]).style.boxShadow = data.mentions ? data.mentions.indexOf(userProfile._id) === -1 ? cssVars.getPropertyValue('--foreground') : cssVars.getPropertyValue('--accent') : cssVars.getPropertyValue('--foreground');
           }
         }
         break;
@@ -279,12 +280,20 @@ async function getServers() {
   while (serverContainer.hasChildNodes()) {
     serverContainer.removeChild(serverContainer.lastChild);
   }
+  unreads.forEach((unread) => {
+    if(unread.last_id < cacheLookup('channels',unread._id.channel)[5]){
+unreadChannels.push(unread._id.channel);
+    }  
+  }) 
   for (let i = 0; i < cache.servers.length; i++) {
     let server = document.createElement("button");
     server.onclick = () => {
       activeServer = cache.servers[i][0];
       getChannels(cache.servers[i][0]);
     };
+    cache.servers[i][5].forEach((channel) => {
+      if(unreadChannels.indexOf(channel) !== -1 && mutedChannels.indexOf(channel) === -1) server.style.boxShadow = `${cssVars.getPropertyValue('--foreground')} 0px 0px 0px 3px`;
+    }); 
 
     server.id = cache.servers[i][0];
 
@@ -347,7 +356,7 @@ async function getChannels(id) {
         channelText.innerText = currentChannel[1];
         for (let i = 0; i < unreads.length; i++){
           if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
-            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.color = cssVars.getPropertyValue('--accent');
+            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.fontWeight = 'bold';
 
             break;
           }
@@ -377,7 +386,13 @@ async function getChannels(id) {
         channel.onclick = () => {
           getMessages(currentChannel[0]);
         };
+        for (let i = 0; i < unreads.length; i++){
+          if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
+            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.color = cssVars.getPropertyValue('--accent');
 
+            break;
+          }
+        }
         let channelText = document.createElement("span");
         channelText.id = currentChannel[0];
         channelText.innerText = currentChannel[1];
@@ -475,6 +490,7 @@ async function buildServerCache(servers) {
       servers[i].roles,
       [],
       servers[i].categories,
+      servers[i].channels,
     ]);
   }
   getServers();
@@ -798,7 +814,7 @@ async function sendMessage() {
       content: message,
       replies: activeReplies,
     }),
-  });
+  }).then(response => response.json()).then(data => fetch(`https://api.revolt.chat/${activeChannel}/ack/${data._id}`));
   messageContainer.value = "";
   activeReplies = [];
   document.querySelector(".replying-container").replaceChildren();
