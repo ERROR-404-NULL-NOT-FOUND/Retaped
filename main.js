@@ -5,7 +5,7 @@
 var cache = {
   //0 is id, 1 is username, 2 is pfp, 3 is bot
   users: [],
-  //0 is id, 1 is name
+  //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
   categories: [],
   //0 is id, 1 is name, 2 is server icon id, 3 is roles, 4 is members
@@ -25,6 +25,7 @@ var activeRequests = 0;
 var currentlyTyping = [];
 var mutedChannels = [];
 var unreads = [];
+var cssVars = getComputedStyle(document.querySelector(':root'));
 
 //
 // Run on page load
@@ -158,9 +159,25 @@ async function bonfire() {
         document.getElementById("status").innerText = "Connected";
         break;
       case "Message":
-        if (data.channel == activeChannel) {
+        if (data.channel === activeChannel) {
           parseMessage(data);
+        } else {
+          if (channel = document.getElementById(data.channel)) {
+            channel.style.color = data.mentions ? data.mentions.indexOf(userProfile._id) === -1 ? cssVars.getPropertyValue('--foreground') : cssVars.getPropertyValue('--accent') : cssVars.getPropertyValue('--foreground');
+            channel.style.fontWeight = 'bold';
+          } else {
+            const server = document
+            document.getElementById(cacheLookup('channels', data.channel)[3]).style.boxShadow = `${cssVars.getPropertyValue('--accent')} 0px 0px 0px 3px`;
+          }
         }
+        break;
+      case 'ChannelAck':
+        if (channel = document.getElementById(data.id)) {
+          channel.style.color = cssVars.getPropertyValue('--foreground');
+          channel.style.fontWeight = 'normal';
+        } else {
+            document.getElementById(cacheLookup('channels', data.id)[3]).style.boxShadow = 'box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px';
+          }
         break;
       case "Error":
         document.querySelector(".error-container").style.display = "block";
@@ -326,14 +343,15 @@ async function getChannels(id) {
         };
 
         let channelText = document.createElement("span");
-        channelText.id = currentChannel[0];
+        channel.id = currentChannel[0];
         channelText.innerText = currentChannel[1];
-        unreads.every((unread) => {
-          if(unread._id.channel === currentChannel[0]) {
-            channelText.style.bold = true;
-            return false;
+        for (let i = 0; i < unreads.length; i++){
+          if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
+            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.color = cssVars.getPropertyValue('--accent');
+
+            break;
           }
-        })
+        }
         channel.appendChild(channelText);
 
         if(mutedChannels.indexOf(currentChannel[0]) !== -1) channel.style.color = "#777777"
@@ -342,6 +360,7 @@ async function getChannels(id) {
       channelContainer.appendChild(categoryContainer);
     }
   );
+
   let channels = cache.channels;
   for (let i = 0; i < channels.length; i++) {
     if (channels[i][3] !== id) continue;
@@ -389,6 +408,7 @@ async function buildChannelCache(channels) {
           channels[i].name,
           channels[i].channel_type,
           channels[i].server,
+          channels[i].last_message_id,
         ]);
         break;
       case "Group":
