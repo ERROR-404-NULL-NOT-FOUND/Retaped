@@ -26,7 +26,7 @@ var currentlyTyping = [];
 var mutedChannels = [];
 var unreads = [];
 var unreadChannels = [];
-var cssVars = getComputedStyle(document.querySelector(':root'));
+var cssVars = getComputedStyle(document.querySelector(":root"));
 
 //
 // Run on page load
@@ -52,7 +52,6 @@ document.addEventListener("keydown", (event) => {
       document.querySelector(".replying-container").lastChild.remove();
       break;
     default:
-      
   }
 });
 
@@ -109,28 +108,34 @@ async function fetchResource(target) {
 //
 
 async function loadSyncSettings() {
-  const rawSettings = await fetch("https://api.revolt.chat/sync/settings/fetch", {
-    headers: {
-      "x-session-token": token,
-    },
-    body: JSON.stringify({
-      keys: ["theme","notifications","ordering"],
-    }),
-    method: "POST",
-  }).then((response) => response.json());
+  const rawSettings = await fetch(
+    "https://api.revolt.chat/sync/settings/fetch",
+    {
+      headers: {
+        "x-session-token": token,
+      },
+      body: JSON.stringify({
+        keys: ["theme", "notifications", "ordering"],
+      }),
+      method: "POST",
+    }
+  ).then((response) => response.json());
   fetch("https://api.revolt.chat/sync/unreads", {
     headers: {
       "x-session-token": token,
     },
     method: "GET",
-  }).then((response) => response.json()).then((data) => {unreads = data});
-   
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      unreads = data;
+    });
 
   let theme = JSON.parse(rawSettings.theme[1])["appearance:theme:overrides"];
   let notifications = JSON.parse(rawSettings.notifications[1]);
   Object.keys(notifications.channel).forEach((channel) => {
-    if (notifications.channel[channel] === "muted") mutedChannels.push(channel)
-  })
+    if (notifications.channel[channel] === "muted") mutedChannels.push(channel);
+  });
   let themeVars = document.querySelector(":root");
   themeVars.style.setProperty("--accent", theme.accent);
   themeVars.style.setProperty("--error", theme.error);
@@ -162,27 +167,42 @@ async function bonfire() {
       case "Message":
         if (data.channel === activeChannel) {
           parseMessage(data);
+          if (data.author !== userProfile._id)
+            fetch(
+              `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
+              {
+                headers: {
+                  "x-session-token": token,
+                },
+                method: "PUT",
+              }
+            );
         } else {
-          if (channel = document.getElementById(data.channel)) {
-            channel.style.color = data.mentions && data.mentions.indexOf(userProfile._id) !== -1 ?
-              cssVars.getPropertyValue('--accent') :
-              cssVars.getPropertyValue('--foreground');
-            channel.style.fontWeight = 'bold';
+          if ((channel = document.getElementById(data.channel))) {
+            channel.style.color =
+              data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+                ? cssVars.getPropertyValue("--accent")
+                : cssVars.getPropertyValue("--foreground");
+            channel.style.fontWeight = "bold";
           }
-            document.getElementById(cacheLookup('channels', data.channel)[3]).style.boxShadow =
-            data.mentions && data.mentions.indexOf(userProfile._id) !== -1 ?
-              cssVars.getPropertyValue('--accent') :
-              cssVars.getPropertyValue('--foreground');
+          document.getElementById(
+            cacheLookup("channels", data.channel)[3]
+          ).style.boxShadow =
+            data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+              ? cssVars.getPropertyValue("--accent")
+              : cssVars.getPropertyValue("--foreground");
         }
         break;
-      case 'ChannelAck':
-        if (channel = document.getElementById(data.id)) {
-            channel.style.colour = cssVars.getPropertyValue('--foreground');
-            channel.style.fontWeight = 'normal';
-          }
-            document.getElementById(cacheLookup('channels', data.id)[3]).style.boxShadow =
-            'rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px';
-          
+      case "ChannelAck":
+        if ((channel = document.getElementById(data.id))) {
+          channel.style.colour = cssVars.getPropertyValue("--foreground");
+          channel.style.fontWeight = "normal";
+        }
+        document.getElementById(
+          cacheLookup("channels", data.id)[3]
+        ).style.boxShadow =
+          "rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px";
+
         break;
       case "Error":
         document.querySelector(".error-container").style.display = "block";
@@ -195,21 +215,28 @@ async function bonfire() {
         getServers();
         break;
       case "ChannelStartTyping":
-        if (data.id !== activeChannel || currentlyTyping.indexOf(data.user) !== -1) break;
-        const typingMember = cacheLookup('members', data.user, activeServer);
-        const typingUser = cacheLookup('users', data.user);
+        if (
+          data.id !== activeChannel ||
+          currentlyTyping.indexOf(data.user) !== -1
+        )
+          break;
+        const typingMember = cacheLookup("members", data.user, activeServer);
+        const typingUser = cacheLookup("users", data.user);
         const typingUserContainer = document.createElement("div");
         const typingUserName = document.createElement("span");
-        const typingUserPfp = document.createElement('img');
-        
-        typingUserPfp.src = typingMember[2] === undefined ? `https://autumn.revolt.chat/avatars/${typingUser[2]._id}?max_side=25` : `https://autumn.revolt.chat/avatars/${typingMember[2]._id}?max_side=25`;
+        const typingUserPfp = document.createElement("img");
+
+        typingUserPfp.src =
+          typingMember[2] === undefined
+            ? `https://autumn.revolt.chat/avatars/${typingUser[2]._id}?max_side=25`
+            : `https://autumn.revolt.chat/avatars/${typingMember[2]._id}?max_side=25`;
         typingUserContainer.appendChild(typingUserPfp);
         typingUserName.textContent = typingUser[1];
         typingUserContainer.appendChild(typingUserName);
         typingUserContainer.id = typingUser[0];
         currentlyTyping.push(data.user);
-        
-        document.getElementById('typingBarContainer').hidden = false;
+
+        document.getElementById("typingBarContainer").hidden = false;
         typingBar.appendChild(typingUserContainer);
         break;
       case "ChannelStopTyping":
@@ -218,8 +245,9 @@ async function bonfire() {
         if (typingUserContainerz) {
           typingUserContainerz.remove();
           currentlyTyping.splice(currentlyTyping.indexOf(data.user), 1);
-        };
-        if (typingBar.children.length === 0) document.getElementById('typingBarContainer').hidden = true;
+        }
+        if (typingBar.children.length === 0)
+          document.getElementById("typingBarContainer").hidden = true;
     }
   });
 
@@ -284,10 +312,13 @@ async function getServers() {
     serverContainer.removeChild(serverContainer.lastChild);
   }
   unreads.forEach((unread) => {
-    if(unread.last_id < cacheLookup('channels',unread._id.channel)[4] && mutedChannels.indexOf(unread._id.channel) === -1){
-unreadChannels.push(unread._id.channel);
-    }  
-  }) 
+    if (
+      unread.last_id < cacheLookup("channels", unread._id.channel)[4] &&
+      mutedChannels.indexOf(unread._id.channel) === -1
+    ) {
+      unreadChannels.push(unread._id.channel);
+    }
+  });
   for (let i = 0; i < cache.servers.length; i++) {
     let server = document.createElement("button");
     server.onclick = () => {
@@ -295,8 +326,14 @@ unreadChannels.push(unread._id.channel);
       getChannels(cache.servers[i][0]);
     };
     cache.servers[i][6].forEach((channel) => {
-      if(unreadChannels.indexOf(channel) !== -1 && mutedChannels.indexOf(channel) === -1) server.style.boxShadow = `${cssVars.getPropertyValue('--foreground')} 0px 0px 0px 3px`;
-    }); 
+      if (
+        unreadChannels.indexOf(channel) !== -1 &&
+        mutedChannels.indexOf(channel) === -1
+      )
+        server.style.boxShadow = `${cssVars.getPropertyValue(
+          "--foreground"
+        )} 0px 0px 0px 3px`;
+    });
 
     server.id = cache.servers[i][0];
 
@@ -357,16 +394,22 @@ async function getChannels(id) {
         let channelText = document.createElement("span");
         channel.id = currentChannel[0];
         channelText.innerText = currentChannel[1];
-        for (let i = 0; i < unreads.length; i++){
-          if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
-            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.fontWeight = 'bold';
+        for (let i = 0; i < unreads.length; i++) {
+          if (unreads[i]["_id"].channel === currentChannel[0]) {
+            //currentChannel[0] is the ID of the channel currently being returned
+            if (
+              mutedChannels.indexOf(currentChannel[0]) === -1 &&
+              currentChannel[4] > unreads[i].last_id
+            )
+              channel.style.fontWeight = "bold";
 
             break;
           }
         }
         channel.appendChild(channelText);
 
-        if(mutedChannels.indexOf(currentChannel[0]) !== -1) channel.style.color = "#777777"
+        if (mutedChannels.indexOf(currentChannel[0]) !== -1)
+          channel.style.color = "#777777";
         categoryContainer.appendChild(channel);
       }
       channelContainer.appendChild(categoryContainer);
@@ -379,29 +422,34 @@ async function getChannels(id) {
     if (channels[i][2] !== "TextChannel") continue;
     if (addedChannels.indexOf(channels[i][0]) !== -1) continue;
     const currentChannel = cacheLookup("channels", channels[i][0]);
-        addedChannels.push(currentChannel[0]);
-        if (currentChannel[2] !== "TextChannel") continue;
-        if (currentChannel[3] !== id) continue;
+    addedChannels.push(currentChannel[0]);
+    if (currentChannel[2] !== "TextChannel") continue;
+    if (currentChannel[3] !== id) continue;
 
-        let channel = document.createElement("button");
+    let channel = document.createElement("button");
     channel.classList.add("channel");
 
-        channel.onclick = () => {
-          getMessages(currentChannel[0]);
-        };
-        for (let i = 0; i < unreads.length; i++){
-          if (unreads[i]['_id'].channel === currentChannel[0]) { //currentChannel[0] is the ID of the channel currently being returned
-            if (mutedChannels.indexOf(currentChannel[0]) === -1 && currentChannel[4] > unreads[i].last_id) channel.style.fontWeight = 'bold';
+    channel.onclick = () => {
+      getMessages(currentChannel[0]);
+    };
+    for (let i = 0; i < unreads.length; i++) {
+      if (unreads[i]["_id"].channel === currentChannel[0]) {
+        //currentChannel[0] is the ID of the channel currently being returned
+        if (
+          mutedChannels.indexOf(currentChannel[0]) === -1 &&
+          currentChannel[4] > unreads[i].last_id
+        )
+          channel.style.fontWeight = "bold";
 
-            break;
-          }
-        }
-        
-        let channelText = document.createElement("span");
-        channelText.id = currentChannel[0];
-        channelText.innerText = currentChannel[1];
+        break;
+      }
+    }
 
-        channel.appendChild(channelText);
+    let channelText = document.createElement("span");
+    channelText.id = currentChannel[0];
+    channelText.innerText = currentChannel[1];
+
+    channel.appendChild(channelText);
     channelContainer.insertBefore(channel, channelContainer.children[0]);
   }
 }
@@ -501,7 +549,6 @@ async function buildServerCache(servers) {
 }
 
 function parseMessage(message) {
-  
   const member = cacheLookup("members", message.author, activeServer);
 
   const messageContainer = document.getElementById("messages");
@@ -523,10 +570,10 @@ function parseMessage(message) {
   messageContent.classList.add("message-content");
   let user;
   if ((user = cacheLookup("users", message.author)) === 1) {
-    if (Object.keys(message).indexOf('system') !== -1) {
-      if(message.system.id) {
+    if (Object.keys(message).indexOf("system") !== -1) {
+      if (message.system.id) {
         user = [message.system.id, message.system.id, undefined, undefined];
-      } else{
+      } else {
         user = [message.system.by, message.system.by, undefined, undefined];
       }
     } else {
@@ -534,45 +581,45 @@ function parseMessage(message) {
     }
   }
   if (message.system) {
-    username.textContent = cacheLookup('users',message.system.id)[0];
+    username.textContent = cacheLookup("users", message.system.id)[0];
     messageContent.textContent = message.system.type;
   } else {
-  if (!message.masquerade) {
-    username.textContent = member.nickname ? member.nickname : user[1];
-    if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
-    username.appendChild(masqueradeBadge);
-    profilepicture.src = member.avatar
-      ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
-      : user[2]
-      ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-      : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
-
-    if (member.roles) {
-      for (let i = member.roles.length + 1; i >= 0; i--) {
-        let tmpColour;
-        if ((
-          tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
-            "colour"
-          ])
-        ) {
-          username.style.color = tmpColour;
-          break;
-        }
-      }
-    }
-  } else {
-    masqueradeBadge.textContent = "Masq";
-    username.textContent = message.masquerade.name;
-    username.appendChild(masqueradeBadge);
-
-    if (message.masquerade.avatar) {
-      profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
-    } else {
-      profilepicture.src = user[2]
+    if (!message.masquerade) {
+      username.textContent = member.nickname ? member.nickname : user[1];
+      if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
+      username.appendChild(masqueradeBadge);
+      profilepicture.src = member.avatar
+        ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
+        : user[2]
         ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
         : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
-      username.style.color = message.masquerade.colour;
-    }
+
+      if (member.roles) {
+        for (let i = member.roles.length + 1; i >= 0; i--) {
+          let tmpColour;
+          if (
+            (tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
+              "colour"
+            ])
+          ) {
+            username.style.color = tmpColour;
+            break;
+          }
+        }
+      }
+    } else {
+      masqueradeBadge.textContent = "Masq";
+      username.textContent = message.masquerade.name;
+      username.appendChild(masqueradeBadge);
+
+      if (message.masquerade.avatar) {
+        profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
+      } else {
+        profilepicture.src = user[2]
+          ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+        username.style.color = message.masquerade.colour;
+      }
     }
   }
   username.onclick = () => {
@@ -725,12 +772,15 @@ async function getMessages(id) {
   for (let i = messages.length - 1; i >= 1; i--) {
     parseMessage(messages[i]);
   }
-  fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${messages[0]._id}`, {
-    headers: {
-      'x-session-token': token
-    },
-    method: "PUT"
-  });
+  fetch(
+    `https://api.revolt.chat/channels/${activeChannel}/ack/${messages[0]._id}`,
+    {
+      headers: {
+        "x-session-token": token,
+      },
+      method: "PUT",
+    }
+  );
   parseMessage(messages[0]);
 }
 
@@ -781,18 +831,18 @@ async function loadDMs() {
 
 async function loadProfile(userID) {
   const userProfile = await fetchResource(`users/${userID}/profile`);
-  const memberData = cacheLookup('members', userID, activeServer);
+  const memberData = cacheLookup("members", userID, activeServer);
   let username = document.getElementById("username");
   let profilePicture = document.getElementById("profilePicture");
   let profileBackground = document.getElementById("profileMedia");
   let bio = document.getElementById("bio");
-  let roleContainer = document.getElementById("roleContainer")
+  let roleContainer = document.getElementById("roleContainer");
 
   username.textContent = userProfile.username;
   if (userProfile.avatar) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${userProfile.avatar._id}`;
   }
-  console.log(userProfile)
+  console.log(userProfile);
   if (Object.keys(userProfile).indexOf("background") > -1) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
@@ -802,15 +852,16 @@ async function loadProfile(userID) {
   while (roleContainer.hasChildNodes()) {
     roleContainer.removeChild(roleContainer.lastChild);
   }
-  if (memberData.roles) for (let i = 0; i < memberData.roles.length; i++) { 
-    const role = document.createElement("span");
-    const roleData = cacheLookup('roles', memberData.roles[i], activeServer);
+  if (memberData.roles)
+    for (let i = 0; i < memberData.roles.length; i++) {
+      const role = document.createElement("span");
+      const roleData = cacheLookup("roles", memberData.roles[i], activeServer);
 
-    role.textContent = roleData["name"];
-    role.style.color = roleData["colour"];
-    roleContainer.appendChild(role);
-  }
-  
+      role.textContent = roleData["name"];
+      role.style.color = roleData["colour"];
+      roleContainer.appendChild(role);
+    }
+
   document.getElementById("userProfile").style.display = "flex";
 }
 
@@ -841,7 +892,11 @@ async function sendMessage() {
       content: message,
       replies: activeReplies,
     }),
-  }).then(response => response.json()).then(data => fetch(`https://api.revolt.chat/${activeChannel}/ack/${data._id}`));
+  })
+    .then((response) => response.json())
+    .then((data) =>
+      fetch(`https://api.revolt.chat/${activeChannel}/ack/${data._id}`)
+    );
   messageContainer.value = "";
   activeReplies = [];
   document.querySelector(".replying-container").replaceChildren();
