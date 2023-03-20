@@ -45,7 +45,7 @@ button,
 #input,
 .upload-label {
   background-color: var(--secondary-background);
-  border: none;
+  border: 1px solid transparent;
   color: var(--foreground);
   font-size: 0.9em;
   font-family: "Roboto", sans-serif;
@@ -103,14 +103,14 @@ fieldset {
 }
 
 fieldset legend {
-	color: #393939;
+	color: #474747;
 	font-size: 1.4em;
 	padding: 0;
 }
 
 .login-sep {
 	margin: .7rem 0;
-	color: #393939;
+	color: #474747;
 	font-weight: bold;
 }
 
@@ -132,7 +132,7 @@ fieldset legend {
 }
 
 #login-btn {
-	width: 100%;
+  width: 100%;
   color: var(--foreground);
   background: var(--secondary-background);
   border-radius: var(--border-radius);
@@ -529,4 +529,3 @@ fieldset legend {
   display: -ms-flexbox;
   display: flex;
 }
-

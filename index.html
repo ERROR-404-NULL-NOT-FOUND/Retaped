@@ -28,15 +28,15 @@
 	            	<legend>Login method</legend>
 
 	                <label for="email">Email</label>
-	                <input id="email" name="email" autocomplete="on" placeholder="Email address" type="email">
+	                <input id="email" name="email" autocomplete="on" placeholder="Your revolt email..." type="email">
 
 	                <label for="password">Password</label>
-	                <input id="password" name="password" placeholder="Password" type="password">
+	                <input id="password" name="password" placeholder="Your revolt password..." type="password">
 
 		            <p class="login-sep">OR</p>
 
 	            	<label for="token">Token</label>
-	                <input id="token" name="token" type="password" autocomplete="off" placeholder="Token">
+	                <input id="token" name="token" type="password" autocomplete="off" placeholder="Your revolt token... ">
 	            </fieldset>
 
 	            <fieldset>
@@ -52,7 +52,8 @@
 	        </div>
     </div>
     </div>
-    <div id="logged">
+	<div id="logged">
+
         <div id="info">
             <button id="dms" onclick="loadDMs()">DMS</button>
             <hr class="server-hr">
@@ -66,31 +67,31 @@
         </div>
 
         <div id="central">
-            <div id="userProfile">
-                <div id="profileMedia" class="profile-top">
-                    <div class="profile-name">
-                        <img id="profilePicture" />
-                        <h3 id="username"></h3>
-                    </div>
-                </div>
-                <p id="bio"></p>
-                <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
-                    Close Profile
-                </button>
-            </div>
+			<div id="userProfile">
+				<div id="profileMedia" class="profile-top">
+					<div class="profile-name">
+						<img id="profilePicture" />
+						<h3 id="username"></h3>
+					</div>
+				</div>
+				<p id="bio"></p>
+				<button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
+					Close Profile
+				</button>
+			</div>
 
-            <div class="app-status">
-                <p id="status">Disconnected</p>
-                -
-                <p id="theme-label">Default theme</p>
-            </div>
+			<div class="app-status">
+				<p id="status">Disconnected</p>
+				-
+				<p id="theme-label">Default theme</p>
+			</div>
 
             <div id="messages"></div>
 
             <div class="messagebar-container">
-                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+				<input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+				<input type="text" autocomplete="off" placeholder="Description" id="title" hidden="true" />
+				<input type="text" autocomplete="off" placeholder="Color" id="title" hidden="true" />
 
                 <div class="error-container">
                     <p class="error-content"></p>
