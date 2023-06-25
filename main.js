@@ -3,7 +3,7 @@
 //
 
 var cache = {
-  //0 is id, 1 is username, 2 is pfp, 3 is bot
+  //0 is id, 1 is username, 2 is pfp, 3 is bot, 4 is discrim
   users: [],
   //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
@@ -85,6 +85,31 @@ function cacheLookup(resource, ID, serverID = null) {
   return 1;
 }
 
+// Basically the same as the function above, but fetches the user and adds it to the cache if it isn't found
+async function userLookup(ID) {
+  if (cacheLookup('users', ID) !== 1) return cacheLookup('users', ID);
+  user = await fetchResource(`users/${ID}`);
+  console.log(user)
+  let fmtUser;
+  if (user.avatar) {
+    fmtUser = [
+      user._id,
+      user.username,
+      user.avatar,
+      user.bot,
+    ];
+  } else {
+    fmtUser = [
+      user._id,
+      user.username,
+      undefined,
+      user.bot,
+    ];
+  }
+  cache.users.push(fmtUser);
+  return fmtUser;
+}
+
 // Looks up the given resource by id and returns the index
 function cacheIndexLookup(resource, ID) {
   for (let i = 0; i < cache[resource].length; i++) {
@@ -108,6 +133,16 @@ async function fetchResource(target) {
       return false;
     });
   return res;
+}
+
+async function updateUnreads(channelID, messageID) {
+  for (let i = 0; i < unreads.length; i++){
+    if (unreads[i]._id.channel === channelID) {
+      unreads[i].last_id = messageID;
+      return 0;
+    }
+  }
+  return 1;
 }
 
 //
@@ -209,6 +244,7 @@ async function bonfire() {
       
         // Channel has been acknowledge as read
       case "ChannelAck":
+        updateUnreads(data.id, data.message_id);
         if ((channel = document.getElementById(data.id))) {
           channel.style.colour = cssVars.getPropertyValue("--foreground");
           channel.style.fontWeight = "normal";
@@ -243,7 +279,7 @@ async function bonfire() {
         )
           break;
         const typingMember = cacheLookup("members", data.user, activeServer);
-        const typingUser = cacheLookup("users", data.user);
+        const typingUser = await userLookup(data.user);
         const typingUserContainer = document.createElement("div");
         const typingUserName = document.createElement("span");
         const typingUserPfp = document.createElement("img");
@@ -495,7 +531,7 @@ function clearMessages() {
 
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
-function parseMessage(message) {
+async function parseMessage(message) {
   const member = cacheLookup("members", message.author, activeServer);
 
   const messageContainer = document.getElementById("messages");
@@ -516,7 +552,7 @@ function parseMessage(message) {
   replyButton.classList.add("reply-btn");
   messageContent.classList.add("message-content");
   let user;
-  if ((user = cacheLookup("users", message.author)) === 1) {
+  if ((user = await userLookup(message.author)) === 1) {
     if (Object.keys(message).indexOf("system") !== -1) {
       if (message.system.id) {
         user = [message.system.id, message.system.id, undefined, undefined];
@@ -528,7 +564,7 @@ function parseMessage(message) {
     }
   }
   if (message.system) {
-    username.textContent = cacheLookup("users", message.system.id)[0];
+    username.textContent = await userLookup(message.system.id)[0];
     messageContent.textContent = message.system.type;
   } else {
     if (!message.masquerade) {
@@ -582,7 +618,7 @@ function parseMessage(message) {
     let parsedMessage = document.createElement("p");
     parsedMessage.textContent = message.content;
 
-    message.mentions.forEach((mention) => {
+    message.mentions.forEach(async (mention) => {
       if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
       let segConcat = document.createElement("div");
       let newSeg
@@ -593,7 +629,7 @@ function parseMessage(message) {
       });
       let ping = document.createElement("span");
       ping.classList.add("mention");
-      ping.textContent = '@' + cacheLookup("users", mention)[1];
+      ping.textContent = '@' + await userLookup(mention)[1];
       let segElement = document.createElement("span");
       segConcat.insertBefore(ping, newSeg);
       parsedMessage = segConcat;
@@ -741,6 +777,7 @@ async function buildUserCache(users) {
         users[i].username,
         users[i].avatar,
         users[i].bot,
+        users[i].discriminator,
       ]);
     } else {
       cache.users.push([
@@ -748,6 +785,7 @@ async function buildUserCache(users) {
         users[i].username,
         undefined,
         users[i].bot,
+        users[i].discriminator,
       ]);
     }
   }
@@ -788,12 +826,13 @@ async function getMessages(id) {
   const users = placeholder.users;
 
   for (let i = 0; i < users.length; i++) {
-    if (cacheLookup("users", users[i] === 1))
+    if (cacheLookup("users", users[i]) === 1)
       cache.users.push([
         users[i]._id,
         users[i].username,
         users[i].avatar,
         users[i].bot,
+        users[i].discriminator,
       ]);
   }
   if (placeholder.members) {
@@ -855,7 +894,7 @@ async function loadDMs() {
         ? cache.channels[i][1]
         : cache.channels[i][1][0] === userProfile._id
         ? cache.channels[i][1][1]
-        : cacheLookup("users", cache.channels[i][1][0])[1];
+        : await userLookup(cache.channels[i][1][0])[1];
     dmButton.onclick = () => {
       getMessages(cache.channels[i][0]);
     };
@@ -873,17 +912,21 @@ async function loadDMs() {
 async function loadProfile(userID) {
   const userProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, activeServer);
+  const user = await userLookup(userID);
   let username = document.getElementById("username");
+  let discriminator = document.getElementById("discrim");
   let profilePicture = document.getElementById("profilePicture");
   let profileBackground = document.getElementById("profileMedia");
   let bio = document.getElementById("bio");
   let roleContainer = document.getElementById("roleContainer");
-
-  username.textContent = userProfile.username;
-  if (userProfile.avatar) {
-    profilePicture.src = `https://autumn.revolt.chat/avatars/${userProfile.avatar._id}`;
+  console.log(user)
+  username.textContent = user[1];
+  discriminator.textContent = user[4];
+  if (user[2]) {
+    profilePicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
+  } else {
+    profilePicture.src = `https://api.revolt.chat/users/${userProfile._id}/default_avatar`
   }
-  console.log(userProfile);
   if (Object.keys(userProfile).indexOf("background") > -1) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
@@ -919,7 +962,7 @@ async function sendMessage() {
     for (let i = 0; i < pings.length; i++) {
       message = message.replace(
         pings[i],
-        `<@${cacheLookup("users", pings[i].replace("@", ""))[1]}>`
+        `<@${await userLookup(pings[i].replace("@", ""))[1]}>`
       );
     }
   }
