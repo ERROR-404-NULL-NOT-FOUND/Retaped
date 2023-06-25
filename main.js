@@ -39,7 +39,7 @@ window.onload = function () {
 };
 
 //
-// Functions
+// Keybinds
 //
 
 document.addEventListener("keydown", (event) => {
@@ -55,6 +55,11 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+//
+// Utility functions
+//
+
+// Looks up the given resource by id from the cache
 function cacheLookup(resource, ID, serverID = null) {
   if (resource === "members" || resource === "roles") {
     for (let i = 0; i < cache.servers.length; i++) {
@@ -80,6 +85,7 @@ function cacheLookup(resource, ID, serverID = null) {
   return 1;
 }
 
+// Looks up the given resource by id and returns the index
 function cacheIndexLookup(resource, ID) {
   for (let i = 0; i < cache[resource].length; i++) {
     if (cache[resource][i][0] === ID) return i;
@@ -87,6 +93,7 @@ function cacheIndexLookup(resource, ID) {
   return 1;
 }
 
+// Macro to fetch remote resources
 async function fetchResource(target) {
   //Return of false means that it failed
   const res = await fetch(`https://api.revolt.chat/${target}`, {
@@ -107,6 +114,7 @@ async function fetchResource(target) {
 // Main stuff
 //
 
+// Loads settings from the user's Revolt account, mainly for color loading
 async function loadSyncSettings() {
   const rawSettings = await fetch(
     "https://api.revolt.chat/sync/settings/fetch",
@@ -149,6 +157,7 @@ async function loadSyncSettings() {
   document.querySelector("#theme-label").textContent = "Revolt theme";
 }
 
+// Function to interface with Revolt's websocket service
 async function bonfire() {
   socket = new WebSocket("wss://ws.revolt.chat");
 
@@ -161,9 +170,13 @@ async function bonfire() {
     data = JSON.parse(event.data);
     const typingBar = document.getElementById("typingBar");
     switch (data.type) {
+
+      // User provided correct credentials
       case "Authenticated":
         document.getElementById("status").innerText = "Connected";
         break;
+      
+        // Used for message unreads and adding new messages to the messagebox
       case "Message":
         if (data.channel === activeChannel) {
           parseMessage(data);
@@ -193,6 +206,8 @@ async function bonfire() {
               : cssVars.getPropertyValue("--foreground");
         }
         break;
+      
+        // Channel has been acknowledge as read
       case "ChannelAck":
         if ((channel = document.getElementById(data.id))) {
           channel.style.colour = cssVars.getPropertyValue("--foreground");
@@ -204,16 +219,23 @@ async function bonfire() {
           "rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px";
 
         break;
+      
+      // Uh oh
       case "Error":
         document.querySelector(".error-container").style.display = "block";
         document.querySelector(".error-content").textContent = data.error;
         break;
+      
+      // Cache building, received immediately after 'Authenticated'
       case "Ready":
         buildServerCache(data.servers);
         buildChannelCache(data.channels);
         buildUserCache(data.users);
         getServers();
         break;
+      
+      // User begins typing
+      // TODO: add timeout
       case "ChannelStartTyping":
         if (
           data.id !== activeChannel ||
@@ -239,6 +261,8 @@ async function bonfire() {
         document.getElementById("typingBarContainer").hidden = false;
         typingBar.appendChild(typingUserContainer);
         break;
+      
+      // User stops typing
       case "ChannelStopTyping":
         if (data.id !== activeChannel) break;
         const typingUserContainerz = document.getElementById(data.user);
@@ -256,6 +280,8 @@ async function bonfire() {
   });
 }
 
+// Handles login and init
+// TODO: replace all of the fucking if statements
 async function login() {
   let toggleTheme = document.querySelector("#toggleTheme");
   let toggleToken = document.querySelector("#toggleToken");
@@ -306,6 +332,11 @@ async function login() {
   document.getElementById("logged").style.display = "grid";
 }
 
+//
+// Rendering
+//
+
+// Renders servers from the cache
 async function getServers() {
   let serverContainer = document.getElementById("servers");
   while (serverContainer.hasChildNodes()) {
@@ -357,6 +388,7 @@ async function getServers() {
   }
 }
 
+// Renders channels from the cache
 async function getChannels(id) {
   let channelContainer = document.getElementById("channels");
 
@@ -461,8 +493,196 @@ function clearMessages() {
   }
 }
 
+// Parses and renders messages
+// TODO: make this function not be almost 200 lines long
+function parseMessage(message) {
+  const member = cacheLookup("members", message.author, activeServer);
+
+  const messageContainer = document.getElementById("messages");
+
+
+  let messageDisplay = document.createElement("div");
+  let messageContent = document.createElement("p");
+  let userdata = document.createElement("div");
+  let username = document.createElement("button");
+  let profilepicture = document.createElement("img");
+  let replyButton = document.createElement("button");
+  let masqueradeBadge = document.createElement("span");
+
+  messageDisplay.classList.add("message-display");
+  profilepicture.classList.add("chat-pfp");
+  userdata.classList.add("userdata");
+  username.classList.add("username");
+  replyButton.classList.add("reply-btn");
+  messageContent.classList.add("message-content");
+  let user;
+  if ((user = cacheLookup("users", message.author)) === 1) {
+    if (Object.keys(message).indexOf("system") !== -1) {
+      if (message.system.id) {
+        user = [message.system.id, message.system.id, undefined, undefined];
+      } else {
+        user = [message.system.by, message.system.by, undefined, undefined];
+      }
+    } else {
+      user = [message.author, message.author, undefined, undefined];
+    }
+  }
+  if (message.system) {
+    username.textContent = cacheLookup("users", message.system.id)[0];
+    messageContent.textContent = message.system.type;
+  } else {
+    if (!message.masquerade) {
+      username.textContent = member.nickname ? member.nickname : user[1];
+      if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
+      username.appendChild(masqueradeBadge);
+      profilepicture.src = member.avatar
+        ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
+        : user[2]
+        ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+        : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+
+      if (member.roles) {
+        for (let i = member.roles.length + 1; i >= 0; i--) {
+          let tmpColour;
+          if (
+            (tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
+              "colour"
+            ])
+          ) {
+            username.style.color = tmpColour;
+            break;
+          }
+        }
+      }
+    } else {
+      masqueradeBadge.textContent = "Masq";
+      username.textContent = message.masquerade.name;
+      username.appendChild(masqueradeBadge);
+
+      if (message.masquerade.avatar) {
+        profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
+      } else {
+        profilepicture.src = user[2]
+          ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+        username.style.color = message.masquerade.colour;
+      }
+    }
+  }
+  username.onclick = () => {
+    loadProfile(user[0]);
+  };
+  profilepicture.onclick = () => {
+    loadProfile(user[0]);
+  };
+
+  userdata.appendChild(profilepicture);
+  userdata.appendChild(username);
+  if (message.mentions) {
+    let parsedMessage = document.createElement("p");
+    parsedMessage.textContent = message.content;
+
+    message.mentions.forEach((mention) => {
+      if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
+      let segConcat = document.createElement("div");
+      let newSeg
+      parsedMessage.innerText.split(`<@${mention}>`).forEach((segment) => {
+          newSeg = document.createElement("span");
+          newSeg.innerText = segment;
+          segConcat.appendChild(newSeg);
+      });
+      let ping = document.createElement("span");
+      ping.classList.add("mention");
+      ping.textContent = '@' + cacheLookup("users", mention)[1];
+      let segElement = document.createElement("span");
+      segConcat.insertBefore(ping, newSeg);
+      parsedMessage = segConcat;
+    });
+    messageContent.appendChild(parsedMessage);
+  } else if (!message.system) messageContent.textContent = message.content;
+
+  if (message.replies) {
+    let reply = document.createElement("div");
+    reply.classList.add("reply-content");
+    for (let j = 0; j < message.replies.length; j++) {
+      let replyContent = document.createElement("span");
+      replyContent.textContent =
+        "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
+      reply.appendChild(replyContent);
+    }
+    messageDisplay.appendChild(reply);
+  }
+
+  if (cache.messages.length === 0 || cache.messages[cache.messages.length-1][1] !== message.author)
+    messageDisplay.appendChild(userdata);
+  messageDisplay.appendChild(messageContent);
+
+  messageDisplay.id = message._id;
+  messageDisplay.class = "message";
+
+  messageContainer.appendChild(messageDisplay);
+
+  if (message.attachments) {
+    let attachments = document.createElement("div");
+    attachments.classList.add("message-attachments");
+    message.attachments.forEach((tmpAtchmntAttrs) => {
+      let tmpAttachment;
+      if (tmpAtchmntAttrs.content_type.startsWith("image")) {
+        tmpAttachment = document.createElement("img");
+        tmpAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+      } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
+        tmpAttachment = document.createElement("video");
+        tmpAttachment.controls = true;
+        tmpAttachment.style.maxWidth = "30%";
+        tmpAttachment.style.maxHeight = "30%";
+        let subAttachment = document.createElement("source");
+        subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+        subAttachment.type = tmpAtchmntAttrs.content_type;
+        tmpAttachment.appendChild(subAttachment);
+      } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
+        tmpAttachment = document.createElement("div");
+
+        let tmpContainer = document.createElement("audio");
+        tmpContainer.controls = true;
+        tmpContainer.textContent = tmpAtchmntAttrs.filename;
+
+        let subAttachment = document.createElement("source");
+        subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+        subAttachment.type = tmpAtchmntAttrs.content_type;
+
+        tmpContainer.appendChild(subAttachment);
+        let name = document.createElement("span");
+        name.textContent = tmpAtchmntAttrs.filename + "\n";
+
+        tmpAttachment.appendChild(name);
+        tmpAttachment.appendChild(tmpContainer);
+      } else {
+        tmpAttachment = document.createElement("a");
+        tmpAttachment.textContent = tmpAtchmntAttrs.filename;
+        tmpAttachment.href = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+      }
+      attachments.appendChild(tmpAttachment);
+    });
+    messageDisplay.appendChild(attachments);
+  }
+
+  replyButton.onclick = () => {
+    activeReplies.push({
+      id: message["_id"],
+      mention: false,
+    });
+    const replyText = document.createElement("p");
+    replyText.textContent = message.content;
+    document.querySelector(".replying-container").appendChild(replyText);
+    replyText.classList.add("replying-content");
+  };
+  replyButton.innerText = "Reply";
+  userdata.appendChild(replyButton);
+  cache.messages.push([message._id, message.author, message.content]);
+}
+
 //
-// * Processing
+// Cache building
 //
 
 async function buildChannelCache(channels) {
@@ -548,188 +768,9 @@ async function buildServerCache(servers) {
   getServers();
 }
 
-function parseMessage(message) {
-  const member = cacheLookup("members", message.author, activeServer);
-
-  const messageContainer = document.getElementById("messages");
-  cache.messages.push([message._id, message.author, message.content]);
-
-  let messageDisplay = document.createElement("div");
-  let messageContent = document.createElement("p");
-  let userdata = document.createElement("div");
-  let username = document.createElement("button");
-  let profilepicture = document.createElement("img");
-  let replyButton = document.createElement("button");
-  let masqueradeBadge = document.createElement("span");
-
-  messageDisplay.classList.add("message-display");
-  profilepicture.classList.add("chat-pfp");
-  userdata.classList.add("userdata");
-  username.classList.add("username");
-  replyButton.classList.add("reply-btn");
-  messageContent.classList.add("message-content");
-  let user;
-  if ((user = cacheLookup("users", message.author)) === 1) {
-    if (Object.keys(message).indexOf("system") !== -1) {
-      if (message.system.id) {
-        user = [message.system.id, message.system.id, undefined, undefined];
-      } else {
-        user = [message.system.by, message.system.by, undefined, undefined];
-      }
-    } else {
-      user = [message.author, message.author, undefined, undefined];
-    }
-  }
-  if (message.system) {
-    username.textContent = cacheLookup("users", message.system.id)[0];
-    messageContent.textContent = message.system.type;
-  } else {
-    if (!message.masquerade) {
-      username.textContent = member.nickname ? member.nickname : user[1];
-      if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
-      username.appendChild(masqueradeBadge);
-      profilepicture.src = member.avatar
-        ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
-        : user[2]
-        ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-        : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
-
-      if (member.roles) {
-        for (let i = member.roles.length + 1; i >= 0; i--) {
-          let tmpColour;
-          if (
-            (tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
-              "colour"
-            ])
-          ) {
-            username.style.color = tmpColour;
-            break;
-          }
-        }
-      }
-    } else {
-      masqueradeBadge.textContent = "Masq";
-      username.textContent = message.masquerade.name;
-      username.appendChild(masqueradeBadge);
-
-      if (message.masquerade.avatar) {
-        profilepicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
-      } else {
-        profilepicture.src = user[2]
-          ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
-        username.style.color = message.masquerade.colour;
-      }
-    }
-  }
-  username.onclick = () => {
-    loadProfile(user[0]);
-  };
-  profilepicture.onclick = () => {
-    loadProfile(user[0]);
-  };
-
-  userdata.appendChild(profilepicture);
-  userdata.appendChild(username);
-  if (message.mentions) {
-    let parsedMessage = document.createElement("p");
-    parsedMessage.textContent = message.content;
-
-    message.mentions.forEach((mention) => {
-      let segConcat = document.createElement("div");
-      segConcat.classList.add("mention-container");
-
-      parsedMessage.innerHTML.split(`@${mention}`).forEach((segment) => {
-        let ping = document.createElement("span");
-        ping.classList.add("mention");
-        ping.textContent = cacheLookup("users", mention)[1];
-        let segElement = document.createElement("p");
-        segElement.innerHTML = segment;
-        segConcat.appendChild(segElement);
-        segConcat.appendChild(ping);
-      });
-      parsedMessage = segConcat;
-    });
-    messageContent.appendChild(parsedMessage);
-  } else if (!message.system) messageContent.textContent = message.content;
-
-  if (message.replies) {
-    let reply = document.createElement("div");
-    reply.classList.add("reply-content");
-    for (let j = 0; j < message.replies.length; j++) {
-      let replyContent = document.createElement("span");
-      replyContent.textContent =
-        "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
-      reply.appendChild(replyContent);
-    }
-    messageDisplay.appendChild(reply);
-  }
-
-  messageDisplay.appendChild(userdata);
-  messageDisplay.appendChild(messageContent);
-
-  messageDisplay.id = message._id;
-  messageDisplay.class = "message";
-
-  messageContainer.appendChild(messageDisplay);
-
-  if (message.attachments) {
-    let attachments = document.createElement("div");
-    attachments.classList.add("message-attachments");
-    message.attachments.forEach((tmpAtchmntAttrs) => {
-      let tmpAttachment;
-      if (tmpAtchmntAttrs.content_type.startsWith("image")) {
-        tmpAttachment = document.createElement("img");
-        tmpAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-      } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
-        tmpAttachment = document.createElement("video");
-        tmpAttachment.controls = true;
-        tmpAttachment.style.maxWidth = "30%";
-        tmpAttachment.style.maxHeight = "30%";
-        let subAttachment = document.createElement("source");
-        subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-        subAttachment.type = tmpAtchmntAttrs.content_type;
-        tmpAttachment.appendChild(subAttachment);
-      } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
-        tmpAttachment = document.createElement("div");
-
-        let tmpContainer = document.createElement("audio");
-        tmpContainer.controls = true;
-        tmpContainer.textContent = tmpAtchmntAttrs.filename;
-
-        let subAttachment = document.createElement("source");
-        subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-        subAttachment.type = tmpAtchmntAttrs.content_type;
-
-        tmpContainer.appendChild(subAttachment);
-        let name = document.createElement("span");
-        name.textContent = tmpAtchmntAttrs.filename + "\n";
-
-        tmpAttachment.appendChild(name);
-        tmpAttachment.appendChild(tmpContainer);
-      } else {
-        tmpAttachment = document.createElement("a");
-        tmpAttachment.textContent = tmpAtchmntAttrs.filename;
-        tmpAttachment.href = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-      }
-      attachments.appendChild(tmpAttachment);
-    });
-    messageDisplay.appendChild(attachments);
-  }
-
-  replyButton.onclick = () => {
-    activeReplies.push({
-      id: message["_id"],
-      mention: false,
-    });
-    const replyText = document.createElement("p");
-    replyText.textContent = message.content;
-    document.querySelector(".replying-container").appendChild(replyText);
-    replyText.classList.add("replying-content");
-  };
-  replyButton.innerText = "Reply";
-  userdata.appendChild(replyButton);
-}
+//
+// Wildcard category
+//
 
 async function getMessages(id) {
   cache.messages = [];
@@ -808,7 +849,7 @@ async function loadDMs() {
 
     const dmButton = document.createElement("button");
     dmButton.classList.add("channel");
-
+    //God, why did I do this
     dmButton.textContent =
       cache.channels[i][2] === "Group"
         ? cache.channels[i][1]
@@ -873,7 +914,7 @@ async function sendMessage() {
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
   //Checking for valid pings, and replacing with an actual ping
-  if (message.search(/ @[^ ]*/) != -1) {
+  if (message.search(/@[^ ]*/) != -1) {
     let pings = /@[^ ]*/[Symbol.match](message);
     for (let i = 0; i < pings.length; i++) {
       message = message.replace(

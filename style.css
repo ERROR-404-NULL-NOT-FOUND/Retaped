@@ -526,3 +526,8 @@ fieldset legend {
   display: flex;
 }
 
+.mention {
+  color: var(--accent);
+  padding-left: 10px;
+  padding-right: 10px;
+}
