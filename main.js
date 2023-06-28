@@ -629,7 +629,7 @@ async function parseMessage(message) {
       });
       let ping = document.createElement("span");
       ping.classList.add("mention");
-      ping.textContent = '@' + await userLookup(mention)[1];
+      ping.textContent = '@' + cacheLookup('users',mention)[1];
       let segElement = document.createElement("span");
       segConcat.insertBefore(ping, newSeg);
       parsedMessage = segConcat;
