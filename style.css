@@ -554,7 +554,9 @@ fieldset legend {
 }
 
 .mention {
-  color: var(--accent);
-  padding-left: 10px;
-  padding-right: 10px;
+  color: color-mix(in srgb, var(--accent) 70%, white);
+  background: #ff1a6354;
+  border-radius: 5px;
+  padding: 0.1rem .3rem;
+  font-weight: bold;
 }
