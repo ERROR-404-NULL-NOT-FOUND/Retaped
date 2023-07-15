@@ -68,7 +68,7 @@
                 <div id="profileMedia" class="profile-top">
                     <div class="profile-name">
                         <img id="profilePicture" />
-                        <h3 id="username"></h3>
+                        <h3 id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></h3>
                     </div>
                 </div>
                 <p id="bio"></p>
@@ -104,6 +104,8 @@
                      id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
 
                 <input type="file" id="upload" />
+
+                <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
                 <div class="toolbar">
                     <button onclick="bonfire()">Re-establish websocket</button>
                     <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
@@ -113,7 +115,6 @@
                     <button onclick="contentToJson()">JSON</button>
                 </div>
                 <div id="messagebar">
-                    <div id="typingBarContainer" hidden="true"><span id="typingBar"></span> is typing</div>
                     <button class="toolbar-btn">↑</button>
                     <label class="upload-label" for="upload">+</label>
                     <input type="text" autocomplete="off" placeholder="Speak in channel" id="input"

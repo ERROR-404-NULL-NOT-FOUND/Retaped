@@ -453,6 +453,33 @@ fieldset legend {
   padding-top: 0.3rem;
 }
 
+#typingBarContainer, 
+#typingBarContainer div,
+#typingBarContainer > span {
+  display: flex;
+  align-items: center;
+}
+
+#typingBarContainer {
+  display: none;
+  padding: 1ch;
+  gap: .5ch;
+}
+
+#typingBarContainer > span {
+  gap: 1ch;
+}
+
+#typingBarContainer div {
+  gap: .5ch;
+}
+
+#typingBarContainer img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 #messagebar {
   font-size: 1.3rem;
 }
@@ -526,3 +553,10 @@ fieldset legend {
   display: flex;
 }
 
+.mention {
+  color: color-mix(in srgb, var(--accent) 70%, white);
+  background: #ff1a6354;
+  border-radius: 5px;
+  padding: 0.1rem .3rem;
+  font-weight: bold;
+}
