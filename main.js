@@ -3,7 +3,7 @@
 //
 
 var cache = {
-  //0 is id, 1 is username, 2 is pfp, 3 is bot, 4 is discrim
+  //0 is id, 1 is username, 2 is pfp, 3 is bot, 4 is discrim, 5 is display name
   users: [],
   //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
@@ -15,7 +15,7 @@ var cache = {
 };
 
 var activeReplies = [];
-
+var emojis = { };
 var activeServer;
 var activeChannel;
 var token;
@@ -27,6 +27,7 @@ var mutedChannels = [];
 var unreads = [];
 var unreadChannels = [];
 var cssVars = getComputedStyle(document.querySelector(":root"));
+var keysDown = [];
 
 //
 // Run on page load
@@ -45,15 +46,26 @@ window.onload = function () {
 document.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "Enter":
-      sendMessage();
+      if (keysDown.indexOf('Shift') === -1) sendMessage();
+      else {
+        let input = document.getElementById("input");
+        input.value = `${input.value}\n`;
+      }
       break;
     case "Escape":
       activeReplies.pop();
       document.querySelector(".replying-container").lastChild.remove();
       break;
     default:
+      keysDown.push(event.key);
   }
+  return;
 });
+
+document.addEventListener("keyup", (event) => { 
+  keysDown.splice(keysDown.indexOf(event.key), 1);
+  return;
+})
 
 //
 // Utility functions
@@ -89,7 +101,6 @@ function cacheLookup(resource, ID, serverID = null) {
 async function userLookup(ID) {
   if (cacheLookup('users', ID) !== 1) return cacheLookup('users', ID);
   user = await fetchResource(`users/${ID}`);
-  console.log(user)
   let fmtUser;
   if (user.avatar) {
     fmtUser = [
@@ -242,6 +253,14 @@ async function bonfire() {
         }
         break;
       
+      case "MessageDelete":
+        if(data.channel_id===activeChannel) document.querySelector("#messages").removeChild(document.getElementById(data.id));
+        break;
+      
+      case "MessageUpdate":
+        if (data.channel_id === activeChannel) {
+          parseMessage(data.data, data.id);
+        }
         // Channel has been acknowledge as read
       case "ChannelAck":
         updateUnreads(data.id, data.message_id);
@@ -344,7 +363,9 @@ async function login() {
     if (tokenResponse.result === "Success") {
       token = tokenResponse.token;
     } else {
-      console.log("login failed");
+      if(tokenResponse.result === "Unauthorized")
+      localStorage.removeItem("token");
+        console.log("Invalid token!");
     }
   } else {
     console.log(
@@ -363,6 +384,7 @@ async function login() {
     loadSyncSettings();
   }
   bonfire();
+  fetch('./emojis.json').then((res) => res.json()).then((json)=>emojis=json)
   // Hide & show
   document.querySelector(".login-screen").style.display = "none";
   document.getElementById("logged").style.display = "grid";
@@ -531,13 +553,20 @@ function clearMessages() {
 
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
-async function parseMessage(message) {
+async function parseMessage(message, id = null) {
   const member = cacheLookup("members", message.author, activeServer);
-
+  var messageDisplay = "";
   const messageContainer = document.getElementById("messages");
 
-
-  let messageDisplay = document.createElement("div");
+  if (id !== null) {
+    messageDisplay = document.getElementById(id);
+    while (messageDisplay.hasChildNodes()) {
+      messageDisplay.removeChild(messageDisplay.lastChild);
+    }
+  }
+  else {
+    messageDisplay = document.createElement("div");
+  }
   let messageContent = document.createElement("p");
   let userdata = document.createElement("div");
   let username = document.createElement("button");
@@ -568,14 +597,14 @@ async function parseMessage(message) {
     messageContent.textContent = message.system.type;
   } else {
     if (!message.masquerade) {
-      username.textContent = member.nickname ? member.nickname : user[1];
+      username.textContent = member.nickname ? member.nickname : user[5];
       if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
       username.appendChild(masqueradeBadge);
       profilepicture.src = member.avatar
         ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
         : user[2]
-        ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-        : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+          ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
+          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
 
       if (member.roles) {
         for (let i = member.roles.length + 1; i >= 0; i--) {
@@ -585,8 +614,13 @@ async function parseMessage(message) {
               "colour"
             ])
           ) {
-            username.style.color = tmpColour;
-            break;
+            if (/^#[0-9A-F]{6}$/i.test(tmpColour)) { // Testing if it's a valid hex code
+              username.style.backgroundColor = tmpColour;
+              break;
+            } else {
+              username.style.background = tmpColour;
+              username.style.backgroundClip = "border-box";
+            }
           }
         }
       }
@@ -611,32 +645,60 @@ async function parseMessage(message) {
   profilepicture.onclick = () => {
     loadProfile(user[0]);
   };
-
   userdata.appendChild(profilepicture);
   userdata.appendChild(username);
   if (message.mentions) {
     let parsedMessage = document.createElement("p");
     parsedMessage.textContent = message.content;
-
     message.mentions.forEach(async (mention) => {
       if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
       let segConcat = document.createElement("div");
-      let newSeg
+      let newSeg;
       parsedMessage.innerText.split(`<@${mention}>`).forEach((segment) => {
-          newSeg = document.createElement("span");
-          newSeg.innerText = segment;
-          segConcat.appendChild(newSeg);
+        newSeg = document.createElement("span");
+        newSeg.innerText = segment;
+        segConcat.appendChild(newSeg);
       });
       let ping = document.createElement("span");
       ping.classList.add("mention");
-      ping.textContent = '@' + cacheLookup('users',mention)[1];
+      ping.textContent = '@' + cacheLookup('users', mention)[1];
       let segElement = document.createElement("span");
       segConcat.insertBefore(ping, newSeg);
       parsedMessage = segConcat;
     });
     messageContent.appendChild(parsedMessage);
   } else if (!message.system) messageContent.textContent = message.content;
-
+  // Emojis
+  Object.keys(emojis.standard).forEach(emoji => {
+    if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
+      messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
+    }
+  });
+  Object.keys(emojis.custom).forEach(emoji => {
+    if (messageContent.textContent.search(`:${emoji}`) === -1) return;
+    let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
+    let emojiImage = document.createElement("img");
+    emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
+    messageContent.textContent = "";
+    messageContent.innerHTML = "";
+    for (let i = 0; i < tmpMsg.length; i++){
+      if (i !== tmpMsg.length - 1) messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML
+      else messageContent.innerHTML += tmpMsg[i];
+    }
+  })
+  if (messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
+    let matches = messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
+    for (let i = 0; i < matches.length; i++) {
+      let emoji = matches[i].split(":")[1];
+      let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
+      let tmpImg = document.createElement("img");
+      tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
+      messageContent.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
+      for (let j = 1; j < tmpMsg.length-1; j++) {
+        messageContent.innerHTML+= tmpMsg[j]
+      }
+    }
+  }
   if (message.replies) {
     let reply = document.createElement("div");
     reply.classList.add("reply-content");
@@ -656,8 +718,7 @@ async function parseMessage(message) {
   messageDisplay.id = message._id;
   messageDisplay.class = "message";
 
-  messageContainer.appendChild(messageDisplay);
-
+  
   if (message.attachments) {
     let attachments = document.createElement("div");
     attachments.classList.add("message-attachments");
@@ -677,19 +738,19 @@ async function parseMessage(message) {
         tmpAttachment.appendChild(subAttachment);
       } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
         tmpAttachment = document.createElement("div");
-
+        
         let tmpContainer = document.createElement("audio");
         tmpContainer.controls = true;
         tmpContainer.textContent = tmpAtchmntAttrs.filename;
-
+        
         let subAttachment = document.createElement("source");
         subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
         subAttachment.type = tmpAtchmntAttrs.content_type;
-
+        
         tmpContainer.appendChild(subAttachment);
         let name = document.createElement("span");
         name.textContent = tmpAtchmntAttrs.filename + "\n";
-
+        
         tmpAttachment.appendChild(name);
         tmpAttachment.appendChild(tmpContainer);
       } else {
@@ -709,11 +770,12 @@ async function parseMessage(message) {
     });
     const replyText = document.createElement("p");
     replyText.textContent = message.content;
-    document.querySelector(".replying-container").appendChild(replyText);
     replyText.classList.add("replying-content");
+    document.querySelector(".replying-container").appendChild(replyText);
   };
   replyButton.innerText = "Reply";
-  userdata.appendChild(replyButton);
+  messageDisplay.appendChild(replyButton);
+  if( id===null)messageContainer.appendChild(messageDisplay);
   cache.messages.push([message._id, message.author, message.content]);
 }
 
@@ -778,6 +840,7 @@ async function buildUserCache(users) {
         users[i].avatar,
         users[i].bot,
         users[i].discriminator,
+        users[i].display_name
       ]);
     } else {
       cache.users.push([
@@ -786,6 +849,7 @@ async function buildUserCache(users) {
         undefined,
         users[i].bot,
         users[i].discriminator,
+        users[i].display_name
       ]);
     }
   }
@@ -814,6 +878,7 @@ async function getMessages(id) {
   cache.messages = [];
 
   activeChannel = id;
+  document.querySelector("#typingbarcontainer").innerHTML = "";
 
   fetchResource(`channels/${id}`).then((data) => {
     document.getElementById("chanName").innerText =
@@ -867,7 +932,7 @@ async function getMessages(id) {
 async function loadDMUserName(userID) {
   while (true) {
     if (activeRequests < 10) break;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
   activeRequests++;
   let returnValue = await fetchResource(`users/${userID}`);
@@ -877,32 +942,49 @@ async function loadDMUserName(userID) {
 
 async function loadDMs() {
   let channelContainer = document.getElementById("channels");
+  let userCat = document.createElement("summary");
+  userCat.classList.add("categoryText");
   //Clear channel field
   while (channelContainer.hasChildNodes()) {
     channelContainer.removeChild(channelContainer.lastChild);
   }
+  await fetchResource(`users/${userProfile._id}/dm`).then((response) => {
+    const dmButton = document.createElement("button");
+    dmButton.textContent = "Saved messages";
+    dmButton.classList.add("channel");
+    dmButton.onclick = () => {
+      getMessages(response._id);
+    }
+    dmButton.id = response._id;
+    userCat.appendChild(dmButton);
+  });
 
   for (let i = 0; i < cache.channels.length; i++) {
     //Checking for only DMs
     if (!["DirectMessage", "Group"].includes(cache.channels[i][2])) continue;
-
     const dmButton = document.createElement("button");
     dmButton.classList.add("channel");
     //God, why did I do this
-    dmButton.textContent =
-      cache.channels[i][2] === "Group"
-        ? cache.channels[i][1]
-        : cache.channels[i][1][0] === userProfile._id
-        ? cache.channels[i][1][1]
-        : await userLookup(cache.channels[i][1][0])[1];
+    if (cache.channels[i][2] === "Group") {
+      dmButton.textContent = cache.channels[i][1];
+    } else {
+      if (cache.channels[i][1][1] === userProfile._id) {
+        let user = await userLookup(cache.channels[i][1][1])
+        dmButton.textContent = `@${user[1]}#${user[4]}`;
+      } else {
+        let user = await userLookup(cache.channels[i][1][1])
+        dmButton.textContent = `@${user[1]}#${user[4]}`;
+      }
+    }
     dmButton.onclick = () => {
       getMessages(cache.channels[i][0]);
     };
 
     dmButton.id = cache.channels[i][0];
 
-    channelContainer.appendChild(dmButton);
+    userCat.appendChild(dmButton);
   }
+  channelContainer.appendChild(userCat);
 }
 
 //
@@ -913,13 +995,13 @@ async function loadProfile(userID) {
   const userProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, activeServer);
   const user = await userLookup(userID);
+  let displayName = document.getElementById("displayname");
   let username = document.getElementById("username");
   let discriminator = document.getElementById("discrim");
   let profilePicture = document.getElementById("profilePicture");
   let profileBackground = document.getElementById("profileMedia");
   let bio = document.getElementById("bio");
   let roleContainer = document.getElementById("roleContainer");
-  console.log(user)
   username.textContent = user[1];
   discriminator.textContent = user[4];
   if (user[2]) {
@@ -979,7 +1061,7 @@ async function sendMessage() {
   })
     .then((response) => response.json())
     .then((data) =>
-      fetch(`https://api.revolt.chat/${activeChannel}/ack/${data._id}`)
+      fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT" })
     );
   messageContainer.value = "";
   activeReplies = [];

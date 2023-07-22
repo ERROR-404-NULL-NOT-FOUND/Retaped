@@ -14,6 +14,7 @@
 
 <body>
     <div class="login-screen">
+        <span id="loginerror" hidden="false"></span>
         <div class="title">
             <h1 id="name"><span class="hl">Re</span>taped</h1>
             <h4 id="desc">
@@ -22,7 +23,6 @@
             </h4>
         </div>
         <div id="loginoe">
-            <span id="loginerror" hidden="false"></span>
             <form class="login-form">
                 <fieldset>
                     <legend>Login method</legend>
@@ -51,6 +51,8 @@
     </div>
     </div>
     <div id="logged">
+        <div id="settings" hidden="true">
+        </div>
         <div id="info">
             <button id="dms" onclick="loadDMs()">DMS</button>
             <hr class="server-hr">
@@ -83,6 +85,8 @@
                 <p id="status">Disconnected</p>
                 -
                 <p id="theme-label">Default theme</p>
+                <br>
+                <button onclick="openSettings()" id="settings-button">Settings</button>
             </div>
 
             <div id="messages"></div>
@@ -117,7 +121,7 @@
                 <div id="messagebar">
                     <button class="toolbar-btn">↑</button>
                     <label class="upload-label" for="upload">+</label>
-                    <input type="text" autocomplete="off" placeholder="Speak in channel" id="input"
+                    <input type="textarea" autocomplete="off" placeholder="Speak in channel" id="input"
                         onkeypress="return processKeyPress(event)" />
                     <button class="send-btn" onclick="sendMessage()">⟶</button>
                 </div>
