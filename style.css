@@ -131,58 +131,38 @@ fieldset legend {
 #info {
   height: 100%;
   background: var(--servers-bg);
-  border-radius: var(--border-radius);
   overflow-y: auto;
+  padding: 0.3rem;
 }
 
 #servers {
-  display: -webkit-box;
-  display: -ms-flexbox;
+  margin: auto;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem; */
 }
 
 #servers button {
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
-  display: -ms-grid;
-  display: grid;
-  place-content: center;
-  padding: 0.1rem;
+  width: 45px;
+  height: 45px;
+  box-shadow: hsl(0, 0%, 20%) 0px 0px 0px 3px;
+  object-fit: cover;
+  padding: 0;
+}
+
+#servers button:hover {
+  box-shadow: var(--accent) 0px 0px 0px 3px;
 }
 
 .server {
-  width: 45px;
-  height: 45px;
-  border-radius: var(--img-radius);
-  -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px,
-    rgb(51, 51, 51) 0px 0px 0px 3px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px;
-  -webkit-transition: 0.1s;
-  -o-transition: 0.1s;
-  -o-object-fit: cover;
-     object-fit: cover;
-  transition: 0.1s;
+  width: 100%;
+  height: 100%;
 }
 
 /* .active-server { */
 /*     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, var(--accent) 0px 0px 0px 3px; */
 /* } */
-
-.server:hover {
-  -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px,
-    var(--accent) 0px 0px 0px 3px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px,
-    var(--accent) 0px 0px 0px 3px;
-}
 
 .server-hr { width: 20px; }
 
