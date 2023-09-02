@@ -310,6 +310,7 @@ fieldset legend {
 .username {
 	font-weight: bold;
 	background: none;
+  padding: 0 .5rem;
 }
 
 .username:hover {
@@ -347,6 +348,7 @@ fieldset legend {
 }
 
 .message-display {
+  position: relative;
   padding: 0.3rem 1rem;
   margin: 0.3rem 0;
 }
@@ -355,7 +357,14 @@ fieldset legend {
   background-color: var(--hover);
 }
 
-.message-display:hover .reply-btn {
+.message-actions {
+  display: none;
+  position: absolute;
+  top: -35px;
+  right: 50px;
+}
+
+.message-display:hover .message-actions {
   display: block;
 }
 
@@ -389,10 +398,6 @@ fieldset legend {
   max-width: 550px;
   max-height: 550px;
   object-fit: contain;
-}
-
-.reply-btn {
-  display: none;
 }
 
 .reply-content {

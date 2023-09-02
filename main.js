@@ -563,6 +563,7 @@ async function parseMessage(message, id = null) {
 
   if (id !== null) {
     messageDisplay = document.getElementById(id);
+    // TODO: use `replaceChildren()`
     while (messageDisplay.hasChildNodes()) {
       messageDisplay.removeChild(messageDisplay.lastChild);
     }
@@ -570,6 +571,7 @@ async function parseMessage(message, id = null) {
   else {
     messageDisplay = document.createElement("div");
   }
+  let messageActions = document.createElement("div");
   let messageContent = document.createElement("p");
   let userdata = document.createElement("div");
   let username = document.createElement("button");
@@ -578,10 +580,10 @@ async function parseMessage(message, id = null) {
   let masqueradeBadge = document.createElement("span");
 
   messageDisplay.classList.add("message-display");
+  messageActions.classList.add("message-actions");
   profilepicture.classList.add("chat-pfp");
   userdata.classList.add("userdata");
   username.classList.add("username");
-  replyButton.classList.add("reply-btn");
   messageContent.classList.add("message-content");
   let user;
   if ((user = await userLookup(message.author)) === 1) {
@@ -672,7 +674,7 @@ async function parseMessage(message, id = null) {
     messageContent.appendChild(parsedMessage);
   } else if (!message.system) messageContent.textContent = message.content;
   // Emojis
-  Object.keys(emojis.standard).forEach(emoji => {
+  /* Object.keys(emojis.standard).forEach(emoji => {
     if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
       messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
     }
@@ -701,7 +703,7 @@ async function parseMessage(message, id = null) {
         messageContent.innerHTML+= tmpMsg[j]
       }
     }
-  }
+  } */
   if (message.replies) {
     let reply = document.createElement("div");
     reply.classList.add("reply-content");
@@ -777,7 +779,8 @@ async function parseMessage(message, id = null) {
     document.querySelector(".replying-container").appendChild(replyText);
   };
   replyButton.innerText = "Reply";
-  messageDisplay.appendChild(replyButton);
+  messageDisplay.appendChild(messageActions);
+  messageActions.appendChild(replyButton);
   if( id===null)messageContainer.appendChild(messageDisplay);
   cache.messages.push([message._id, message.author, message.content]);
 }
