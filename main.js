@@ -427,8 +427,10 @@ async function getServers() {
     server.id = cache.servers[i][0];
 
     let serverIcon = document.createElement("img");
-    serverIcon.className = "server";
+    serverIcon.className = "server"; // TODO: use `classList`
     if (cache.servers[i][2] == null) {
+      // TODO: refactor this to use html text and css style
+      // hint: the `text` variable
       const canvas = document.createElement("canvas");
       canvas.width = 64;
       canvas.height = 64;
@@ -546,6 +548,7 @@ async function getChannels(id) {
 
 function clearMessages() {
   const messageContainer = document.getElementById("messages");
+  // TODO: use `replaceChildren()`
   while (messageContainer.hasChildNodes()) {
     messageContainer.removeChild(messageContainer.lastChild);
   }
