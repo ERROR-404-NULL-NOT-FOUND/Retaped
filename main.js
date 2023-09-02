@@ -425,24 +425,14 @@ async function getServers() {
 
     server.id = cache.servers[i][0];
 
-    let serverIcon = document.createElement("img");
-    serverIcon.className = "server"; // TODO: use `classList`
     if (cache.servers[i][2] == null) {
-      // TODO: refactor this to use html text and css style
-      // hint: the `text` variable
-      const canvas = document.createElement("canvas");
-      canvas.width = 64;
-      canvas.height = 64;
-      const context = canvas.getContext("2d");
-      const text = cache.servers[i][1].charAt(0);
-      context.font = "64px Arial";
-      context.fillStyle = "0,0,0";
-      context.fillText(text, 8, 48);
-      serverIcon.src = canvas.toDataURL();
+      server.innerText = cache.servers[i][1].charAt(0);
     } else {
+      let serverIcon = document.createElement("img");
+      serverIcon.classList.add("server");
       serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[i][2]}?max_side=64`;
+      server.appendChild(serverIcon);
     }
-    server.appendChild(serverIcon);
     serverContainer.appendChild(server);
   }
 }
