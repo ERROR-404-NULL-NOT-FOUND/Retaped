@@ -397,9 +397,8 @@ async function login() {
 // Renders servers from the cache
 async function getServers() {
   let serverContainer = document.getElementById("servers");
-  while (serverContainer.hasChildNodes()) {
-    serverContainer.removeChild(serverContainer.lastChild);
-  }
+  serverContainer.replaceChildren();
+
   unreads.forEach((unread) => {
     if (
       unread.last_id < cacheLookup("channels", unread._id.channel)[4] &&
@@ -426,22 +425,14 @@ async function getServers() {
 
     server.id = cache.servers[i][0];
 
-    let serverIcon = document.createElement("img");
-    serverIcon.className = "server";
     if (cache.servers[i][2] == null) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 64;
-      canvas.height = 64;
-      const context = canvas.getContext("2d");
-      const text = cache.servers[i][1].charAt(0);
-      context.font = "64px Arial";
-      context.fillStyle = "0,0,0";
-      context.fillText(text, 8, 48);
-      serverIcon.src = canvas.toDataURL();
+      server.innerText = cache.servers[i][1].charAt(0);
     } else {
+      let serverIcon = document.createElement("img");
+      serverIcon.classList.add("server");
       serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[i][2]}?max_side=64`;
+      server.appendChild(serverIcon);
     }
-    server.appendChild(serverIcon);
     serverContainer.appendChild(server);
   }
 }
@@ -449,10 +440,8 @@ async function getServers() {
 // Renders channels from the cache
 async function getChannels(id) {
   let channelContainer = document.getElementById("channels");
+  channelContainer.replaceChildren();
 
-  while (channelContainer.hasChildNodes()) {
-    channelContainer.removeChild(channelContainer.lastChild);
-  }
   let addedChannels = [];
 
   cache.servers[cacheIndexLookup("servers", activeServer)][5].forEach(
@@ -545,10 +534,7 @@ async function getChannels(id) {
 }
 
 function clearMessages() {
-  const messageContainer = document.getElementById("messages");
-  while (messageContainer.hasChildNodes()) {
-    messageContainer.removeChild(messageContainer.lastChild);
-  }
+  document.getElementById("messages").replaceChildren();
 }
 
 // Parses and renders messages
@@ -560,13 +546,12 @@ async function parseMessage(message, id = null) {
 
   if (id !== null) {
     messageDisplay = document.getElementById(id);
-    while (messageDisplay.hasChildNodes()) {
-      messageDisplay.removeChild(messageDisplay.lastChild);
-    }
+    messageDisplay.replaceChildren();
   }
   else {
     messageDisplay = document.createElement("div");
   }
+  let messageActions = document.createElement("div");
   let messageContent = document.createElement("p");
   let userdata = document.createElement("div");
   let username = document.createElement("button");
@@ -575,10 +560,10 @@ async function parseMessage(message, id = null) {
   let masqueradeBadge = document.createElement("span");
 
   messageDisplay.classList.add("message-display");
+  messageActions.classList.add("message-actions");
   profilepicture.classList.add("chat-pfp");
   userdata.classList.add("userdata");
   username.classList.add("username");
-  replyButton.classList.add("reply-btn");
   messageContent.classList.add("message-content");
   let user;
   if ((user = await userLookup(message.author)) === 1) {
@@ -669,7 +654,7 @@ async function parseMessage(message, id = null) {
     messageContent.appendChild(parsedMessage);
   } else if (!message.system) messageContent.textContent = message.content;
   // Emojis
-  Object.keys(emojis.standard).forEach(emoji => {
+  /* Object.keys(emojis.standard).forEach(emoji => {
     if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
       messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
     }
@@ -698,7 +683,7 @@ async function parseMessage(message, id = null) {
         messageContent.innerHTML+= tmpMsg[j]
       }
     }
-  }
+  } */
   if (message.replies) {
     let reply = document.createElement("div");
     reply.classList.add("reply-content");
@@ -774,7 +759,8 @@ async function parseMessage(message, id = null) {
     document.querySelector(".replying-container").appendChild(replyText);
   };
   replyButton.innerText = "Reply";
-  messageDisplay.appendChild(replyButton);
+  messageDisplay.appendChild(messageActions);
+  messageActions.appendChild(replyButton);
   if( id===null)messageContainer.appendChild(messageDisplay);
   cache.messages.push([message._id, message.author, message.content]);
 }
@@ -878,7 +864,7 @@ async function getMessages(id) {
   cache.messages = [];
 
   activeChannel = id;
-  document.querySelector("#typingbarcontainer").innerHTML = "";
+  document.querySelector("#typingBarContainer").innerHTML = "";
 
   fetchResource(`channels/${id}`).then((data) => {
     document.getElementById("chanName").innerText =
@@ -945,9 +931,7 @@ async function loadDMs() {
   let userCat = document.createElement("summary");
   userCat.classList.add("categoryText");
   //Clear channel field
-  while (channelContainer.hasChildNodes()) {
-    channelContainer.removeChild(channelContainer.lastChild);
-  }
+  channelContainer.replaceChildren();
   await fetchResource(`users/${userProfile._id}/dm`).then((response) => {
     const dmButton = document.createElement("button");
     dmButton.textContent = "Saved messages";
@@ -1015,9 +999,7 @@ async function loadProfile(userID) {
   } else profileBackground.style.background = "";
   bio.textContent = userProfile.content;
 
-  while (roleContainer.hasChildNodes()) {
-    roleContainer.removeChild(roleContainer.lastChild);
-  }
+  roleContainer.replaceChildren();
   if (memberData.roles)
     for (let i = 0; i < memberData.roles.length; i++) {
       const role = document.createElement("span");
