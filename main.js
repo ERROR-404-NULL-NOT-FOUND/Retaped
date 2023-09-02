@@ -397,9 +397,8 @@ async function login() {
 // Renders servers from the cache
 async function getServers() {
   let serverContainer = document.getElementById("servers");
-  while (serverContainer.hasChildNodes()) {
-    serverContainer.removeChild(serverContainer.lastChild);
-  }
+  serverContainer.replaceChildren();
+
   unreads.forEach((unread) => {
     if (
       unread.last_id < cacheLookup("channels", unread._id.channel)[4] &&
@@ -451,10 +450,8 @@ async function getServers() {
 // Renders channels from the cache
 async function getChannels(id) {
   let channelContainer = document.getElementById("channels");
+  channelContainer.replaceChildren();
 
-  while (channelContainer.hasChildNodes()) {
-    channelContainer.removeChild(channelContainer.lastChild);
-  }
   let addedChannels = [];
 
   cache.servers[cacheIndexLookup("servers", activeServer)][5].forEach(
@@ -547,11 +544,7 @@ async function getChannels(id) {
 }
 
 function clearMessages() {
-  const messageContainer = document.getElementById("messages");
-  // TODO: use `replaceChildren()`
-  while (messageContainer.hasChildNodes()) {
-    messageContainer.removeChild(messageContainer.lastChild);
-  }
+  document.getElementById("messages").replaceChildren();
 }
 
 // Parses and renders messages
@@ -563,10 +556,7 @@ async function parseMessage(message, id = null) {
 
   if (id !== null) {
     messageDisplay = document.getElementById(id);
-    // TODO: use `replaceChildren()`
-    while (messageDisplay.hasChildNodes()) {
-      messageDisplay.removeChild(messageDisplay.lastChild);
-    }
+    messageDisplay.replaceChildren();
   }
   else {
     messageDisplay = document.createElement("div");
@@ -951,9 +941,7 @@ async function loadDMs() {
   let userCat = document.createElement("summary");
   userCat.classList.add("categoryText");
   //Clear channel field
-  while (channelContainer.hasChildNodes()) {
-    channelContainer.removeChild(channelContainer.lastChild);
-  }
+  channelContainer.replaceChildren();
   await fetchResource(`users/${userProfile._id}/dm`).then((response) => {
     const dmButton = document.createElement("button");
     dmButton.textContent = "Saved messages";
@@ -1021,9 +1009,7 @@ async function loadProfile(userID) {
   } else profileBackground.style.background = "";
   bio.textContent = userProfile.content;
 
-  while (roleContainer.hasChildNodes()) {
-    roleContainer.removeChild(roleContainer.lastChild);
-  }
+  roleContainer.replaceChildren();
   if (memberData.roles)
     for (let i = 0; i < memberData.roles.length; i++) {
       const role = document.createElement("span");
