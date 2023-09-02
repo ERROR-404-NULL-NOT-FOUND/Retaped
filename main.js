@@ -881,7 +881,7 @@ async function getMessages(id) {
   cache.messages = [];
 
   activeChannel = id;
-  document.querySelector("#typingbarcontainer").innerHTML = "";
+  document.querySelector("#typingBarContainer").innerHTML = "";
 
   fetchResource(`channels/${id}`).then((data) => {
     document.getElementById("chanName").innerText =
