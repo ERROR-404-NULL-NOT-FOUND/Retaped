@@ -1,3 +1,5 @@
+// Import markdown renderer
+var converter = new showdown.Converter()
 //
 // Variables
 //
@@ -221,21 +223,20 @@ async function bonfire() {
       case "Authenticated":
         document.getElementById("status").innerText = "Connected";
         break;
-      
+
         // Used for message unreads and adding new messages to the messagebox
       case "Message":
         if (data.channel === activeChannel) {
           parseMessage(data);
-          if (data.author !== userProfile._id)
-            fetch(
-              `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
-              {
-                headers: {
-                  "x-session-token": token,
-                },
-                method: "PUT",
-              }
-            );
+          fetch(
+            `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
+            {
+              headers: {
+                "x-session-token": token,
+              },
+              method: "PUT",
+            }
+          );
         } else {
           if ((channel = document.getElementById(data.channel))) {
             channel.style.color =
@@ -252,11 +253,11 @@ async function bonfire() {
               : cssVars.getPropertyValue("--foreground");
         }
         break;
-      
+
       case "MessageDelete":
         if(data.channel_id===activeChannel) document.querySelector("#messages").removeChild(document.getElementById(data.id));
         break;
-      
+
       case "MessageUpdate":
         if (data.channel_id === activeChannel) {
           parseMessage(data.data, data.id);
@@ -632,9 +633,10 @@ async function parseMessage(message, id = null) {
   };
   userdata.appendChild(profilepicture);
   userdata.appendChild(username);
+  let parsedMessage = document.createElement("p");
+  parsedMessage.textContent = message.content;
+  parsedMessage.innerHTML = converter.makeHtml(parsedMessage.textContent);
   if (message.mentions) {
-    let parsedMessage = document.createElement("p");
-    parsedMessage.textContent = message.content;
     message.mentions.forEach(async (mention) => {
       if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
       let segConcat = document.createElement("div");
@@ -650,11 +652,14 @@ async function parseMessage(message, id = null) {
       let segElement = document.createElement("span");
       segConcat.insertBefore(ping, newSeg);
       parsedMessage = segConcat;
+      if (mention === userProfile._id) {
+        parsedMessage.classList.add("selfMentioned");
+      }
     });
-    messageContent.appendChild(parsedMessage);
-  } else if (!message.system) messageContent.textContent = message.content;
+  }
+  messageContent.appendChild(parsedMessage);
   // Emojis
-  /* Object.keys(emojis.standard).forEach(emoji => {
+  Object.keys(emojis.standard).forEach(emoji => {
     if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
       messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
     }
@@ -683,7 +688,7 @@ async function parseMessage(message, id = null) {
         messageContent.innerHTML+= tmpMsg[j]
       }
     }
-  } */
+  }
   if (message.replies) {
     let reply = document.createElement("div");
     reply.classList.add("reply-content");
@@ -862,7 +867,8 @@ async function buildServerCache(servers) {
 
 async function getMessages(id) {
   cache.messages = [];
-
+  activeReplies = [];
+  document.querySelector(".replying-container").innerHTML = "";
   activeChannel = id;
   document.querySelector("#typingBarContainer").innerHTML = "";
 
@@ -988,6 +994,7 @@ async function loadProfile(userID) {
   let roleContainer = document.getElementById("roleContainer");
   username.textContent = user[1];
   discriminator.textContent = user[4];
+  displayName.textContent = user[5];
   if (user[2]) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
   } else {
@@ -997,7 +1004,7 @@ async function loadProfile(userID) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
-  bio.textContent = userProfile.content;
+  bio.innerHTML = converter.makeHtml(userProfile.content);;
 
   roleContainer.replaceChildren();
   if (memberData.roles)
