@@ -54,86 +54,94 @@
             </form>
         </div>
     </div>
-    </div>
     <div id="logged">
         <div id="settings" hidden="true">
+            <h1 id="settingsHeader">Settings</h1>
+            <div id="categories">
+                <button id="behaviourSetting" onclick="loadSetting('behaviour')">Behaviour</button>
+            </div>
+            <div id="mainSettings">
+                <h3 id="settingCatName"></h3>
+            </div>
+        <button id="closeSettings" onclick="closeSettings()">X</button>
         </div>
-        <div id="info">
-            <button id="dms" onclick="loadDMs()">DMS</button>
-            <hr class="server-hr">
-            <div id="servers"></div>
-        </div>
+<!--       <div id="notSettings"> -->
+            <div id="info">
+                <button id="dms" onclick="loadDMs()">DMS</button>
+                <hr class="server-hr">
+                <div id="servers"></div>
+            </div>
 
-        <div id="channelInfo">
-            <h2 id="chanName"></h2>
-            <h3 id="chanDesc"></h3>
-            <div id="channels"></div>
-        </div>
+            <div id="channelInfo">
+                <h2 id="chanName"></h2>
+                <h3 id="chanDesc"></h3>
+                <div id="channels"></div>
+            </div>
 
-        <div id="central">
-            <div id="userProfile">
-                <div id="profileMedia" class="profile-top">
-                    <div class="profile-name">
-                        <img id="profilePicture" />
-                        <h3 id="displaynameContainer"><span id="displayname"></span></h3>
-                        <h5 id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></h5>
+            <div id="central">
+                <div id="userProfile">
+                    <div id="profileMedia" class="profile-top">
+                        <div class="profile-name">
+                            <img id="profilePicture" />
+                            <h3 id="displaynameContainer"><span id="displayname"></span></h3>
+                            <h5 id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></h5>
+                        </div>
+                    </div>
+                    <p id="bio"></p>
+                    <p id="rolesText">Roles</p>
+                    <div id="roleContainer"></div>
+                    <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
+                        Close Profile
+                    </button>
+                </div>
+
+                <div class="app-status">
+                    <p id="status">Disconnected</p>
+                    -
+                    <p id="theme-label">Default theme</p>
+                    <br>
+                    <button onclick="openSettings()" id="settings-button">Settings</button>
+                </div>
+
+                <div id="messages"></div>
+
+                <div class="messagebar-container">
+                    <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+                    <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
+                    <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+
+                    <div class="error-container">
+                        <p class="error-content"></p>
+                    </div>
+
+                    <div class="replying-container"></div>
+                    <!-- replying-message
+                        replying-content
+                        close-reply -->
+                    <!-- <button hidden="true"
+                        id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
+
+                    <input type="file" id="upload" />
+
+                    <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
+                    <div class="toolbar">
+                        <button onclick="bonfire()">Re-establish websocket</button>
+                        <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
+                            Reload Usernames
+                        </button>
+                        <button onclick="embedMessage()">Send embed</button>
+                        <button onclick="contentToJson()">JSON</button>
+                    </div>
+                    <div id="messagebar">
+                        <button class="toolbar-btn">↑</button>
+                        <label class="upload-label" for="upload">+</label>
+                        <input type="textarea" autocomplete="off" placeholder="Speak in channel" id="input"
+                            onkeypress="return processKeyPress(event)" />
+                        <button class="send-btn" onclick="sendMessage()">⟶</button>
                     </div>
                 </div>
-                <p id="bio"></p>
-                <p id="rolesText">Roles</p>
-                <div id="roleContainer"></div>
-                <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
-                    Close Profile
-                </button>
             </div>
-
-            <div class="app-status">
-                <p id="status">Disconnected</p>
-                -
-                <p id="theme-label">Default theme</p>
-                <br>
-                <button onclick="openSettings()" id="settings-button">Settings</button>
-            </div>
-
-            <div id="messages"></div>
-
-            <div class="messagebar-container">
-                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
-
-                <div class="error-container">
-                    <p class="error-content"></p>
-                </div>
-
-                <div class="replying-container"></div>
-                <!-- replying-message
-                     replying-content
-                     close-reply -->
-                <!-- <button hidden="true"
-                     id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
-
-                <input type="file" id="upload" />
-
-                <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
-                <div class="toolbar">
-                    <button onclick="bonfire()">Re-establish websocket</button>
-                    <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
-                        Reload Usernames
-                    </button>
-                    <button onclick="embedMessage()">Send embed</button>
-                    <button onclick="contentToJson()">JSON</button>
-                </div>
-                <div id="messagebar">
-                    <button class="toolbar-btn">↑</button>
-                    <label class="upload-label" for="upload">+</label>
-                    <input type="textarea" autocomplete="off" placeholder="Speak in channel" id="input"
-                        onkeypress="return processKeyPress(event)" />
-                    <button class="send-btn" onclick="sendMessage()">⟶</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--        </div> -->
 </body>
 
 </html>

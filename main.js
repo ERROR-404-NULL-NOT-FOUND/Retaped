@@ -162,7 +162,7 @@ async function updateUnreads(channelID, messageID) {
 // Main stuff
 //
 
-// Loads settings from the user's Revolt account, mainly for color loading
+// Loads settings from the user's Revolt account, mainly for colour loading
 async function loadSyncSettings() {
   const rawSettings = await fetch(
     "https://api.revolt.chat/sync/settings/fetch",
@@ -497,6 +497,15 @@ async function getChannels(id) {
   );
 
   let channels = cache.channels;
+  let defaultCategory = document.createElement("details");
+  let defaultCategoryText = document.createElement("summary");
+
+  defaultCategory.open = true;
+  defaultCategory.classList.add("channel-category");
+  defaultCategoryText.textContent = "Uncategorised";
+  defaultCategoryText.classList.add("categoryText");
+  defaultCategory.appendChild(defaultCategoryText);
+
   for (let i = 0; i < channels.length; i++) {
     if (channels[i][3] !== id) continue;
     if (channels[i][2] !== "TextChannel") continue;
@@ -530,8 +539,10 @@ async function getChannels(id) {
     channelText.innerText = currentChannel[1];
 
     channel.appendChild(channelText);
-    channelContainer.insertBefore(channel, channelContainer.children[0]);
+    defaultCategory.appendChild(channel);
   }
+  channelContainer.insertBefore(defaultCategory, channelContainer.children[0]);
+
 }
 
 function clearMessages() {
@@ -874,7 +885,7 @@ async function getMessages(id) {
 
   fetchResource(`channels/${id}`).then((data) => {
     document.getElementById("chanName").innerText =
-      data.channel_type === "DirectMessage" ? data.recipients[0] : data.name;
+      data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
   });
 
   const placeholder = await fetchResource(
@@ -958,11 +969,11 @@ async function loadDMs() {
     if (cache.channels[i][2] === "Group") {
       dmButton.textContent = cache.channels[i][1];
     } else {
-      if (cache.channels[i][1][1] === userProfile._id) {
+      if (cache.channels[i][1][1] !== userProfile._id) {
         let user = await userLookup(cache.channels[i][1][1])
         dmButton.textContent = `@${user[1]}#${user[4]}`;
       } else {
-        let user = await userLookup(cache.channels[i][1][1])
+        let user = await userLookup(cache.channels[i][1][0])
         dmButton.textContent = `@${user[1]}#${user[4]}`;
       }
     }
@@ -1066,3 +1077,40 @@ let toolbarBtn = document.querySelector(".toolbar-btn");
 toolbarBtn.addEventListener("click", () => {
   toolbar.classList.toggle("show-toolbar");
 });
+
+//
+// Settings
+//
+
+function openSettings() {
+  let settingsDiv = document.querySelector("#settings");
+  let notSettingsDiv = document.querySelector("#notSettings");
+  settingsDiv.hidden = false;
+  notSettingsDiv.hidden = true;
+}
+
+function closeSettings() {
+  let settingsDiv = document.querySelector("#settings");
+  let notSettingsDiv = document.querySelector("#notSettings");
+  settingsDiv.hidden = true;
+  notSettingsDiv.hidden = false;
+}
+
+function loadSetting(setting) {
+  switch (setting) {
+    case "behaviour":
+      let mainSettings = document.querySelector("mainSettings");
+      document.querySelector("#settingCatName").innerText = "Behaviour";
+      mainSettings;
+  }
+}
+
+function setSetting(setting, value) {
+  localStorage.setItem(setting, value);
+}
+
+function loadSetting(setting) {
+  return localStorage.getItem(setting);
+}
+
+function creatSettingDiv(settingName, settingValueType) { }
