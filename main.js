@@ -293,6 +293,7 @@ async function bonfire() {
       // User begins typing
       // TODO: add timeout
       case "ChannelStartTyping":
+
         if (
           data.id !== activeChannel ||
           currentlyTyping.indexOf(data.user) !== -1
@@ -313,9 +314,8 @@ async function bonfire() {
         typingUserContainer.appendChild(typingUserName);
         typingUserContainer.id = typingUser[0];
         currentlyTyping.push(data.user);
-
-        document.getElementById("typingBarContainer").style.display = "flex";
         typingBar.appendChild(typingUserContainer);
+        document.getElementById("typingBarContainer").style.display = "flex";
         break;
       
       // User stops typing
@@ -881,7 +881,7 @@ async function getMessages(id) {
   activeReplies = [];
   document.querySelector(".replying-container").innerHTML = "";
   activeChannel = id;
-  document.querySelector("#typingBarContainer").innerHTML = "";
+  document.querySelector("#typingBar").innerHTML = "";
 
   fetchResource(`channels/${id}`).then((data) => {
     document.getElementById("chanName").innerText =
@@ -901,6 +901,7 @@ async function getMessages(id) {
         users[i].avatar,
         users[i].bot,
         users[i].discriminator,
+        users[i].display_name,
       ]);
   }
   if (placeholder.members) {
