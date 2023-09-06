@@ -109,6 +109,11 @@
                     <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
                     <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
                     <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+                    <div id="masquerade" hidden="false">
+                        <input type="text", autocomplete="off", placeholder="Name", id="masqName" />
+                        <input type="text", autocomplete="off" , placeholder="Profile picture", id="masqPfp" />
+                        <input type="text", autocomplete="off" , placeholder="Colour", id="masqColour" />
+                    </div>
 
                     <div class="error-container">
                         <p class="error-content"></p>
@@ -131,6 +136,7 @@
                         </button>
                         <button onclick="embedMessage()">Send embed</button>
                         <button onclick="contentToJson()">JSON</button>
+                        <button onclick="let masq = document.querySelector('#masquerade'); masq.hidden=!masq.hidden">Masquerade</button>
                     </div>
                     <div id="messagebar">
                         <button class="toolbar-btn">↑</button>

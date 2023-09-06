@@ -1043,13 +1043,22 @@ async function sendMessage() {
   if (message.search(/@[^ ]*/) != -1) {
     let pings = /@[^ ]*/[Symbol.match](message);
     for (let i = 0; i < pings.length; i++) {
-      message = message.replace(
-        pings[i],
-        `<@${await userLookup(pings[i].replace("@", ""))[1]}>`
-      );
+      if (await userLookup(pings[i].replace("@", "")) !== undefined) {
+        message = message.replace(
+          pings[i],
+          `<@${await userLookup(pings[i].replace("@", ""))[0]}>`
+        );
+      }
     }
   }
-
+  if (document.querySelector("#masqName").value || document.querySelector("#masqPfp").value || document.querySelector("#masqColour").value) {
+    console.log(document.querySelector("#masqName").value)
+    let masquerade = {
+      name: document.querySelector("#masqName").value ? document.querySelector("#masqName").value : null,
+      avatar: document.querySelector("#masqPfp").value ? document.querySelector("#masqPfp").value : null,
+      colour: document.querySelector("#masqColour").value ? document.querySelector("#masqColour").value : null,
+    };
+  } else { let masquerade = "" }
   await fetch(`https://api.revolt.chat/channels/${activeChannel}/messages`, {
     headers: {
       "x-session-token": token,
@@ -1058,7 +1067,8 @@ async function sendMessage() {
     body: JSON.stringify({
       content: message,
       replies: activeReplies,
-    }),
+      masquerade,
+    })
   })
     .then((response) => response.json())
     .then((data) =>
