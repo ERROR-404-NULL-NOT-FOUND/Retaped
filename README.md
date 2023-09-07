@@ -3,7 +3,7 @@
 The revolt.chat client re-taped from the one held together by duct tape and bad code\*
 (Pronounced ree-taped)
 
-\*Revolt basically isn't a fork anymore, as I did a full-client rewrite starting in [this commit](https://github.com/ERROR-404-NULL-NOT-FOUND/Retaped/commit/7f94d49d55b27e3896abd54b66b5359619273768)
+\*Retaped basically isn't a fork anymore, as I did a full-client rewrite starting in [this commit](https://github.com/ERROR-404-NULL-NOT-FOUND/Retaped/commit/7f94d49d55b27e3896abd54b66b5359619273768)
 
 ## Features include
 
