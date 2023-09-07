@@ -104,21 +104,14 @@ async function userLookup(ID) {
   if (cacheLookup('users', ID) !== 1) return cacheLookup('users', ID);
   user = await fetchResource(`users/${ID}`);
   let fmtUser;
-  if (user.avatar) {
     fmtUser = [
       user._id,
       user.username,
       user.avatar,
       user.bot,
+      user.discriminator,
+      user.display_name,
     ];
-  } else {
-    fmtUser = [
-      user._id,
-      user.username,
-      undefined,
-      user.bot,
-    ];
-  }
   cache.users.push(fmtUser);
   return fmtUser;
 }
@@ -594,7 +587,7 @@ async function parseMessage(message, id = null) {
     messageContent.textContent = message.system.type;
   } else {
     if (!message.masquerade) {
-      username.textContent = member.nickname ? member.nickname : user[5];
+      username.textContent = member.nickname ? member.nickname : user[5] ? user[5] : user[1];
       if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
       username.appendChild(masqueradeBadge);
       profilepicture.src = member.avatar
@@ -835,7 +828,6 @@ async function buildChannelCache(channels) {
 
 async function buildUserCache(users) {
   for (let i = 0; i < users.length; i++) {
-    if (users[i].avatar) {
       cache.users.push([
         users[i]._id,
         users[i].username,
@@ -844,16 +836,6 @@ async function buildUserCache(users) {
         users[i].discriminator,
         users[i].display_name
       ]);
-    } else {
-      cache.users.push([
-        users[i]._id,
-        users[i].username,
-        undefined,
-        users[i].bot,
-        users[i].discriminator,
-        users[i].display_name
-      ]);
-    }
   }
 }
 
@@ -894,7 +876,7 @@ async function getMessages(id) {
   const users = placeholder.users;
 
   for (let i = 0; i < users.length; i++) {
-    if (cacheLookup("users", users[i]) === 1)
+    if (cacheLookup("users", users[i]._id) === 1)
       cache.users.push([
         users[i]._id,
         users[i].username,
@@ -1006,7 +988,7 @@ async function loadProfile(userID) {
   let roleContainer = document.getElementById("roleContainer");
   username.textContent = user[1];
   discriminator.textContent = user[4];
-  displayName.textContent = user[5];
+  displayName.textContent = user[5] ? user[5] : user[1];
   if (user[2]) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
   } else {
