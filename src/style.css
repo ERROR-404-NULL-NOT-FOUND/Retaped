@@ -50,6 +50,8 @@ a:hover {
 
 img { border-radius: var(--border-radius); }
 
+summary { cursor: pointer; }
+
 .login-screen {
   width: 100%;
   height: 100%;
@@ -96,12 +98,6 @@ fieldset legend {
 	color: hsl(0, 0%, 49%);
 	font-size: 1.4em;
 	padding: 0;
-}
-
-.login-sep {
-	margin: .7rem 0;
-	color: hsl(0, 0%, 49%);
-	font-weight: bold;
 }
 
 #toggleTheme, #toggleToken { outline: none; }
@@ -180,8 +176,6 @@ fieldset legend {
 }
 
 #channels { gap: 1rem; }
-
-.channel-category summary { cursor: pointer; }
 
 #dms {
   width: 100%;
