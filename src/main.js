@@ -271,8 +271,8 @@ async function bonfire() {
       
       // Uh oh
       case "Error":
-        document.querySelector(".error-container").style.display = "block";
-        document.querySelector(".error-content").textContent = data.error;
+        document.querySelector("#errorContainer").style.display = "block";
+        document.querySelector("#errorContent").textContent = data.error;
         break;
       
       // Cache building, received immediately after 'Authenticated'

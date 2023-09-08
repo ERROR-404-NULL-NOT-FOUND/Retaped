@@ -1,10 +1,10 @@
 @import url("https://api.fonts.coollabs.io/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
 @import url(./modules/style/button.css);
 @import url(./modules/style/input.css);
+@import url(./modules/style/error.css);
 
 /* 
 
-TODO: error.css
 TODO: message.css
 
 */
@@ -434,14 +434,6 @@ fieldset legend {
   display: -ms-flexbox;
   display: flex;
 }
-
-.error-container {
-  display: none;
-  background: var(--error);
-  padding: 1rem;
-}
-
-.error-content { margin: 0; }
 
 .replying-container {
   background: var(--secondary-background);

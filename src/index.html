@@ -19,7 +19,6 @@
 
 
     <div class="login-screen">
-        <span id="loginerror" hidden="false"></span>
         <div class="title">
             <h1 id="name"><span class="hl">Re</span>taped</h1>
             <h4 id="desc">
@@ -33,7 +32,10 @@
                 <fieldset>
                     <legend>Login method</legend>
 
-                    <!-- TODO: be more specific, which email and password? mention Revolt -->
+                    <div id="loginErrorContainer" class="error-container">
+                        <p id="loginErrorContent" class="error-content"></p>
+                    </div>
+
                     <label>Use your Revolt email and password</label>
                     <input id="email" autocomplete="on" placeholder="Email address" type="email">
                     <input id="password" placeholder="Password" type="password">
@@ -119,8 +121,8 @@
                         <input type="text", autocomplete="off" , placeholder="Colour", id="masqColour" />
                     </div>
 
-                    <div class="error-container">
-                        <p class="error-content"></p>
+                    <div id="errorContainer" class="error-container">
+                        <p id="errorContent" class="error-content"></p>
                     </div>
 
                     <div class="replying-container"></div>
