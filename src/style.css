@@ -109,6 +109,10 @@ fieldset legend {
 
 #toggleTheme, #toggleToken { outline: none; }
 
+#login-btn {
+  width: 100%;
+}
+
 #logged {
   display: none;
   -ms-grid-columns: 4rem var(--inner-gap) 14rem var(--inner-gap) 1fr;
