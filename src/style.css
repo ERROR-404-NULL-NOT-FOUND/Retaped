@@ -1,10 +1,10 @@
 @import url("https://api.fonts.coollabs.io/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
 @import url(./modules/style/button.css);
+@import url(./modules/style/input.css);
 
 /* 
 
 TODO: error.css
-TODO: input.css
 TODO: message.css
 
 */
@@ -88,6 +88,9 @@ summary { cursor: pointer; }
 }
 
 fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
 	border:none;
 	border-top: 1px solid;
 	border-color: #393939;
@@ -101,21 +104,6 @@ fieldset legend {
 }
 
 #toggleTheme, #toggleToken { outline: none; }
-
-.login-screen input:not(input[type="checkbox"]) {
-  color: var(--foreground);
-  background: var(--secondary-background);
-  border-radius: var(--border-radius);
-  line-height: 200%;
-  width: 100%;
-  border: none;
-  padding: 0.3rem .5rem;
-  margin: .3rem 0;
-}
-
-.login-screen input:focus {
-  outline: 1px solid var(--accent);
-}
 
 #logged {
   display: none;
@@ -182,7 +170,6 @@ fieldset legend {
   background: var(--accent);
   color: var(--foreground);
   font-weight: bold;
-  padding: 0.7rem 0;
 }
 
 .channel {
@@ -427,19 +414,6 @@ fieldset legend {
   object-fit: contain;
 }
 
-#messagebar {
-  font-size: 1.3rem;
-}
-
-.messagebar-container button,
-#input,
-.upload-label {
-  color: white;
-  background-color: var(--secondary-background);
-  border: none;
-  padding: 0.7rem;
-}
-
 #upload {
   width: 0.1px;
   height: 0.1px;
@@ -447,17 +421,6 @@ fieldset legend {
   overflow: hidden;
   position: absolute;
   z-index: -1;
-}
-
-#input {
-  width: 100%;
-  outline: none;
-  font-size: initial;
-}
-
-.send-btn {
-  padding-left: 1rem;
-  padding-right: 1rem;
 }
 
 .toolbar {
@@ -498,6 +461,8 @@ fieldset legend {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  gap: .4rem;
+  padding: .4rem;
 }
 
 .mention {

@@ -27,11 +27,13 @@
                 that's held together by duct tape and bad code
             </h4>
         </div>
+        <!-- TODO: remove useless `loginoe` -->
         <div id="loginoe">
             <form class="login-form">
                 <fieldset>
                     <legend>Login method</legend>
 
+                    <!-- TODO: be more specific, which email and password? mention Revolt -->
                     <label>Email/Password</label>
                     <input id="email" autocomplete="on" placeholder="Email address" type="email">
                     <input id="password" placeholder="Password" type="password">
@@ -44,11 +46,13 @@
 
                 <fieldset>
                     <legend>Preferences</legend>
-                    <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
-                    <label for="toggle-theme">Use my Revolt theme</label>
+                    <div>
+                        <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
+                        <label for="toggle-theme">Use my Revolt theme</label>
 
-                    <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
-                    <label for="toggle-token">Remember me</label>
+                        <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
+                        <label for="toggle-token">Remember me</label>
+                    </div>
                 </fieldset>
                 <button id="login-btn" onclick="login();" type="button">Login</button>
             </form>
@@ -140,7 +144,10 @@
                     </div>
                     <div id="messagebar">
                         <button class="toolbar-btn">↑</button>
-                        <label class="upload-label" for="upload">+</label>
+                        <!-- FIXME: the width of the label is really small so pressing it is hard. -->
+                        <button>
+                            <label class="upload-label" for="upload">+</label>
+                        </button>
                         <input type="textarea" autocomplete="off" placeholder="Speak in channel" id="input"
                             onkeypress="return processKeyPress(event)" />
                         <button class="send-btn" onclick="sendMessage()">⟶</button>

@@ -1,0 +1,14 @@
+input:not(input[type="checkbox"]) {
+  color: var(--foreground);
+  background: var(--secondary-background);
+  border-radius: var(--border-radius);
+  line-height: 200%;
+  width: 100%;
+  border: none;
+  padding: 0.4rem .5rem;
+  /* margin: .3rem 0; */
+}
+
+input:focus {
+  outline: 1px solid var(--accent);
+}
