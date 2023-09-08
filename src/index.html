@@ -26,39 +26,36 @@
                 that's held together by duct tape and bad code
             </h4>
         </div>
-        <!-- TODO: remove useless `loginoe` -->
-        <div id="loginoe">
-            <form class="login-form">
-                <fieldset>
-                    <legend>Login method</legend>
+        <form class="login-form">
+            <fieldset>
+                <legend>Login method</legend>
 
-                    <div id="loginErrorContainer" class="error-container">
-                        <p id="loginErrorContent" class="error-content"></p>
-                    </div>
+                <div id="loginErrorContainer" class="error-container">
+                    <p id="loginErrorContent" class="error-content"></p>
+                </div>
 
-                    <label>Use your Revolt email and password</label>
-                    <input id="email" autocomplete="on" placeholder="Email address" type="email">
-                    <input id="password" placeholder="Password" type="password">
+                <label>Use your Revolt email and password</label>
+                <input id="email" autocomplete="on" placeholder="Email address" type="email">
+                <input id="password" placeholder="Password" type="password">
 
-                    <details>
-                        <summary>Or use your token</summary>
-                        <input id="token" type="password" autocomplete="off" placeholder="Token">
-                    </details>
-                </fieldset>
+                <details>
+                    <summary>Or use your token</summary>
+                    <input id="token" type="password" autocomplete="off" placeholder="Token">
+                </details>
+            </fieldset>
 
-                <fieldset>
-                    <legend>Preferences</legend>
-                    <div>
-                        <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
-                        <label for="toggle-theme">Use my Revolt theme</label>
+            <fieldset>
+                <legend>Preferences</legend>
+                <div>
+                    <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
+                    <label for="toggle-theme">Use my Revolt theme</label>
 
-                        <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
-                        <label for="toggle-token">Remember me</label>
-                    </div>
-                </fieldset>
-                <button id="login-btn" onclick="login();" type="button">Login</button>
-            </form>
-        </div>
+                    <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
+                    <label for="toggle-token">Remember me</label>
+                </div>
+            </fieldset>
+            <button id="login-btn" onclick="login();" type="button">Login</button>
+        </form>
     </div>
     <div id="logged">
         <div id="settings" hidden="true">
@@ -71,92 +68,87 @@
             </div>
         <button id="closeSettings" onclick="closeSettings()">X</button>
         </div>
-<!--       <div id="notSettings"> -->
-            <div id="info">
-                <button id="dms" onclick="loadDMs()">DMS</button>
-                <hr>
-                <div id="servers"></div>
-            </div>
 
-            <div id="channelInfo">
-                <h2 id="chanName"></h2>
-                <h3 id="chanDesc"></h3>
-                <div id="channels"></div>
-            </div>
+        <div id="info">
+            <button id="dms" onclick="loadDMs()">DMS</button>
+            <hr>
+            <div id="servers"></div>
+        </div>
 
-            <div id="central">
-                <div id="userProfile">
-                    <div id="profileMedia" class="profile-top">
-                        <div class="profile-name">
-                            <img id="profilePicture" />
-                            <h3 id="displaynameContainer"><span id="displayname"></span></h3>
-                            <h5 id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></h5>
-                        </div>
+        <div id="channelInfo">
+            <h2 id="chanName"></h2>
+            <h3 id="chanDesc"></h3>
+            <div id="channels"></div>
+        </div>
+
+        <div id="central">
+            <div id="userProfile">
+                <div id="profileMedia" class="profile-top">
+                    <div class="profile-name">
+                        <img id="profilePicture" />
+                        <h3 id="displaynameContainer"><span id="displayname"></span></h3>
+                        <h5 id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></h5>
                     </div>
-                    <p id="bio"></p>
-                    <p id="rolesText">Roles</p>
-                    <div id="roleContainer"></div>
-                    <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
-                        Close Profile
+                </div>
+                <p id="bio"></p>
+                <p id="rolesText">Roles</p>
+                <div id="roleContainer"></div>
+                <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
+                    Close Profile
+                </button>
+            </div>
+
+            <div class="app-status">
+                <p id="status">Disconnected</p>
+                -
+                <p id="theme-label">Default theme</p>
+                <br>
+                <button onclick="openSettings()" id="settings-button">Settings</button>
+            </div>
+
+            <div id="messages"></div>
+
+            <div class="messagebar-container">
+                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
+                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
+                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+                <div id="masquerade" hidden="false">
+                    <input type="text", autocomplete="off", placeholder="Name", id="masqName" />
+                    <input type="text", autocomplete="off" , placeholder="Profile picture", id="masqPfp" />
+                    <input type="text", autocomplete="off" , placeholder="Colour", id="masqColour" />
+                </div>
+
+                <div id="errorContainer" class="error-container">
+                    <p id="errorContent" class="error-content"></p>
+                </div>
+
+                <div class="replying-container"></div>
+
+                <input type="file" id="upload" />
+
+                <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
+                <div class="toolbar">
+                    <button onclick="bonfire()">Re-establish websocket</button>
+                    <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
+                        Reload Usernames
                     </button>
+                    <button onclick="embedMessage()">Send embed</button>
+                    <button onclick="contentToJson()">JSON</button>
+                    <button onclick="let masq = document.querySelector('#masquerade'); masq.hidden=!masq.hidden">Masquerade</button>
                 </div>
-
-                <div class="app-status">
-                    <p id="status">Disconnected</p>
-                    -
-                    <p id="theme-label">Default theme</p>
-                    <br>
-                    <button onclick="openSettings()" id="settings-button">Settings</button>
-                </div>
-
-                <div id="messages"></div>
-
-                <div class="messagebar-container">
-                    <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
-                    <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
-                    <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
-                    <div id="masquerade" hidden="false">
-                        <input type="text", autocomplete="off", placeholder="Name", id="masqName" />
-                        <input type="text", autocomplete="off" , placeholder="Profile picture", id="masqPfp" />
-                        <input type="text", autocomplete="off" , placeholder="Colour", id="masqColour" />
-                    </div>
-
-                    <div id="errorContainer" class="error-container">
-                        <p id="errorContent" class="error-content"></p>
-                    </div>
-
-                    <div class="replying-container"></div>
-                    <!-- replying-message
-                        replying-content
-                        close-reply -->
-                    <!-- <button hidden="true"
-                        id=closereply onclick="document.getElementById('replymsg').innerText='';reply=''">X</button> -->
-
-                    <input type="file" id="upload" />
-
-                    <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
-                    <div class="toolbar">
-                        <button onclick="bonfire()">Re-establish websocket</button>
-                        <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
-                            Reload Usernames
-                        </button>
-                        <button onclick="embedMessage()">Send embed</button>
-                        <button onclick="contentToJson()">JSON</button>
-                        <button onclick="let masq = document.querySelector('#masquerade'); masq.hidden=!masq.hidden">Masquerade</button>
-                    </div>
-                    <div id="messagebar">
-                        <button class="toolbar-btn">↑</button>
-                        <!-- FIXME: the width of the label is really small so pressing it is hard. -->
-                        <button>
-                            <label class="upload-label" for="upload">+</label>
-                        </button>
-                        <input type="textarea" autocomplete="off" placeholder="Speak in channel" id="input"
-                            onkeypress="return processKeyPress(event)" />
-                        <button class="send-btn" onclick="sendMessage()">⟶</button>
-                    </div>
+                <div id="messagebar">
+                    <button class="toolbar-btn">↑</button>
+                    <!-- FIXME: the width of the label is really small so pressing it is hard. -->
+                    <button>
+                        <label class="upload-label" for="upload">+</label>
+                    </button>
+                    <input type="textarea" autocomplete="off" placeholder="Speak in channel" id="input"
+                        onkeypress="return processKeyPress(event)" />
+                    <button class="send-btn" onclick="sendMessage()">⟶</button>
                 </div>
             </div>
-<!--        </div> -->
+        </div>
+    </div>
 </body>
 
 </html>
