@@ -336,8 +336,8 @@ fieldset legend {
 
 .message-display {
   position: relative;
-  padding: 0.3rem 1rem;
-  margin: 0.3rem 0;
+  padding: 0.2rem 1rem 0.1rem 1rem;
+  margin-top: 0.1rem;
 }
 
 .message-display:hover {
@@ -355,9 +355,17 @@ fieldset legend {
   display: block;
 }
 
+.userdata {
+  margin-top: 0.2rem;
+}
+
 .message-content {
-  margin-top: 0.3rem;
+  margin-top: 0.1rem;
   margin-bottom: 0;
+}
+
+.message-content p {
+  margin: 0;
 }
 
 .mention-container {
