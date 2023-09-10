@@ -3,7 +3,7 @@ error () {
   printf "!! ERROR: $1 !!"
   return 1
 }
-printf "Retaped minification build script.\nPlease note that this build script is NOT required to run Retaped, it's only used to make Retaped load faster on extremely slow internet connections\nRetaped is developed by Tetra Green and Lokicalimoto, and licenced under GPLv3 or later\n"
+printf "Retaped minification build script.\nPlease note that this build script is NOT required to run Retaped, it's only used to make Retaped load faster on extremely slow internet connections\nRetaped is developed by Tetra Green and Lokicalmito, and licenced under GPLv3 or later\n"
 
 printf "=> Checking dependancy: uglifyjs"
 if [ "$(type uglifyjs)" = "uglifyjs: not found" ]; then
