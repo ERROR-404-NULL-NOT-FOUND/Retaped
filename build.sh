@@ -45,7 +45,7 @@ printf "  OG Size: $(du --apparent-size -shc src/index.html | head -1)\n"
 printf "  Minified size: $(du --apparent-size -shc build/index.html | head -1)\n"
 
 printf "=> Minifying src/main.js (outputting to build/main.js)..."
-uglifyjs --compress -- src/main.js > build/main.js
+uglifyjs src/main.js --compress --mangle -o build/main.js --source-map root=src,url=main.js.map
 printf "OK\n"
 printf "  OG Size: $(du --apparent-size -shc src/main.js | head -1)\n"
 printf "  Minifid size: $(du --apparent-size -shc build/main.js | head -1)\n"
@@ -79,5 +79,7 @@ csso src/modules/style/input.css > build/modules/style/input.css
 printf "OK\n"
 printf "  OG Size: $(du --apparent-size -shc src/modules/style/input.css | head -1)\n"
 printf "  Minified size: $(du --apparent-size -shc build/modules/style/input.css | head -1)\n"
+
 printf "[[ Build finished! ]]\n"
-printf "Total size of files: $(du --apparent-size -shc build | head -1 | sed "s/build//g")\n"
+printf "Total size of source files: $(du --apparent-size -shc src | head -1 | sed "s/src//g")\n"
+printf "Total size of minified files: $(du --apparent-size -shc build | head -1 | sed "s/build//g")\n"

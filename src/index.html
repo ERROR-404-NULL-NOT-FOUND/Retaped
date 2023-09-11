@@ -109,13 +109,18 @@
             <div id="messages"></div>
 
             <div class="messagebar-container">
-                <input type="text" autocomplete="off" placeholder="Title" id="title" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Description" id="desc" hidden="true" />
-                <input type="text" autocomplete="off" placeholder="Color" id="color" hidden="true" />
+                <div id="embed" hidden="false">
+                    <input type="text" autocomplete="off" placeholder="Title" id="embedTitle" />
+                    <input type="text" autocomplete="off" placeholder="Icon URL" id="embedIconURL" />
+                    <input type="text" autocomplete="off" placeholder="Description" id="embedDesc" />
+                    <input type="text" autocomplete="off" placeholder="Color" id="embedColour" />
+                    <input type="text" autocomplete="off" placeholder="URL" id="embedURL" />
+                    <input type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
+                </div>    
                 <div id="masquerade" hidden="false">
                     <input type="text", autocomplete="off", placeholder="Name", id="masqName" />
-                    <input type="text", autocomplete="off" , placeholder="Profile picture", id="masqPfp" />
-                    <input type="text", autocomplete="off" , placeholder="Colour", id="masqColour" />
+                    <input type="text", autocomplete="off", placeholder="Profile picture", id="masqPfp" />
+                    <input type="text", autocomplete="off", placeholder="Colour (must have ManageRole permission)", id="masqColour" />
                 </div>
 
                 <div id="errorContainer" class="error-container">
@@ -129,11 +134,11 @@
                 <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
                 <div class="toolbar">
                     <button onclick="bonfire()">Re-establish websocket</button>
-                    <button onclick="uIDs=[];usernames=[];pfpsrcs=[];getMessage();">
-                        Reload Usernames
+                    <button onclick="getMessages(activeChannel);">
+                        Refresh chat
                     </button>
-                    <button onclick="embedMessage()">Send embed</button>
-                    <button onclick="contentToJson()">JSON</button>
+                    <button onclick="let embed = document.querySelector('#embed'); embed.hidden=!embed.hidden">Send embed</button>
+                    <button onclick="sendRawJSON = !sendRawJSON">JSON</button>
                     <button onclick="let masq = document.querySelector('#masquerade'); masq.hidden=!masq.hidden">Masquerade</button>
                 </div>
                 <div id="messagebar">
