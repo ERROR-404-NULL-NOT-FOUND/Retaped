@@ -606,7 +606,7 @@ async function parseMessage(message, id = null) {
         ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
         : user[2]
           ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-          : `https://api.revolt.cha//t/users/${user[0]._id}/default_avatar`;
+          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
 
       if (member.roles) {
         for (let i = member.roles.length + 1; i >= 0; i--) {
@@ -1079,10 +1079,11 @@ async function sendMessage() {
       "x-session-token": token,
     },
     method: "POST",
-    body: body})
+    body: body
+  })
     .then((response) => response.json())
     .then((data) =>
-      fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT" })
+      fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT", headers: {"x-session-token": token}})
     );
   messageContainer.value = "";
   activeReplies = [];
