@@ -14,10 +14,6 @@
 </head>
 
 <body>
-
-<!-- TODO: Improve names -->
-
-
     <div class="login-screen">
         <div class="title">
             <h1 id="name"><span class="hl">Re</span>taped</h1>
@@ -58,7 +54,7 @@
         </form>
     </div>
 
-    <div id="logged">
+    <div id="app">
         <div id="userProfile" class="modal-container">
             <div class="modal-background"></div>
             <div class="modal">
@@ -93,29 +89,30 @@
             </div>
         </div>
 
-        <div id="info">
+        <div id="serversBar">
             <button id="dms" onclick="loadDMs()">DMS</button>
             <hr>
-            <div id="servers"></div>
+            <div id="serversContainer"></div>
         </div>
 
-        <div id="channelInfo">
-            <h2 id="chanName"></h2>
-            <h3 id="chanDesc"></h3>
-            <div id="channels"></div>
+        <div id="channelBar">
+            <h2 id="serverName"></h2>
+            <h3 id="channelDescription"></h3>
+            <div id="channelsContainer"></div>
         </div>
 
-        <div id="central">
+        <div id="chatContainer">
             <!-- TODO: transform this into a channel header -->
+            <!-- TODO: move these stats in the settings modal -->
             <div class="app-status">
                 <p id="status">Disconnected</p>
                 -
-                <p id="theme-label">Default theme</p>
+                <p id="themeLabel">Default theme</p>
                 <br>
                 <button onclick="openSettings()">Settings</button>
             </div>
 
-            <div id="messages"></div>
+            <div id="messagesContainer"></div>
 
             <div class="messagebar-container">
                 <div id="embed" hidden="false">
@@ -127,9 +124,9 @@
                     <input type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
                 </div>    
                 <div id="masquerade" hidden="false">
-                    <input type="text", autocomplete="off", placeholder="Name", id="masqName" />
-                    <input type="text", autocomplete="off", placeholder="Profile picture", id="masqPfp" />
-                    <input type="text", autocomplete="off", placeholder="Colour (must have ManageRole permission)", id="masqColour" />
+                    <input type="text" autocomplete="off" placeholder="Name" id="masqName" />
+                    <input type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
+                    <input type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)" id="masqColour" />
                 </div>
 
                 <div id="errorContainer" class="error-container">
@@ -138,7 +135,7 @@
 
                 <div class="replying-container"></div>
 
-                <input type="file" id="upload" />
+                <input type="file" id="mediaUpload" />
 
                 <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
                 <div class="toolbar">
@@ -150,7 +147,7 @@
                     <button onclick="sendRawJSON = !sendRawJSON">JSON</button>
                     <button onclick="let masq = document.querySelector('#masquerade'); masq.hidden=!masq.hidden">Masquerade</button>
                 </div>
-                <div id="messagebar">
+                <div id="messageBar">
                     <button class="toolbar-btn">↑</button>
                     <!-- FIXME: the width of the label is really small so pressing it is hard. -->
                     <button>

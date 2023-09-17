@@ -196,7 +196,7 @@ async function loadSyncSettings() {
   themeVars.style.setProperty("--foreground", theme["foreground"]);
   themeVars.style.setProperty("--hover", theme.hover);
 
-  document.querySelector("#theme-label").textContent = "Revolt theme";
+  document.querySelector("#themeLabel").textContent = "Revolt theme";
 }
 
 // Function to interface with Revolt's websocket service
@@ -249,7 +249,7 @@ async function bonfire() {
         break;
 
       case "MessageDelete":
-        if(data.channel_id===activeChannel) document.querySelector("#messages").removeChild(document.getElementById(data.id));
+        if(data.channel_id===activeChannel) document.querySelector("#messagesContainer").removeChild(document.getElementById(data.id));
         break;
 
       case "MessageUpdate":
@@ -380,9 +380,9 @@ async function login() {
   }
   bonfire();
   fetch('./emojis.json').then((res) => res.json()).then((json)=>emojis=json)
-  // Hide & show
+
   document.querySelector(".login-screen").style.display = "none";
-  document.getElementById("logged").style.display = "grid";
+  document.getElementById("app").style.display = "grid";
 }
 
 //
@@ -391,7 +391,7 @@ async function login() {
 
 // Renders servers from the cache
 async function getServers() {
-  let serverContainer = document.getElementById("servers");
+  let serverContainer = document.getElementById("serversContainer");
   serverContainer.replaceChildren();
 
   unreads.forEach((unread) => {
@@ -434,7 +434,7 @@ async function getServers() {
 
 // Renders channels from the cache
 async function getChannels(id) {
-  let channelContainer = document.getElementById("channels");
+  let channelContainer = document.getElementById("channelsContainer");
   channelContainer.replaceChildren();
 
   let addedChannels = [];
@@ -540,7 +540,7 @@ async function getChannels(id) {
 }
 
 function clearMessages() {
-  document.getElementById("messages").replaceChildren();
+  document.getElementById("messagesContainer").replaceChildren();
 }
 
 // Parses and renders messages
@@ -548,7 +548,7 @@ function clearMessages() {
 async function parseMessage(message, id = null) {
   const member = cacheLookup("members", message.author, activeServer);
   var messageDisplay = "";
-  const messageContainer = document.getElementById("messages");
+  const messageContainer = document.getElementById("messagesContainer");
 
   if (id !== null) {
     messageDisplay = document.getElementById(id);
@@ -686,8 +686,7 @@ async function parseMessage(message, id = null) {
     let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
     let emojiImage = document.createElement("img");
     emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
-    messageContent.textContent = "";
-    messageContent.innerHTML = "";
+    messageContent.replaceChildren()
     for (let i = 0; i < tmpMsg.length; i++){
       if (i !== tmpMsg.length - 1) messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML
       else messageContent.innerHTML += tmpMsg[i];
@@ -874,12 +873,12 @@ async function buildServerCache(servers) {
 async function getMessages(id) {
   cache.messages = [];
   activeReplies = [];
-  document.querySelector(".replying-container").innerHTML = "";
   activeChannel = id;
-  document.querySelector("#typingBar").innerHTML = "";
+  document.querySelector(".replying-container").replaceChildren();
+  document.querySelector("#typingBar").replaceChildren();
 
   fetchResource(`channels/${id}`).then((data) => {
-    document.getElementById("chanName").innerText =
+    document.getElementById("serverName").innerText =
       data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
   });
 
@@ -940,7 +939,7 @@ async function loadDMUserName(userID) {
 }
 
 async function loadDMs() {
-  let channelContainer = document.getElementById("channels");
+  let channelContainer = document.getElementById("channelsContainer");
   let userCat = document.createElement("summary");
   userCat.classList.add("categoryText");
   //Clear channel field
