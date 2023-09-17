@@ -684,40 +684,13 @@ async function parseMessage(message, id = null) {
         messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
       }
     });
-<<<<<<< HEAD
-  }
-  //messageContent.appendChild(parsedMessage);
-  // Emojis
-  Object.keys(emojis.standard).forEach(emoji => {
-    if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
-      messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
-    }
-  });
-  Object.keys(emojis.custom).forEach(emoji => {
-    if (messageContent.textContent.search(`:${emoji}`) === -1) return;
-    let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
-    let emojiImage = document.createElement("img");
-    emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
-    messageContent.replaceChildren()
-    for (let i = 0; i < tmpMsg.length; i++){
-      if (i !== tmpMsg.length - 1) messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML
-      else messageContent.innerHTML += tmpMsg[i];
-    }
-  })
-  if (messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
-    let matches = messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
-    for (let i = 0; i < matches.length; i++) {
-      let emoji = matches[i].split(":")[1];
-=======
     Object.keys(emojis.custom).forEach(emoji => {
       if (messageContent.textContent.search(`:${emoji}`) === -1) return;
->>>>>>> Development
       let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
       let emojiImage = document.createElement("img");
       emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
-      messageContent.textContent = "";
-      messageContent.innerHTML = "";
-      for (let i = 0; i < tmpMsg.length; i++) {
+      messageContent.replaceChildren()
+      for (let i = 0; i < tmpMsg.length; i++){
         if (i !== tmpMsg.length - 1) messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML
         else messageContent.innerHTML += tmpMsg[i];
       }
