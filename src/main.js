@@ -654,26 +654,24 @@ async function parseMessage(message, id = null) {
   userdata.appendChild(profilepicture);
   userdata.appendChild(username);
   if (user[6] !== "Blocked") {
-    let parsedMessage = messageContent;
-    parsedMessage.textContent = message.content;
-    parsedMessage.innerHTML = converter.makeHtml(parsedMessage.textContent);
+    messageContent.innerHTML = converter.makeHtml(message.content);
     if (message.mentions) {
       message.mentions.forEach(async (mention) => {
-        if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
+        if (messageContent.innerText.split(`<@${mention}>`).length === 0) return;
         let segConcat = document.createElement("div");
         let newSeg;
-        parsedMessage.innerText.split(`<@${mention}>`).forEach((segment) => {
+        messageContent.innerText.split(`<@${mention}>`).forEach((segment) => {
           newSeg = document.createElement("span");
           newSeg.innerText = segment;
           segConcat.appendChild(newSeg);
         });
         let ping = document.createElement("span");
         ping.classList.add("mention");
-        ping.textContent = '@' + cacheLookup('users', mention)[1];
+        ping.textContent = '@' + cacheLookup('users', mention)[5];
         segConcat.insertBefore(ping, newSeg);
-        parsedMessage = segConcat;
+        messageContent = segConcat;
         if (mention === userProfile._id) {
-          parsedMessage.classList.add("selfMentioned");
+          messageContent.classList.add("selfMentioned");
         }
       });
     }
@@ -681,7 +679,7 @@ async function parseMessage(message, id = null) {
     // Emojis
     Object.keys(emojis.standard).forEach(emoji => {
       if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
-        messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
+        messageContent.innerHTML = messageContent.innerHTML.replace(`:${emoji}:`, emojis.standard[emoji])
       }
     });
     Object.keys(emojis.custom).forEach(emoji => {
