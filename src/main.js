@@ -5,7 +5,7 @@ var converter = new showdown.Converter()
 //
 
 var cache = {
-  //0 is id, 1 is username, 2 is pfp, 3 is bot, 4 is discrim, 5 is display name
+  //0 is id, 1 is username, 2 is pfp, 3 is bot, 4 is discrim, 5 is display name, 6 is relationshiphip
   users: [],
   //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
@@ -112,6 +112,7 @@ async function userLookup(ID) {
       user.bot,
       user.discriminator,
       user.display_name,
+      user.relationship,
     ];
   cache.users.push(fmtUser);
   return fmtUser;
@@ -545,6 +546,8 @@ function clearMessages() {
 
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
+// Loki TODO: Add blocked message styling
+// Loki TODO: add some flair for messages sent by friends
 async function parseMessage(message, id = null) {
   const member = cacheLookup("members", message.author, activeServer);
   var messageDisplay = "";
@@ -650,29 +653,38 @@ async function parseMessage(message, id = null) {
   };
   userdata.appendChild(profilepicture);
   userdata.appendChild(username);
-  let parsedMessage = messageContent;
-  parsedMessage.textContent = message.content;
-  parsedMessage.innerHTML = converter.makeHtml(parsedMessage.textContent);
-  if (message.mentions) {
-    message.mentions.forEach(async (mention) => {
-      if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
-      let segConcat = document.createElement("div");
-      let newSeg;
-      parsedMessage.innerText.split(`<@${mention}>`).forEach((segment) => {
-        newSeg = document.createElement("span");
-        newSeg.innerText = segment;
-        segConcat.appendChild(newSeg);
+  if (user[6] !== "Blocked") {
+    let parsedMessage = messageContent;
+    parsedMessage.textContent = message.content;
+    parsedMessage.innerHTML = converter.makeHtml(parsedMessage.textContent);
+    if (message.mentions) {
+      message.mentions.forEach(async (mention) => {
+        if (parsedMessage.innerText.split(`<@${mention}>`).length === 0) return;
+        let segConcat = document.createElement("div");
+        let newSeg;
+        parsedMessage.innerText.split(`<@${mention}>`).forEach((segment) => {
+          newSeg = document.createElement("span");
+          newSeg.innerText = segment;
+          segConcat.appendChild(newSeg);
+        });
+        let ping = document.createElement("span");
+        ping.classList.add("mention");
+        ping.textContent = '@' + cacheLookup('users', mention)[1];
+        segConcat.insertBefore(ping, newSeg);
+        parsedMessage = segConcat;
+        if (mention === userProfile._id) {
+          parsedMessage.classList.add("selfMentioned");
+        }
       });
-      let ping = document.createElement("span");
-      ping.classList.add("mention");
-      ping.textContent = '@' + cacheLookup('users', mention)[1];
-      let segElement = document.createElement("span");
-      segConcat.insertBefore(ping, newSeg);
-      parsedMessage = segConcat;
-      if (mention === userProfile._id) {
-        parsedMessage.classList.add("selfMentioned");
+    }
+    //messageContent.appendChild(parsedMessage);
+    // Emojis
+    Object.keys(emojis.standard).forEach(emoji => {
+      if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
+        messageContent.textContent = messageContent.textContent.replace(`:${emoji}:`, emojis.standard[emoji])
       }
     });
+<<<<<<< HEAD
   }
   //messageContent.appendChild(parsedMessage);
   // Emojis
@@ -696,77 +708,117 @@ async function parseMessage(message, id = null) {
     let matches = messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
     for (let i = 0; i < matches.length; i++) {
       let emoji = matches[i].split(":")[1];
+=======
+    Object.keys(emojis.custom).forEach(emoji => {
+      if (messageContent.textContent.search(`:${emoji}`) === -1) return;
+>>>>>>> Development
       let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
-      let tmpImg = document.createElement("img");
-      tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
-      messageContent.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
-      for (let j = 1; j < tmpMsg.length-1; j++) {
-        messageContent.innerHTML+= tmpMsg[j]
+      let emojiImage = document.createElement("img");
+      emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
+      messageContent.textContent = "";
+      messageContent.innerHTML = "";
+      for (let i = 0; i < tmpMsg.length; i++) {
+        if (i !== tmpMsg.length - 1) messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML
+        else messageContent.innerHTML += tmpMsg[i];
+      }
+    })
+    if (messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
+      let matches = messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
+      for (let i = 0; i < matches.length; i++) {
+        let emoji = matches[i].split(":")[1];
+        let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
+        let tmpImg = document.createElement("img");
+        tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
+        messageContent.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
+        for (let j = 1; j < tmpMsg.length - 1; j++) {
+          messageContent.innerHTML += tmpMsg[j]
+        }
       }
     }
-  }
-  if (message.replies) {
-    let reply = document.createElement("div");
-    reply.classList.add("reply-content");
-    for (let j = 0; j < message.replies.length; j++) {
-      let replyContent = document.createElement("span");
-      replyContent.textContent =
-        "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
-      reply.appendChild(replyContent);
+    if (message.replies) {
+      let reply = document.createElement("div");
+      reply.classList.add("reply-content");
+      for (let j = 0; j < message.replies.length; j++) {
+        let replyContent = document.createElement("span");
+        replyContent.textContent =
+          "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
+        reply.appendChild(replyContent);
+      }
+      messageDisplay.appendChild(reply);
     }
-    messageDisplay.appendChild(reply);
-  }
 
-  if (cache.messages.length === 0 || (cache.messages[cache.messages.length-1][1] !== message.author || cache.messages[cache.messages.length-1][3] !== undefined))
-    messageDisplay.appendChild(userdata);
-  messageDisplay.appendChild(messageContent);
+    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1][1] !== message.author || cache.messages[cache.messages.length - 1][3] !== undefined))
+      messageDisplay.appendChild(userdata);
+    messageDisplay.appendChild(messageContent);
 
-  messageDisplay.id = message._id;
-  messageDisplay.class = "message";
+    messageDisplay.id = message._id;
+    messageDisplay.class = "message";
 
   
-  if (message.attachments) {
-    let attachments = document.createElement("div");
-    attachments.classList.add("message-attachments");
-    message.attachments.forEach((tmpAtchmntAttrs) => {
-      let tmpAttachment;
-      if (tmpAtchmntAttrs.content_type.startsWith("image")) {
-        tmpAttachment = document.createElement("img");
-        tmpAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-      } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
-        tmpAttachment = document.createElement("video");
-        tmpAttachment.controls = true;
-        tmpAttachment.style.maxWidth = "30%";
-        tmpAttachment.style.maxHeight = "30%";
-        let subAttachment = document.createElement("source");
-        subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-        subAttachment.type = tmpAtchmntAttrs.content_type;
-        tmpAttachment.appendChild(subAttachment);
-      } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
-        tmpAttachment = document.createElement("div");
+    if (message.attachments) {
+      let attachments = document.createElement("div");
+      attachments.classList.add("message-attachments");
+      message.attachments.forEach((tmpAtchmntAttrs) => {
+        let tmpAttachment;
+        if (tmpAtchmntAttrs.content_type.startsWith("image")) {
+          tmpAttachment = document.createElement("img");
+          tmpAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+        } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
+          tmpAttachment = document.createElement("video");
+          tmpAttachment.controls = true;
+          tmpAttachment.style.maxWidth = "30%";
+          tmpAttachment.style.maxHeight = "30%";
+          let subAttachment = document.createElement("source");
+          subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          subAttachment.type = tmpAtchmntAttrs.content_type;
+          tmpAttachment.appendChild(subAttachment);
+        } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
+          tmpAttachment = document.createElement("div");
         
-        let tmpContainer = document.createElement("audio");
-        tmpContainer.controls = true;
-        tmpContainer.textContent = tmpAtchmntAttrs.filename;
+          let tmpContainer = document.createElement("audio");
+          tmpContainer.controls = true;
+          tmpContainer.textContent = tmpAtchmntAttrs.filename;
         
-        let subAttachment = document.createElement("source");
-        subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-        subAttachment.type = tmpAtchmntAttrs.content_type;
+          let subAttachment = document.createElement("source");
+          subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          subAttachment.type = tmpAtchmntAttrs.content_type;
         
-        tmpContainer.appendChild(subAttachment);
-        let name = document.createElement("span");
-        name.textContent = tmpAtchmntAttrs.filename + "\n";
+          tmpContainer.appendChild(subAttachment);
+          let name = document.createElement("span");
+          name.textContent = tmpAtchmntAttrs.filename + "\n";
         
-        tmpAttachment.appendChild(name);
-        tmpAttachment.appendChild(tmpContainer);
-      } else {
-        tmpAttachment = document.createElement("a");
-        tmpAttachment.textContent = tmpAtchmntAttrs.filename;
-        tmpAttachment.href = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          tmpAttachment.appendChild(name);
+          tmpAttachment.appendChild(tmpContainer);
+        } else {
+          tmpAttachment = document.createElement("a");
+          tmpAttachment.textContent = tmpAtchmntAttrs.filename;
+          tmpAttachment.href = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+        }
+        attachments.appendChild(tmpAttachment);
+      });
+      messageDisplay.appendChild(attachments);
+    }
+  } else {
+    if (message.replies) {
+      let reply = document.createElement("div");
+      reply.classList.add("reply-content");
+      for (let j = 0; j < message.replies.length; j++) {
+        let replyContent = document.createElement("span");
+        replyContent.textContent =
+          "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
+        reply.appendChild(replyContent);
       }
-      attachments.appendChild(tmpAttachment);
-    });
-    messageDisplay.appendChild(attachments);
+      messageDisplay.appendChild(reply);
+    }
+
+    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1][1] !== message.author || cache.messages[cache.messages.length - 1][3] !== undefined))
+      messageDisplay.appendChild(userdata);
+    messageDisplay.appendChild(messageContent);
+
+    messageDisplay.id = message._id;
+    messageDisplay.class = "message";
+    messageContent.innerText = "<Blocked user>";
+    messageContainer.classList.add("blockedMessage");
   }
 
   replyButton.onclick = () => {
@@ -846,7 +898,8 @@ async function buildUserCache(users) {
         users[i].avatar,
         users[i].bot,
         users[i].discriminator,
-        users[i].display_name
+        users[i].display_name,
+        users[i].relationship,
       ]);
   }
 }
@@ -896,6 +949,7 @@ async function getMessages(id) {
         users[i].bot,
         users[i].discriminator,
         users[i].display_name,
+        users[i].relationship,
       ]);
   }
   if (placeholder.members) {
@@ -998,8 +1052,7 @@ async function loadProfile(userID) {
   let profileBackground = document.getElementById("profileMedia");
   let bio = document.getElementById("bio");
   let roleContainer = document.getElementById("roleContainer");
-  username.textContent = user[1];
-  discriminator.textContent = user[4];
+  username.textContent = `${user[1]}#${user[4]}`;
   displayName.textContent = user[5] ? user[5] : user[1];
   if (user[2]) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
@@ -1011,7 +1064,38 @@ async function loadProfile(userID) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 4%, rgba(0,0,0,0) 50%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
-  bio.innerHTML = converter.makeHtml(userProfile.content);;
+  bio.innerHTML = converter.makeHtml(userProfile.content);
+  // Emojis
+    Object.keys(emojis.standard).forEach(emoji => {
+      if (bio.innerHTML.search(`:${emoji}:`) !== -1) {
+        bio.innerHTML = bio.innerHTML.replace(`:${emoji}:`, emojis.standard[emoji])
+      }
+    });
+    Object.keys(emojis.custom).forEach(emoji => {
+      if (bio.innerHTML.search(`:${emoji}`) === -1) return;
+      let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
+      let emojiImage = document.createElement("img");
+      emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
+      bio.textContent = "";
+      bio.innerHTML = "";
+      for (let i = 0; i < tmpMsg.length; i++) {
+        if (i !== tmpMsg.length - 1) bio.innerHTML += tmpMsg[i] + emojiImage.outerHTML
+        else bio.innerHTML += tmpMsg[i];
+      }
+    })
+    if (bio.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
+      let matches = bio.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g);
+      for (let i = 0; i < matches.length; i++) {
+        let emoji = matches[i].split(":")[1];
+        let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
+        let tmpImg = document.createElement("img");
+        tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
+        bio.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
+        for (let j = 1; j < tmpMsg.length - 1; j++) {
+          bio.innerHTML += tmpMsg[j]
+        }
+      }
+    }
 
   roleContainer.replaceChildren();
   if (memberData.roles)
