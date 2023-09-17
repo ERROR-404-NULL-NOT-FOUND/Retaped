@@ -3,6 +3,7 @@
 @import url(./modules/style/input.css);
 @import url(./modules/style/error.css);
 @import url(./modules/style/modal.css);
+@import url(./modules/style/details.css);
 @import url(./modules/style/reset.css);
 
 /* 
@@ -134,9 +135,7 @@ fieldset legend {
 /*     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, var(--accent) 0px 0px 0px 3px; */
 /* } */
 
-#chanName { font-size: 1.4em; }
-
-#channels, .channel-category {
+#channels {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -144,10 +143,8 @@ fieldset legend {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  /* gap: 0.3rem; */
+  gap: .8rem; 
 }
-
-#channels { gap: 1rem; }
 
 #dms {
   width: 100%;
@@ -165,7 +162,7 @@ fieldset legend {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  padding: 0.4rem 0;
+  padding: 0.3rem 0;
   background: transparent;
   font-weight: normal;
   opacity: .5;

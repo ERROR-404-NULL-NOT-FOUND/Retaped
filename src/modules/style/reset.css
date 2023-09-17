@@ -40,11 +40,6 @@ p {
 
 img { border-radius: var(--border-radius); }
 
-summary { 
-  cursor: pointer; 
-  font-weight: bold;
-}
-
 hr { 
   margin: .6rem 25%;
 }
