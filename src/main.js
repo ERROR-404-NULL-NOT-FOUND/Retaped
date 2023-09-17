@@ -30,6 +30,7 @@ var unreads = [];
 var unreadChannels = [];
 var cssVars = getComputedStyle(document.querySelector(":root"));
 var keysDown = [];
+var sendRawJSON = false;
 
 //
 // Run on page load
@@ -557,7 +558,7 @@ async function parseMessage(message, id = null) {
     messageDisplay = document.createElement("div");
   }
   let messageActions = document.createElement("div");
-  let messageContent = document.createElement("p");
+  let messageContent = document.createElement("div");
   let userdata = document.createElement("div");
   let username = document.createElement("button");
   let profilepicture = document.createElement("img");
@@ -571,20 +572,31 @@ async function parseMessage(message, id = null) {
   username.classList.add("username");
   messageContent.classList.add("message-content");
   let user;
-  if ((user = await userLookup(message.author)) === 1) {
-    if (Object.keys(message).indexOf("system") !== -1) {
-      if (message.system.id) {
-        user = [message.system.id, message.system.id, undefined, undefined];
-      } else {
-        user = [message.system.by, message.system.by, undefined, undefined];
-      }
-    } else {
-      user = [message.author, message.author, undefined, undefined];
-    }
+  if(message.system) {
+    user = await userLookup(message.system.id ? message.system.id : message.system.by);
+  } else {
+    user = await userLookup(message.author);
   }
   if (message.system) {
-    username.textContent = await userLookup(message.system.id)[0];
+    username.textContent = user[1];
+    profilepicture.src = user[2] ?
+      `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256` :
+      `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+
     messageContent.textContent = message.system.type;
+    
+    username.onclick = () => {
+      loadProfile(user[0]);
+    };
+    profilepicture.onclick = () => {
+      loadProfile(user[0]);
+    };
+
+    userdata.appendChild(profilepicture);
+    userdata.appendChild(username);
+    messageContainer.appendChild(userdata);
+    messageContainer.appendChild(messageContent);
+    return;
   } else {
     if (!message.masquerade) {
       username.textContent = member.nickname ? member.nickname : user[5] ? user[5] : user[1];
@@ -616,7 +628,8 @@ async function parseMessage(message, id = null) {
       }
     } else {
       masqueradeBadge.textContent = "Masq";
-      username.textContent = message.masquerade.name;
+      if(message.masquerade.name) username.textContent = message.masquerade.name;
+      else username.textContent = member.nickname ? member.nickname : user[5] ? user[5] : user[1];
       username.appendChild(masqueradeBadge);
 
       if (message.masquerade.avatar) {
@@ -637,7 +650,7 @@ async function parseMessage(message, id = null) {
   };
   userdata.appendChild(profilepicture);
   userdata.appendChild(username);
-  let parsedMessage = document.createElement("p");
+  let parsedMessage = messageContent;
   parsedMessage.textContent = message.content;
   parsedMessage.innerHTML = converter.makeHtml(parsedMessage.textContent);
   if (message.mentions) {
@@ -661,7 +674,7 @@ async function parseMessage(message, id = null) {
       }
     });
   }
-  messageContent.appendChild(parsedMessage);
+  //messageContent.appendChild(parsedMessage);
   // Emojis
   Object.keys(emojis.standard).forEach(emoji => {
     if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
@@ -705,7 +718,7 @@ async function parseMessage(message, id = null) {
     messageDisplay.appendChild(reply);
   }
 
-  if (cache.messages.length === 0 || cache.messages[cache.messages.length-1][1] !== message.author)
+  if (cache.messages.length === 0 || (cache.messages[cache.messages.length-1][1] !== message.author || cache.messages[cache.messages.length-1][3] !== undefined))
     messageDisplay.appendChild(userdata);
   messageDisplay.appendChild(messageContent);
 
@@ -771,7 +784,7 @@ async function parseMessage(message, id = null) {
   messageDisplay.appendChild(messageActions);
   messageActions.appendChild(replyButton);
   if( id===null)messageContainer.appendChild(messageDisplay);
-  cache.messages.push([message._id, message.author, message.content]);
+  cache.messages.push([message._id, message.author, message.content, message.masquerade]);
 }
 
 //
@@ -1034,28 +1047,44 @@ async function sendMessage() {
       }
     }
   }
+  let embeds = undefined;
+  if (document.querySelector("#embedTitle").value || document.querySelector("#embedDesc").value || document.querySelector("#embedColour").value || document.querySelector("#embedIconURL").value || document.querySelector("#embedMedia").value || document.querySelector("#embedURL").value) {
+    embeds = [{
+      title: document.querySelector("#embedTitle").value ? document.querySelector("#embedTitle").value : null,
+      description: document.querySelector("#embedDesc").value ? document.querySelector("#embedDesc").value : null,
+      colour: document.querySelector("#embedColour").value ? document.querySelector("#embedColour").value : null,
+      icon_url: document.querySelector("#embedIconURL").value ? document.querySelector("#embedIconURL").value : null,
+      url: document.querySelector("#embedURL").value ? document.querySelector("#embedURL").value : null,
+      media: document.querySelector("#embedMedia").value ? document.querySelector("#embedMedia").value : null,
+    }];
+  }
+
+  let masquerade = undefined;
   if (document.querySelector("#masqName").value || document.querySelector("#masqPfp").value || document.querySelector("#masqColour").value) {
-    console.log(document.querySelector("#masqName").value)
-    let masquerade = {
+    masquerade = {
       name: document.querySelector("#masqName").value ? document.querySelector("#masqName").value : null,
       avatar: document.querySelector("#masqPfp").value ? document.querySelector("#masqPfp").value : null,
       colour: document.querySelector("#masqColour").value ? document.querySelector("#masqColour").value : null,
     };
-  } else { let masquerade = "" }
+  }
+  let body = sendRawJSON ? message : 
+    JSON.stringify({
+      content: message,
+      replies: activeReplies,
+      masquerade,
+      embeds,
+  })
+
   await fetch(`https://api.revolt.chat/channels/${activeChannel}/messages`, {
     headers: {
       "x-session-token": token,
     },
     method: "POST",
-    body: JSON.stringify({
-      content: message,
-      replies: activeReplies,
-      masquerade,
-    })
+    body: body
   })
     .then((response) => response.json())
     .then((data) =>
-      fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT" })
+      fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT", headers: {"x-session-token": token}})
     );
   messageContainer.value = "";
   activeReplies = [];
