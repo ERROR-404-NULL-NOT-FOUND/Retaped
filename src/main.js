@@ -1020,6 +1020,7 @@ async function loadProfile(userID) {
       const role = document.createElement("span");
       const roleData = cacheLookup("roles", memberData.roles[i], activeServer);
 
+      role.classList.add("tag");
       role.textContent = roleData["name"];
       role.style.color = roleData["colour"];
       roleContainer.appendChild(role);

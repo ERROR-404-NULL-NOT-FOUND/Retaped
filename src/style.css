@@ -8,6 +8,7 @@
 /* 
 
 TODO: message.css
+TODO: experiment with better/alternative color schemes. Current one has not so good contrast
 
 */
 
@@ -27,39 +28,10 @@ TODO: message.css
   --img-radius: 5px;
 }
 
-* {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: "Roboto", sans-serif;
-}
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-p {
-  margin: 0;
-}
-
-img { border-radius: var(--border-radius); }
-
-summary { cursor: pointer; }
-
-hr { 
-  margin: .6rem 25%;
+.tag {
+  padding: .2rem .5rem;
+  background: var(--secondary-background);
+  border-radius: var(--border-radius);
 }
 
 .login-screen {
@@ -184,6 +156,7 @@ fieldset legend {
   font-weight: bold;
 }
 
+/* TODO: add a proper 'unread' indicator */
 .channel {
 	width: 100%;
   display: -webkit-box;
@@ -195,6 +168,7 @@ fieldset legend {
   padding: 0.4rem 0;
   background: transparent;
   font-weight: normal;
+  opacity: .5;
   overflow: hidden;
   text-align: left;
 }
@@ -258,12 +232,12 @@ fieldset legend {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  gap: 1rem;
+  gap: .6rem;
 }
 
 #profilePicture {
-  width: 76px;
-  height: auto;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
 }
 
@@ -272,9 +246,15 @@ fieldset legend {
   font-size: 1.2rem;
 }
 
+#roleContainer {
+  padding: .5rem 0;
+  display: flex;
+  gap: .4rem;
+}
+
 #bio {
   max-height: 15rem;
-  padding: 1rem;
+  margin-bottom: .5rem;
   overflow: auto;
 }
 
@@ -286,7 +266,7 @@ fieldset legend {
 
 .chat-pfp {
   width: 40px;
-  height: auto;
+  height: 40px;
   -o-object-fit: cover;
      object-fit: cover;
   cursor: pointer;
@@ -316,12 +296,9 @@ fieldset legend {
   opacity: .5;
 }
 
-.app-status > * {
-  margin: 0;
-}
-
+/* TODO: lower the font size of the chat. just a little bit */
 #messages {
-  white-space: pre-line;
+  /* white-space: pre-line; */ /* NOTE: has weird behavior */
   overflow: auto;
   -ms-overflow-style: none;
   height: 0;
@@ -345,7 +322,7 @@ fieldset legend {
 .message-actions {
   display: none;
   position: absolute;
-  top: -35px;
+  top: -25px;
   right: 50px;
 }
 

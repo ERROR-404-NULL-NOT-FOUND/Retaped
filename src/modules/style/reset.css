@@ -10,10 +10,19 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: "Roboto", sans-serif;
+  font-size: .9rem;
 }
 
 h1 {
+  margin: .4rem 0;
+}
+
+h2 {
   margin: .3rem 0;
+}
+
+h3, h4, h5, h6 {
+  margin: .2rem 0;
 }
 
 a {
@@ -31,7 +40,10 @@ p {
 
 img { border-radius: var(--border-radius); }
 
-summary { cursor: pointer; }
+summary { 
+  cursor: pointer; 
+  font-weight: bold;
+}
 
 hr { 
   margin: .6rem 25%;
