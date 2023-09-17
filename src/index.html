@@ -57,16 +57,41 @@
             <button id="login-btn" onclick="login();" type="button">Login</button>
         </form>
     </div>
+
     <div id="logged">
-        <div id="settings" hidden="true">
-            <h1 id="settingsHeader">Settings</h1>
-            <div id="categories">
-                <button id="behaviourSetting" onclick="loadSetting('behaviour')">Behaviour</button>
+        <div id="userProfile" class="modal-container">
+            <div class="modal-background"></div>
+            <div class="modal">
+                <div id="profileMedia" class="profile-top">
+                    <div class="profile-name">
+                        <img id="profilePicture" />
+                        <div>
+                            <p id="displayName"></p>
+                            <p id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <p id="bio"></p>
+                <p id="rolesText">Roles</p>
+                <div id="roleContainer"></div>
+                <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
+                    Close Profile
+                </button>
             </div>
-            <div id="mainSettings">
-                <h3 id="settingCatName"></h3>
+        </div>
+
+        <div id="settings" class="modal-container">
+            <div class="modal-background"></div>
+            <div class="modal">
+                <h1>Settings</h1>
+                <div id="categories">
+                    <button id="behaviourSetting" onclick="loadSetting('behaviour')">Behaviour</button>
+                </div>
+                <div id="mainSettings">
+                    <h3 id="settingCatName"></h3>
+                </div>
+                <button onclick="closeSettings()">Close settings</button>
             </div>
-        <button id="closeSettings" onclick="closeSettings()">X</button>
         </div>
 
         <div id="info">
@@ -82,28 +107,12 @@
         </div>
 
         <div id="central">
-            <div id="userProfile">
-                <div id="profileMedia" class="profile-top">
-                    <div class="profile-name">
-                        <img id="profilePicture" />
-                        <h3 id="displaynameContainer"><span id="displayname"></span></h3>
-                        <h5 id="usernameContainer"><span id="username"></span>#<span id="discrim"></span></h5>
-                    </div>
-                </div>
-                <p id="bio"></p>
-                <p id="rolesText">Roles</p>
-                <div id="roleContainer"></div>
-                <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
-                    Close Profile
-                </button>
-            </div>
-
             <div class="app-status">
                 <p id="status">Disconnected</p>
                 -
                 <p id="theme-label">Default theme</p>
                 <br>
-                <button onclick="openSettings()" id="settings-button">Settings</button>
+                <button onclick="openSettings()">Settings</button>
             </div>
 
             <div id="messages"></div>

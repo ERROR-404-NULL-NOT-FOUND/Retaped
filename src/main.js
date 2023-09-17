@@ -1019,7 +1019,7 @@ async function loadProfile(userID) {
   const userProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, activeServer);
   const user = await userLookup(userID);
-  let displayName = document.getElementById("displayname");
+  let displayName = document.getElementById("displayName");
   let username = document.getElementById("username");
   let discriminator = document.getElementById("discrim");
   let profilePicture = document.getElementById("profilePicture");
@@ -1034,8 +1034,9 @@ async function loadProfile(userID) {
     profilePicture.src = `https://api.revolt.chat/users/${userProfile._id}/default_avatar`
   }
   if (Object.keys(userProfile).indexOf("background") > -1) {
-    profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.8477591720281863) 4%, rgba(0,0,0,0) 50%),
-    url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
+    // TODO: this needs some refactoring so the style isn't applied here, but in css
+    profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 4%, rgba(0,0,0,0) 50%),
+        url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
   bio.innerHTML = converter.makeHtml(userProfile.content);
   // Emojis
@@ -1162,17 +1163,11 @@ toolbarBtn.addEventListener("click", () => {
 //
 
 function openSettings() {
-  let settingsDiv = document.querySelector("#settings");
-  let notSettingsDiv = document.querySelector("#notSettings");
-  settingsDiv.hidden = false;
-  notSettingsDiv.hidden = true;
+  document.querySelector("#settings").style.display = "flex";
 }
 
 function closeSettings() {
-  let settingsDiv = document.querySelector("#settings");
-  let notSettingsDiv = document.querySelector("#notSettings");
-  settingsDiv.hidden = true;
-  notSettingsDiv.hidden = false;
+  document.querySelector("#settings").style.display = "none";
 }
 
 function loadSetting(setting) {

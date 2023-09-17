@@ -2,6 +2,7 @@
 @import url(./modules/style/button.css);
 @import url(./modules/style/input.css);
 @import url(./modules/style/error.css);
+@import url(./modules/style/modal.css);
 
 /* 
 
@@ -46,6 +47,10 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+p {
+  margin: 0;
 }
 
 img { border-radius: var(--border-radius); }
@@ -226,21 +231,13 @@ fieldset legend {
 }
 
 /* -- CHAT -- */
+/* NOTE: profile might be widder or smaller depending on stuff, but not too much */
 #userProfile {
   display: none;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  background: var(--servers-bg);
-  text-align: center;
 }
 
 .profile-top {
-  height: 15rem;
+  height: 12rem;
   width: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -248,11 +245,9 @@ fieldset legend {
   -webkit-box-align: end;
   -ms-flex-align: end;
   align-items: flex-end;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   gap: 1rem;
   padding: 1rem;
+  border-radius: var(--border-radius);
 }
 
 .profile-name {
@@ -266,16 +261,19 @@ fieldset legend {
 }
 
 #profilePicture {
-	--ratio: 70px;
-	width: var(--ratio);
-	height: var(--ratio);
-	object-fit: cover;
+  width: 76px;
+  height: auto;
+  object-fit: cover;
+}
+
+#displayName {
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 #bio {
-  width: 80%;
   max-height: 15rem;
-  padding: 0 1rem;
+  padding: 1rem;
   overflow: auto;
 }
 
@@ -286,9 +284,8 @@ fieldset legend {
 }
 
 .chat-pfp {
-  --ratio: 40px;
-  width: var(--ratio);
-  height: var(--ratio);
+  width: 40px;
+  height: auto;
   -o-object-fit: cover;
      object-fit: cover;
   cursor: pointer;
@@ -336,8 +333,8 @@ fieldset legend {
 
 .message-display {
   position: relative;
-  padding: 0.3rem 1rem;
-  margin: 0.3rem 0;
+  padding: 0.2rem 1rem 0.1rem 1rem;
+  margin-top: 0.1rem;
 }
 
 .message-display:hover {
@@ -355,9 +352,17 @@ fieldset legend {
   display: block;
 }
 
+.userdata {
+  margin-top: 0.2rem;
+}
+
 .message-content {
-  margin-top: 0.3rem;
+  margin-top: 0.1rem;
   margin-bottom: 0;
+}
+
+.message-content p {
+  margin: 0;
 }
 
 .mention-container {
