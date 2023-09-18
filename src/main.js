@@ -26,11 +26,13 @@ var userProfile;
 var activeRequests = 0;
 var currentlyTyping = [];
 var mutedChannels = [];
+var mutedServers = [];
 var unreads = [];
 var unreadChannels = [];
 var cssVars = getComputedStyle(document.querySelector(":root"));
 var keysDown = [];
 var sendRawJSON = false;
+var ordering = [];
 
 //
 // Run on page load
@@ -184,8 +186,12 @@ async function loadSyncSettings() {
 
   let theme = JSON.parse(rawSettings.theme[1])["appearance:theme:overrides"];
   let notifications = JSON.parse(rawSettings.notifications[1]);
+  ordering = JSON.parse(rawSettings.ordering[1]).servers;
   Object.keys(notifications.channel).forEach((channel) => {
     if (notifications.channel[channel] === "muted") mutedChannels.push(channel);
+  });
+  Object.keys(notifications.server).forEach((server) => {
+    if (notifications.server[server] === "muted") mutedServers.push(server);
   });
   let themeVars = document.querySelector(":root");
   themeVars.style.setProperty("--accent", theme.accent);
@@ -403,13 +409,14 @@ async function getServers() {
       unreadChannels.push(unread._id.channel);
     }
   });
-  for (let i = 0; i < cache.servers.length; i++) {
+  for (let i = 0; i < ordering.length; i++) {
     let server = document.createElement("button");
+    let serverIndex = cacheIndexLookup("servers", ordering[i]);
     server.onclick = () => {
-      activeServer = cache.servers[i][0];
-      getChannels(cache.servers[i][0]);
+      activeServer = cache.servers[serverIndex][0];
+      getChannels(cache.servers[serverIndex][0]);
     };
-    cache.servers[i][6].forEach((channel) => {
+    cache.servers[serverIndex][6].forEach((channel) => {
       if (
         unreadChannels.indexOf(channel) !== -1 &&
         mutedChannels.indexOf(channel) === -1
@@ -418,15 +425,17 @@ async function getServers() {
           "--foreground"
         )} 0px 0px 0px 3px`;
     });
+    if (mutedServers.indexOf(cache.servers[serverIndex][0]) !== -1)
+      server.style.boxShadow = `hsl(0, 0%, 20%) 0px 0px 0px 3px`;
 
-    server.id = cache.servers[i][0];
+    server.id = cache.servers[serverIndex][0];
 
-    if (cache.servers[i][2] == null) {
-      server.innerText = cache.servers[i][1].charAt(0);
+    if (cache.servers[serverIndex][2] == null) {
+      server.innerText = cache.servers[serverIndex][1].charAt(0);
     } else {
       let serverIcon = document.createElement("img");
       serverIcon.classList.add("server");
-      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[i][2]}?max_side=64`;
+      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex][2]}?max_side=64`;
       server.appendChild(serverIcon);
     }
     serverContainer.appendChild(server);
