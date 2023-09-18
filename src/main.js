@@ -33,6 +33,7 @@ var cssVars = getComputedStyle(document.querySelector(":root"));
 var keysDown = [];
 var sendRawJSON = false;
 var ordering = [];
+var isMessageSending = false;
 
 //
 // Run on page load
@@ -676,7 +677,7 @@ async function parseMessage(message, id = null) {
         });
         let ping = document.createElement("span");
         ping.classList.add("mention");
-        ping.textContent = '@' + cacheLookup('users', mention)[5];
+        ping.textContent = '@' + await userLookup(mention)[5];
         segConcat.insertBefore(ping, newSeg);
         messageContent = segConcat;
         if (mention === userProfile._id) {
@@ -702,17 +703,19 @@ async function parseMessage(message, id = null) {
         else messageContent.innerHTML += tmpMsg[i];
       }
     })
-    if (messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
-      let matches = messageContent.textContent.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
+    if (messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
+      let matches = messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
       for (let i = 0; i < matches.length; i++) {
         let emoji = matches[i].split(":")[1];
         let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
         let tmpImg = document.createElement("img");
+        let outputToGetAroundStupidDomManipulationShit = ""; 
         tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
-        messageContent.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
-        for (let j = 1; j < tmpMsg.length - 1; j++) {
-          messageContent.innerHTML += tmpMsg[j]
+        for (let j = 1; j < tmpMsg.length; j++) {
+
+          outputToGetAroundStupidDomManipulationShit += tmpMsg[j];
         }
+        messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
       }
     }
     if (message.replies) {
@@ -1071,7 +1074,7 @@ async function loadProfile(userID) {
         let tmpImg = document.createElement("img");
         tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
         bio.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
-        for (let j = 1; j < tmpMsg.length - 1; j++) {
+        for (let j = 1; j < tmpMsg.length; j++) {
           bio.innerHTML += tmpMsg[j]
         }
       }
@@ -1097,6 +1100,7 @@ async function loadProfile(userID) {
 //
 
 async function sendMessage() {
+  if(isMessageSending) return;
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
   //Checking for valid pings, and replacing with an actual ping
@@ -1138,7 +1142,7 @@ async function sendMessage() {
       masquerade,
       embeds,
   })
-
+  isMessageSending = true;
   await fetch(`https://api.revolt.chat/channels/${activeChannel}/messages`, {
     headers: {
       "x-session-token": token,
@@ -1147,8 +1151,10 @@ async function sendMessage() {
     body: body
   })
     .then((response) => response.json())
-    .then((data) =>
+    .then((data) => {
+      isMessageSending = false;
       fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT", headers: {"x-session-token": token}})
+    }
     );
   messageContainer.value = "";
   activeReplies = [];
