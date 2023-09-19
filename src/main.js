@@ -417,6 +417,10 @@ async function getServers() {
     server.onclick = () => {
       activeServer = cache.servers[serverIndex][0];
       getChannels(cache.servers[serverIndex][0]);
+      clearMessages();
+
+      document.getElementById("serverName").innerText = cache.servers[serverIndex][1];
+      document.getElementById("channelName").innerText = "";
     };
     cache.servers[serverIndex][6].forEach((channel) => {
       if (
@@ -475,6 +479,7 @@ async function getChannels(id) {
 
         channel.onclick = () => {
           getMessages(currentChannel[0]);
+          document.getElementById("channelName").innerText = currentChannel[1];
         };
 
         let channelText = document.createElement("span");
@@ -914,10 +919,11 @@ async function getMessages(id) {
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
 
-  fetchResource(`channels/${id}`).then((data) => {
-    document.getElementById("serverName").innerText =
-      data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
-  });
+  // fetchResource(`channels/${id}`).then((data) => {
+  //   // document.getElementById("serverName").innerText =
+  //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
+  //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
+  // });
 
   const placeholder = await fetchResource(
     `channels/${id}/messages?include_users=true&sort=latest`
@@ -980,8 +986,12 @@ async function loadDMs() {
   let channelContainer = document.getElementById("channelsContainer");
   let userCat = document.createElement("summary");
   userCat.classList.add("categoryText");
-  //Clear channel field
+
+  document.getElementById("serverName").innerText = "";
+  document.getElementById("channelName").innerText = "";
   channelContainer.replaceChildren();
+  clearMessages();
+
   await fetchResource(`users/${userProfile._id}/dm`).then((response) => {
     const dmButton = document.createElement("button");
     dmButton.textContent = "Saved messages";
@@ -1012,6 +1022,7 @@ async function loadDMs() {
     }
     dmButton.onclick = () => {
       getMessages(cache.channels[i][0]);
+      document.getElementById("channelName").innerText = "FIXME";
     };
 
     dmButton.id = cache.channels[i][0];
