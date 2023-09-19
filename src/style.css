@@ -439,4 +439,14 @@ fieldset legend {
   border-radius: 5px;
   padding: 0.1rem .3rem;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+}
+.mention > .mentionPfp {
+  max-width: 15px;
+  max-height: 15px;
+  width: 100%;
+  height: 100%; 
+  border-radius: 100%;
 }
