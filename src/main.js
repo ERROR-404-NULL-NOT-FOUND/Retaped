@@ -194,17 +194,20 @@ async function loadSyncSettings() {
   Object.keys(notifications.server).forEach((server) => {
     if (notifications.server[server] === "muted") mutedServers.push(server);
   });
-  let themeVars = document.querySelector(":root");
-  themeVars.style.setProperty("--accent", theme.accent);
-  themeVars.style.setProperty("--error", theme.error);
-  themeVars.style.setProperty("--servers-bg", theme.background);
-  themeVars.style.setProperty("--channels-bg", theme["secondary-background"]);
-  themeVars.style.setProperty("--secondary-background", theme["message-box"]);
-  themeVars.style.setProperty("--background", theme["primary-background"]);
-  themeVars.style.setProperty("--foreground", theme["foreground"]);
-  themeVars.style.setProperty("--hover", theme.hover);
 
-  document.querySelector("#themeLabel").textContent = "Revolt theme";
+  if (toggleTheme.checked == true) {
+    let themeVars = document.querySelector(":root");
+    themeVars.style.setProperty("--accent", theme.accent);
+    themeVars.style.setProperty("--error", theme.error);
+    themeVars.style.setProperty("--servers-bg", theme.background);
+    themeVars.style.setProperty("--channels-bg", theme["secondary-background"]);
+    themeVars.style.setProperty("--secondary-background", theme["message-box"]);
+    themeVars.style.setProperty("--background", theme["primary-background"]);
+    themeVars.style.setProperty("--foreground", theme["foreground"]);
+    themeVars.style.setProperty("--hover", theme.hover);
+
+    document.querySelector("#themeLabel").textContent = "Revolt theme";
+  }
 }
 
 // Function to interface with Revolt's websocket service
@@ -383,9 +386,7 @@ async function login() {
   if (toggleToken.checked == true) {
     if (!localStorage.getItem("token")) localStorage.setItem("token", token);
   }
-  if (toggleTheme.checked == true) {
-    loadSyncSettings();
-  }
+  loadSyncSettings();
   bonfire();
   fetch('./emojis.json').then((res) => res.json()).then((json)=>emojis=json)
 
