@@ -1,8 +1,18 @@
 .tag {
+  display: flex;
+  align-items: center;
+  width: fit-content;
   color: var(--accent);
   background: color-mix(in srgb, currentColor 30%, var(--servers-bg));
   border-radius: var(--border-radius);
   padding: .2rem .5rem;
   font-weight: bold;
+}
+
+.tag > img {
+  max-width: 15px;
+  max-height: 15px;
+  border-radius: 100%;
+  margin-right: .3rem;
 }
 

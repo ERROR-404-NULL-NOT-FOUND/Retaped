@@ -681,11 +681,28 @@ async function parseMessage(message, id = null) {
           newSeg.innerText = segment;
           segConcat.appendChild(newSeg);
         });
-        let ping = document.createElement("span");
+
+        let ping = document.createElement("div");
+        let pingContainer = document.createElement("div");
+        let mentionPfp = document.createElement("img");
+        let mentionText = document.createElement("span");
+        let userProfile = cacheLookup("users", mention);
+        mentionPfp.src = userProfile[2] ? `https://autumn.revolt.chat/avatars/${userProfile[2]._id}?max_side=256` :
+          `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
+        mentionPfp.classList.add("mentionPfp");
         ping.classList.add("tag");
-        ping.textContent = '@' + cacheLookup("users", mention)[5];
-        segConcat.insertBefore(ping, newSeg);
+        ping.appendChild(mentionPfp);
+        mentionText.textContent = cacheLookup("users", mention)[5];
+        mentionText.classList.add("mentionText");
+        ping.appendChild(mentionText);
+        pingContainer.appendChild(ping);
+        segConcat.insertBefore(pingContainer, newSeg);
         messageContent = segConcat;
+
+        //CSS TODO: Make this show a pointer on hover
+        ping.onclick = () => {
+          loadProfile(mention);
+        }
         if (mention === userProfile._id) {
           messageContent.classList.add("selfMentioned");
         }
