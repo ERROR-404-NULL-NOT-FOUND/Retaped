@@ -150,7 +150,7 @@ fieldset legend {
 
 /* TODO: add a proper 'unread' indicator */
 .channel {
-	width: 100%;
+  width: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -159,10 +159,14 @@ fieldset legend {
   align-items: center;
   padding: 0.3rem 0;
   background: transparent;
-  font-weight: normal;
   opacity: .5;
   overflow: hidden;
   text-align: left;
+}
+
+.channel-unread {
+  opacity: 1;
+  font-weight: bold;
 }
 
 #channelsContainer button::before {
@@ -244,6 +248,8 @@ fieldset legend {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  gap: .3rem;
+  margin: .2rem;
 }
 
 .chat-pfp {
@@ -294,7 +300,6 @@ fieldset legend {
 .message-display {
   position: relative;
   padding: 0.2rem 1rem 0.1rem 1rem;
-  margin-top: 0.1rem;
 }
 
 .message-display:hover {
@@ -310,15 +315,6 @@ fieldset legend {
 
 .message-display:hover .message-actions {
   display: block;
-}
-
-.userdata {
-  margin-top: 0.2rem;
-}
-
-.message-content {
-  margin-top: 0.1rem;
-  margin-bottom: 0;
 }
 
 .message-content p {

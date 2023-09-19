@@ -248,7 +248,7 @@ async function bonfire() {
               data.mentions && data.mentions.indexOf(userProfile._id) !== -1
                 ? cssVars.getPropertyValue("--accent")
                 : cssVars.getPropertyValue("--foreground");
-            channel.style.fontWeight = "bold";
+            channel.classList.add("channel-unread");
           }
           document.getElementById(
             cacheLookup("channels", data.channel)[3]
@@ -272,7 +272,7 @@ async function bonfire() {
         updateUnreads(data.id, data.message_id);
         if ((channel = document.getElementById(data.id))) {
           channel.style.colour = cssVars.getPropertyValue("--foreground");
-          channel.style.fontWeight = "normal";
+          channel.classList.remove("channel-unread");
         }
         document.getElementById(
           cacheLookup("channels", data.id)[3]
