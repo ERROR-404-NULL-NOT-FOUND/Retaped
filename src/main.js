@@ -436,7 +436,7 @@ async function getServers() {
       server.innerText = cache.servers[serverIndex][1].charAt(0);
     } else {
       let serverIcon = document.createElement("img");
-      serverIcon.classList.add("server");
+      serverIcon.classList.add("serverIcon");
       serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex][2]}?max_side=64`;
       server.appendChild(serverIcon);
     }

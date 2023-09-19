@@ -111,7 +111,7 @@ fieldset legend {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem; */
+  gap: 0.6rem;
 }
 
 #serversContainer button {
@@ -126,7 +126,7 @@ fieldset legend {
   box-shadow: var(--accent) 0px 0px 0px 3px;
 }
 
-.server {
+.serverIcon {
   width: 100%;
   height: 100%;
 }
