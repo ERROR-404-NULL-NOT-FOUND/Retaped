@@ -4,6 +4,7 @@
 @import url(./modules/style/error.css);
 @import url(./modules/style/modal.css);
 @import url(./modules/style/details.css);
+@import url(./modules/style/tag.css);
 @import url(./modules/style/reset.css);
 
 /* 
@@ -27,12 +28,6 @@ TODO: experiment with better/alternative color schemes. Current one has not so g
   /* VARS */
   --border-radius: 5px;
   --img-radius: 5px;
-}
-
-.tag {
-  padding: .2rem .5rem;
-  background: var(--secondary-background);
-  border-radius: var(--border-radius);
 }
 
 .login-screen {
@@ -433,10 +428,3 @@ fieldset legend {
   padding: .4rem;
 }
 
-.mention {
-  color: color-mix(in srgb, var(--accent) 70%, white);
-  background: #ff1a6354;
-  border-radius: 5px;
-  padding: 0.1rem .3rem;
-  font-weight: bold;
-}

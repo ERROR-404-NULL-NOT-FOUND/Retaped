@@ -677,8 +677,7 @@ async function parseMessage(message, id = null) {
           segConcat.appendChild(newSeg);
         });
         let ping = document.createElement("span");
-        ping.classList.add("mention");
-        console.log(mention)
+        ping.classList.add("tag");
         ping.textContent = '@' + cacheLookup("users", mention)[5];
         segConcat.insertBefore(ping, newSeg);
         messageContent = segConcat;

@@ -1,0 +1,8 @@
+.tag {
+  color: var(--accent);
+  background: color-mix(in srgb, currentColor 30%, var(--servers-bg));
+  border-radius: var(--border-radius);
+  padding: .2rem .5rem;
+  font-weight: bold;
+}
+
