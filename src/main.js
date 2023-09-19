@@ -678,7 +678,8 @@ async function parseMessage(message, id = null) {
         });
         let ping = document.createElement("span");
         ping.classList.add("mention");
-        ping.textContent = '@' + await userLookup(mention)[5];
+        console.log(mention)
+        ping.textContent = '@' + cacheLookup("users", mention)[5];
         segConcat.insertBefore(ping, newSeg);
         messageContent = segConcat;
         if (mention === userProfile._id) {
