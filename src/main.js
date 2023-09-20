@@ -345,6 +345,7 @@ async function bonfire() {
         currentlyTyping.push(data.user);
         typingBar.appendChild(typingUserContainer);
         document.getElementById("typingBarContainer").style.display = "flex";
+        scrollChatToBottom();
         break;
 
       // User stops typing
@@ -567,10 +568,6 @@ async function getChannels(id) {
 
     let channel = document.createElement("button");
     channel.classList.add("channel");
-
-    channel.onclick = () => {
-      getMessages(currentChannel[0]);
-    };
 
     for (let i = 0; i < unreads.length; i++) {
       if (unreads[i]["_id"].channel === currentChannel[0]) {
@@ -911,6 +908,7 @@ async function parseMessage(message, id = null) {
 
     replyText.classList.add("replying-content");
     document.querySelector(".replying-container").appendChild(replyText);
+    scrollChatToBottom();
   };
 
   replyButton.innerText = "Reply";
@@ -918,6 +916,7 @@ async function parseMessage(message, id = null) {
   messageActions.appendChild(replyButton);
   messageContainer.appendChild(messageDisplay);
   cache.messages.push([message._id, message.author, message.content, message.masquerade]);
+  scrollChatToBottom();
 }
 
 //
@@ -1288,6 +1287,7 @@ async function sendMessage() {
   messageContainer.value = "";
   activeReplies = [];
   document.querySelector(".replying-container").replaceChildren();
+  scrollChatToBottom();
 }
 
 //
@@ -1299,6 +1299,11 @@ let toolbarBtn = document.querySelector(".toolbar-btn");
 toolbarBtn.addEventListener("click", () => {
   toolbar.classList.toggle("show-toolbar");
 });
+
+function scrollChatToBottom() {
+  const  element = document.getElementById("messagesContainer");
+  element.scrollTo(0, element.scrollHeight);
+}
 
 //
 // Settings
