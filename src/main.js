@@ -797,6 +797,7 @@ async function parseMessage(message, id = null) {
         let emoji = matches[i].split(":")[1];
         let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
         let tmpImg = document.createElement("img");
+        tmpImg.classList.add("emoji");
         let outputToGetAroundStupidDomManipulationShit = ""; 
 
         tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
@@ -1165,10 +1166,11 @@ async function loadProfile(userID) {
     });
 
   Object.keys(emojis.custom).forEach(emoji => {
-      if (bio.innerHTML.search(`:${emoji}`) === -1) return;
+    if (bio.innerHTML.search(`:${emoji}`) === -1) return;
 
     let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
     let emojiImage = document.createElement("img");
+    emojiImage.classList.add("emoji");
 
     emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
     bio.textContent = "";
@@ -1186,6 +1188,7 @@ async function loadProfile(userID) {
       let emoji = matches[i].split(":")[1];
       let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
       let tmpImg = document.createElement("img");
+      tmpImg.classList.add("emoji");
 
       tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
       bio.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
