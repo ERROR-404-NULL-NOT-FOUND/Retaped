@@ -104,12 +104,18 @@
         <div id="chatContainer">
             <!-- TODO: transform this into a channel header -->
             <!-- TODO: move these stats in the settings modal -->
-            <div class="app-status">
-                <p id="status">Disconnected</p>
-                -
-                <p id="themeLabel">Default theme</p>
-                <br>
-                <button onclick="openSettings()">Settings</button>
+            <div class="chat-header">
+                <div>
+                    <p id="channelName"></p>
+                </div>
+
+                <div class="chat-header-right">
+                    <p id="status">Disconnected</p>
+                    -
+                    <p id="themeLabel">Default theme</p>
+                    <br>
+                    <button onclick="openSettings()">Settings</button>
+                </div>
             </div>
 
             <div id="messagesContainer"></div>

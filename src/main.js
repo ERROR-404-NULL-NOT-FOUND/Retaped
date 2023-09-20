@@ -264,7 +264,7 @@ async function bonfire() {
                 ? cssVars.getPropertyValue("--accent")
                 : cssVars.getPropertyValue("--foreground");
 
-            channel.style.fontWeight = "bold";
+            channel.classList.add("channel-unread");
           }
 
           document.getElementById(
@@ -293,7 +293,7 @@ async function bonfire() {
 
         if ((channel = document.getElementById(data.id))) {
           channel.style.colour = cssVars.getPropertyValue("--foreground");
-          channel.style.fontWeight = "normal";
+          channel.classList.remove("channel-unread");
         }
 
         document.getElementById(
@@ -447,6 +447,10 @@ async function getServers() {
     server.onclick = () => {
       activeServer = cache.servers[serverIndex][0];
       getChannels(cache.servers[serverIndex][0]);
+      clearMessages();
+
+      document.getElementById("serverName").innerText = cache.servers[serverIndex][1];
+      document.getElementById("channelName").innerText = "";
     };
 
     cache.servers[serverIndex][6].forEach((channel) => {
@@ -511,6 +515,7 @@ async function getChannels(id) {
 
         channel.onclick = () => {
           getMessages(currentChannel[0]);
+          document.getElementById("channelName").innerText = currentChannel[1];
         };
 
         channel.id = currentChannel[0];
@@ -735,8 +740,12 @@ async function parseMessage(message, id = null) {
         let userProfile = cacheLookup("users", mention);
 
         mentionPfp.classList.add("mentionPfp");
-        ping.classList.add("mention");
         mentionText.classList.add("mentionText");
+        ping.classList.add("tag");
+
+        ping.appendChild(mentionPfp);
+        mentionText.textContent = cacheLookup("users", mention)[5];
+
 
         mentionPfp.src = userProfile[2] ? `https://autumn.revolt.chat/avatars/${userProfile[2]._id}?max_side=256` :
           `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
@@ -1007,10 +1016,11 @@ async function getMessages(id) {
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
 
-  fetchResource(`channels/${id}`).then((data) => {
-    document.getElementById("serverName").innerText =
-      data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
-  });
+  // fetchResource(`channels/${id}`).then((data) => {
+  //   // document.getElementById("serverName").innerText =
+  //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
+  //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
+  // });
 
   const placeholder = await fetchResource(
     `channels/${id}/messages?include_users=true&sort=latest`
@@ -1067,6 +1077,8 @@ async function loadDMs() {
   userCat.classList.add("categoryText");
 
   channelContainer.replaceChildren();
+  clearMessages();
+
   await fetchResource(`users/${userProfile._id}/dm`).then((response) => {
     const dmButton = document.createElement("button");
 
@@ -1103,6 +1115,7 @@ async function loadDMs() {
 
     dmButton.onclick = () => {
       getMessages(cache.channels[i][0]);
+      document.getElementById("channelName").innerText = "FIXME";
     };
 
     dmButton.id = cache.channels[i][0];
