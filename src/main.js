@@ -503,11 +503,11 @@ async function getChannels(id) {
       categoryContainer.appendChild(categoryText);
 
       for (let j = 0; j < category.channels.length; j++) {
-        if (currentChannel[2] !== "TextChannel" || currentChannel[3] !== id) continue;
-
         const currentChannel = cacheLookup("channels", category.channels[j]);
         let channel = document.createElement("button");
         let channelText = document.createElement("span");
+
+        if (currentChannel[2] !== "TextChannel" || currentChannel[3] !== id) continue;
 
         addedChannels.push(currentChannel[0]);
 
@@ -606,7 +606,6 @@ function clearMessages() {
 // Loki TODO: add some flair for messages sent by friends
 async function parseMessage(message, id = null) {
   const member = cacheLookup("members", message.author, activeServer);
-  var messageDisplay = "";
   const messageContainer = document.getElementById("messagesContainer");
 
   let messageActions = document.createElement("div");
@@ -1151,8 +1150,7 @@ async function loadProfile(userID) {
   }
 
   if (Object.keys(userProfile).indexOf("background") > -1) {
-    // TODO: this needs some refactoring so the style isn't applied here, but in css
-    profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 4%, rgba(0,0,0,0) 50%),
+    profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 10%, rgba(0,0,0,0) 100%),
         url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
 

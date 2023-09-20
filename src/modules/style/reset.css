@@ -38,6 +38,24 @@ p {
   margin: 0;
 }
 
+pre, code {
+  background: color-mix(in srgb, var(--servers-bg) 80%, white 5%);
+  border-radius: var(--border-radius);
+}
+
+pre {
+  margin: .5rem 0;
+  padding: .8rem;
+}
+
+pre > code {
+  padding: 0;
+}
+
+code {
+  padding: 0 .3rem;
+}
+
 img { border-radius: var(--border-radius); }
 
 hr { 

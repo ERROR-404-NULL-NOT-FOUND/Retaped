@@ -10,8 +10,8 @@
 }
 
 .tag > img {
-  max-width: 15px;
-  max-height: 15px;
+  width: 15px;
+  height: 15px;
   border-radius: 100%;
   margin-right: .3rem;
 }
