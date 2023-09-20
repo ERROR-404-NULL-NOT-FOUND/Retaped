@@ -56,7 +56,7 @@
 
     <div id="app">
         <div id="userProfile" class="modal-container">
-            <div class="modal-background"></div>
+            <div class="modal-background" onclick="this.parentElement.style.display = 'none';"></div>
             <div class="modal">
                 <div id="profileMedia" class="profile-top">
                     <div class="profile-name">
@@ -69,14 +69,11 @@
                 </div>
                 <div id="roleContainer"></div>
                 <p id="bio"></p>
-                <button id="closeProfile" onclick="document.getElementById('userProfile').style.display='none'">
-                    Close Profile
-                </button>
             </div>
         </div>
 
         <div id="settings" class="modal-container">
-            <div class="modal-background"></div>
+            <div class="modal-background" onclick="this.parentElement.style.display = 'none';"></div>
             <div class="modal">
                 <h1>Settings</h1>
                 <div id="categories">

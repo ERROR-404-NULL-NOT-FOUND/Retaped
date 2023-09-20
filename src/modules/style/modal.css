@@ -24,6 +24,7 @@
 
 .modal {
   min-width: 500px;
+  width: fit-content;
   max-width: 75ch;
   padding: 1.5rem;
   background: var(--background);
