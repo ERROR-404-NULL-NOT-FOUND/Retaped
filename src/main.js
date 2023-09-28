@@ -9,10 +9,9 @@ var cache = {
   users: [],
   //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
-  categories: [],
   //0 is id, 1 is name, 2 is server icon id, 3 is roles, 4 is members
   servers: [],
-  //0 is id, 1 is author, 2 is content
+  //0 is id, 1 is author, 2 is content, masquerade
   messages: [],
 };
 
@@ -86,8 +85,8 @@ function cacheLookup(resource, ID, serverID = null) {
   if (resource === "members" || resource === "roles") {
     for (let i = 0; i < cache.servers.length; i++) {
 
-      if (cache.servers[i][0] === serverID) {
-        const index = resource === "members" ? 4 : 3;
+      if (cache.servers[i].id === serverID) {
+        const index = resource === "members" ? "members" : "roles";
 
         if (resource === "members") {
           for (let j = 0; j < cache.servers[i][index].length; j++) {
@@ -107,7 +106,7 @@ function cacheLookup(resource, ID, serverID = null) {
   }
 
   for (let i = 0; i < cache[resource].length; i++) {
-    if (cache[resource][i][0] === ID) return cache[resource][i];
+    if (cache[resource][i].id === ID) return cache[resource][i];
   }
 
   return 1;
@@ -119,15 +118,15 @@ async function userLookup(ID) {
   user = await fetchResource(`users/${ID}`);
 
   let fmtUser;
-    fmtUser = [
-      user._id,
-      user.username,
-      user.avatar,
-      user.bot,
-      user.discriminator,
-      user.display_name ? user.display_name : user.username,
-      user.relationship,
-    ];
+    fmtUser = {
+      id: user._id,
+      username: user.username,
+      pfp: user.avatar,
+      bot: user.bot,
+      discriminator: user.discriminator,
+      displayName: user.display_name ? user.display_name : user.username,
+      relationSHip: user.relationship,
+    };
   cache.users.push(fmtUser);
   return fmtUser;
 }
@@ -135,9 +134,9 @@ async function userLookup(ID) {
 // Looks up the given resource by id and returns the index
 function cacheIndexLookup(resource, ID) {
   for (let i = 0; i < cache[resource].length; i++) {
-    if (cache[resource][i][0] === ID) return i;
+    if (cache[resource][i].id === ID) return i;
   }
-  return 1;
+  return -1;
 }
 
 // Macro to fetch remote resources
@@ -258,7 +257,7 @@ async function bonfire() {
             }
           );
         } else {
-          if ((channel = document.getElementById(data.channel))) {
+          if ((channel = document.getElementById(data.channel)) && mutedChannels.indexOf(data.channel) === -1) {
             channel.style.color =
               data.mentions && data.mentions.indexOf(userProfile._id) !== -1
                 ? cssVars.getPropertyValue("--accent")
@@ -266,13 +265,14 @@ async function bonfire() {
 
             channel.classList.add("channel-unread");
           }
-
-          document.getElementById(
-            cacheLookup("channels", data.channel)[3]
-          ).style.boxShadow =
-            data.mentions && data.mentions.indexOf(userProfile._id) !== -1
-              ? cssVars.getPropertyValue("--accent")
-              : cssVars.getPropertyValue("--foreground");
+          if (mutedChannels.indexOf(data.channel) === -1){
+            document.getElementById(
+              cacheLookup("channels", data.channel).server
+            ).style.boxShadow =
+             data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+               ? cssVars.getPropertyValue("--accent")
+               : cssVars.getPropertyValue("--foreground");
+          }
         }
         break;
 
@@ -282,14 +282,15 @@ async function bonfire() {
         };
         break;
 
-      case "MessageUpdate":
-        if (data.channel_id === activeChannel) {
+      /*case "MessageUpdate":
+        if (data.channel === activeChannel) {
           parseMessage(data.data, data.id);
         }
+        */
 
       // Channel has been acknowledge as read
       case "ChannelAck":
-        updateUnreads(data.id, data.message_id);
+        updateUnreads(data._id, data.message_id);
 
         if ((channel = document.getElementById(data.id))) {
           channel.style.colour = cssVars.getPropertyValue("--foreground");
@@ -297,7 +298,7 @@ async function bonfire() {
         }
 
         document.getElementById(
-          cacheLookup("channels", data.id)[3]
+          cacheLookup("channels", data._id).server
         ).style.boxShadow =
           "rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px";
 
@@ -332,15 +333,15 @@ async function bonfire() {
         const typingUserPfp = document.createElement("img");
 
         typingUserPfp.src =
-          typingMember[2] === undefined
-            ? `https://autumn.revolt.chat/avatars/${typingUser[2]._id}?max_side=25`
-            : `https://autumn.revolt.chat/avatars/${typingMember[2]._id}?max_side=25`;
+          typingMember.pfp === undefined
+            ? `https://autumn.revolt.chat/avatars/${typingUser.pfp._id}?max_side=25`
+            : `https://autumn.revolt.chat/avatars/${typingMember.pfp._id}?max_side=25`;
         typingUserContainer.appendChild(typingUserPfp);
 
-        typingUserName.textContent = typingUser[1];
+        typingUserName.textContent = typingUser.displayName;
         typingUserContainer.appendChild(typingUserName);
 
-        typingUserContainer.id = typingUser[0];
+        typingUserContainer.id = typingUser.id;
 
         currentlyTyping.push(data.user);
         typingBar.appendChild(typingUserContainer);
@@ -398,16 +399,37 @@ async function login() {
     } else {
       if (tokenResponse.result === "Unauthorized") {
         localStorage.removeItem("token");
-        console.log("Invalid token!");
+        console.error("Invalid token!");
+      } else {
+        let mfaTokenResponse = await fetch(
+          "https://api.revolt.chat/auth/session/login",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              mfa_ticket: tokenResponse.ticket,
+              mfa_response: {
+                totp_code: document.querySelector("#mfa").value,
+              },
+              friendly_name: "Retaped",
+            }),
+          }
+        )
+        .then((res) => res.json())
+        .then((data) => data);
+        if (mfaTokenResponse.result === "Success") {
+          token = mfaTokenResponse.token;
+        } else {
+          console.error("You've scuffed your MFA key, for some reason the server returned: " + JSON.stringify(mfaTokenResponse));
+        }
       }
     }
   } else {
-    console.log("No login method provided, how the fuck do you expect to log in?");
+    console.error("No login method provided, how the fuck do you expect to log in?");
     return;
   }
 
   if ((userProfile = await fetchResource("users/@me")) === false) {
-    console.log("Login failed");
+    console.error("Login failed");
     return;
   }
 
@@ -434,7 +456,7 @@ async function getServers() {
 
   unreads.forEach((unread) => {
     if (
-      unread.last_id < cacheLookup("channels", unread._id.channel)[4] &&
+      unread.last_id < cacheLookup("channels", unread._id.channel).lastMessage &&
       mutedChannels.indexOf(unread._id.channel) === -1
     ) {
       unreadChannels.push(unread._id.channel);
@@ -446,15 +468,15 @@ async function getServers() {
     let serverIndex = cacheIndexLookup("servers", ordering[i]);
 
     server.onclick = () => {
-      activeServer = cache.servers[serverIndex][0];
-      getChannels(cache.servers[serverIndex][0]);
+      activeServer = cache.servers[serverIndex].id;
+      getChannels(cache.servers[serverIndex].id);
       clearMessages();
 
-      document.getElementById("serverName").innerText = cache.servers[serverIndex][1];
+      document.getElementById("serverName").innerText = cache.servers[serverIndex].name;
       document.getElementById("channelName").innerText = "";
     };
 
-    cache.servers[serverIndex][6].forEach((channel) => {
+    cache.servers[serverIndex].categories.forEach((channel) => {
       if (
         unreadChannels.indexOf(channel) !== -1 &&
         mutedChannels.indexOf(channel) === -1
@@ -465,18 +487,18 @@ async function getServers() {
       }
     });
 
-    if (mutedServers.indexOf(cache.servers[serverIndex][0]) !== -1)
+    if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1)
       server.style.boxShadow = `hsl(0, 0%, 20%) 0px 0px 0px 3px`;
 
-    server.id = cache.servers[serverIndex][0];
+    server.id = cache.servers[serverIndex].id;
 
-    if (cache.servers[serverIndex][2] == null) {
-      server.innerText = cache.servers[serverIndex][1].charAt(0);
+    if (cache.servers[serverIndex].icon == null) {
+      server.innerText = cache.servers[serverIndex].name.charAt(0);
     } else {
       let serverIcon = document.createElement("img");
 
       serverIcon.classList.add("serverIcon");
-      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex][2]}?max_side=64`;
+      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex].icon}?max_side=64`;
       server.appendChild(serverIcon);
     }
 
@@ -491,7 +513,7 @@ async function getChannels(id) {
 
   let addedChannels = [];
 
-  cache.servers[cacheIndexLookup("servers", activeServer)][5].forEach(
+  cache.servers[cacheIndexLookup("servers", activeServer)].categories.forEach(
     (category) => {
       let categoryContainer = document.createElement("details");
       let categoryText = document.createElement("summary");
@@ -508,26 +530,26 @@ async function getChannels(id) {
         let channel = document.createElement("button");
         let channelText = document.createElement("span");
 
-        if (currentChannel[2] !== "TextChannel" || currentChannel[3] !== id) continue;
+        if (currentChannel.type !== "TextChannel" || currentChannel.server !== id) continue;
 
-        addedChannels.push(currentChannel[0]);
+        addedChannels.push(currentChannel.id);
 
         channel.classList.add("channel");
 
         channel.onclick = () => {
-          getMessages(currentChannel[0]);
-          document.getElementById("channelName").innerText = currentChannel[1];
+          getMessages(currentChannel.id);
+          document.getElementById("channelName").innerText = currentChannel.name;
         };
 
-        channel.id = currentChannel[0];
-        channelText.innerText = currentChannel[1];
+        channel.id = currentChannel.id;
+        channelText.innerText = currentChannel.name;
 
         for (let i = 0; i < unreads.length; i++) {
-          if (unreads[i]["_id"].channel === currentChannel[0]) {
+          if (unreads[i]["_id"].channel === currentChannel.id) {
             //currentChannel[0] is the ID of the channel currently being returned
             if (
-              mutedChannels.indexOf(currentChannel[0]) === -1 &&
-              currentChannel[4] > unreads[i].last_id
+              mutedChannels.indexOf(currentChannel.id) === -1 &&
+              currentChannel.lastMessage > unreads[i].lastMessage
             )
               channel.style.fontWeight = "bold";
 
@@ -537,7 +559,8 @@ async function getChannels(id) {
 
         channel.appendChild(channelText);
 
-        if (mutedChannels.indexOf(currentChannel[0]) !== -1)
+        if (mutedChannels.indexOf(currentChannel.id) !== -1)
+          //Loki TODO: make this use a theme colour
           channel.style.color = "#777777";
         categoryContainer.appendChild(channel);
       }
@@ -546,7 +569,6 @@ async function getChannels(id) {
     }
   );
 
-  let channels = cache.channels;
   let defaultCategory = document.createElement("details");
   let defaultCategoryText = document.createElement("summary");
 
@@ -556,25 +578,25 @@ async function getChannels(id) {
   defaultCategoryText.classList.add("categoryText");
   defaultCategory.appendChild(defaultCategoryText);
 
-  for (let i = 0; i < channels.length; i++) {
-    if (channels[i][3] !== id ||
-      channels[i][2] !== "TextChannel" ||
-      addedChannels.indexOf(channels[i][0]) !== -1) continue;
+  for (let i = 0; i < cache.channels.length; i++) {
+    console.log("test")
+    if (cache.channels[i].server !== id ||
+      cache.channels[i].type !== "TextChannel" ||
+      addedChannels.indexOf(cache.channels[i].id) !== -1) continue;
 
-    const currentChannel = cacheLookup("channels", channels[i][0]);
-    if (currentChannel[2] !== "TextChannel" || currentChannel[3] !== id) continue;
+    const currentChannel = cache.channels[i];
 
-    addedChannels.push(currentChannel[0]);
+    addedChannels.push(currentChannel.id);
 
     let channel = document.createElement("button");
     channel.classList.add("channel");
 
     for (let i = 0; i < unreads.length; i++) {
-      if (unreads[i]["_id"].channel === currentChannel[0]) {
+      if (unreads[i]["_id"].channel === currentChannel.id) {
         //currentChannel[0] is the ID of the channel currently being returned
         if (
-          mutedChannels.indexOf(currentChannel[0]) === -1 &&
-          currentChannel[4] > unreads[i].last_id
+          mutedChannels.indexOf(currentChannel.id) === -1 &&
+          currentChannel.lastMessage > unreads[i].lastMessage
         )
           channel.style.fontWeight = "bold";
 
@@ -583,8 +605,8 @@ async function getChannels(id) {
     }
 
     let channelText = document.createElement("span");
-    channelText.id = currentChannel[0];
-    channelText.innerText = currentChannel[1];
+    channelText.id = currentChannel.id;
+    channelText.innerText = currentChannel.name;
 
     channel.appendChild(channelText);
     defaultCategory.appendChild(channel);
@@ -629,11 +651,11 @@ async function parseMessage(message, id = null) {
   }
 
   if (message.system) {
-    username.textContent = user[1];
+    username.textContent = user.username;
 
-    profilePicture.src = user[2] ?
-      `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256` :
-      `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+    profilePicture.src = user.pfp ?
+      `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256` :
+      `https://api.revolt.chat/users/${user.id}/default_avatar`;
 
     switch (message.system.type) {
       case "user_added":
@@ -641,10 +663,10 @@ async function parseMessage(message, id = null) {
     }
 
     username.onclick = () => {
-      loadProfile(user[0]);
+      loadProfile(user.id);
     };
     profilePicture.onclick = () => {
-      loadProfile(user[0]);
+      loadProfile(user.id);
     };
 
     userData.appendChild(profilePicture);
@@ -655,15 +677,15 @@ async function parseMessage(message, id = null) {
 
   } else {
     if (!message.masquerade) {
-      username.textContent = member.nickname ? member.nickname : user[5];
-      if (user[3] !== undefined) masqueradeBadge.textContent = "Bot";
+      username.textContent = member.nickname ? member.nickname : user.displayName;
+      if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
 
       username.appendChild(masqueradeBadge);
       profilePicture.src = member.avatar
         ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
-        : user[2]
-          ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+        : user.pfp
+          ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
+          : `https://api.revolt.chat/users/${user.id}/default_avatar`;
 
       if (member.roles) {
         for (let i = member.roles.length + 1; i >= 0; i--) {
@@ -687,32 +709,32 @@ async function parseMessage(message, id = null) {
     } else {
       masqueradeBadge.textContent = "Masq";
       if (message.masquerade.name) username.textContent = message.masquerade.name;
-      else username.textContent = member.nickname ? member.nickname : user[5] ? user[5] : user[1];
+      else username.textContent = member.nickname ? member.nickname : user.displayName;
 
       username.appendChild(masqueradeBadge);
 
       if (message.masquerade.avatar) {
         profilePicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
       } else {
-        profilePicture.src = user[2]
-          ? `https://autumn.revolt.chat/avatars/${user[2]._id}?max_side=256`
-          : `https://api.revolt.chat/users/${user[0]._id}/default_avatar`;
+        profilePicture.src = user.pfp
+          ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
+          : `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`;
         username.style.color = message.masquerade.colour;
       }
     }
   }
   username.onclick = () => {
-    loadProfile(user[0]);
+    loadProfile(user.id);
   };
 
   profilePicture.onclick = () => {
-    loadProfile(user[0]);
+    loadProfile(user.id);
   };
 
   userData.appendChild(profilePicture);
   userData.appendChild(username);
 
-  if (user[6] !== "Blocked") {
+  if (user.relationship !== "Blocked") {
     messageContent.innerHTML = converter.makeHtml(message.content);
 
     //Mention parser
@@ -740,12 +762,12 @@ async function parseMessage(message, id = null) {
         ping.classList.add("tag");
 
         ping.appendChild(mentionPfp);
-        mentionText.textContent = cacheLookup("users", mention)[5];
+        mentionText.textContent = cacheLookup("users", mention).displayName;
 
 
-        mentionPfp.src = userProfile[2] ? `https://autumn.revolt.chat/avatars/${userProfile[2]._id}?max_side=256` :
+        mentionPfp.src = userProfile.pfp ? `https://autumn.revolt.chat/avatars/${userProfile.pfp._id}?max_side=256` :
           `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
-        mentionText.textContent = cacheLookup("users", mention)[5];
+        mentionText.textContent = cacheLookup("users", mention).displayName;
 
         ping.appendChild(mentionPfp);
         ping.appendChild(mentionText);
@@ -812,14 +834,14 @@ async function parseMessage(message, id = null) {
       for (let j = 0; j < message.replies.length; j++) {
         let replyContent = document.createElement("span");
         replyContent.textContent =
-          "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
+          "> " + cacheLookup("messages", message.replies[j]).content + "\n";
         reply.appendChild(replyContent);
       }
 
       messageDisplay.appendChild(reply);
     }
 
-    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1][1] !== message.author || cache.messages[cache.messages.length - 1][3] !== undefined))
+    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1].author !== message.author || cache.messages[cache.messages.length - 1].masquerade !== undefined))
       messageDisplay.appendChild(userData);
     messageDisplay.appendChild(messageContent);
 
@@ -882,13 +904,13 @@ async function parseMessage(message, id = null) {
       for (let j = 0; j < message.replies.length; j++) {
         let replyContent = document.createElement("span");
         replyContent.textContent =
-          "> " + cacheLookup("messages", message.replies[j])[2] + "\n";
+          "> " + cacheLookup("messages", message.replies[j]).content + "\n";
         reply.appendChild(replyContent);
       }
       messageDisplay.appendChild(reply);
     }
 
-    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1][1] !== message.author || cache.messages[cache.messages.length - 1][3] !== undefined))
+    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1].author !== message.author || cache.messages[cache.messages.length - 1].masquerade !== undefined))
       messageDisplay.appendChild(userData);
     messageDisplay.appendChild(messageContent);
 
@@ -915,7 +937,12 @@ async function parseMessage(message, id = null) {
   messageDisplay.appendChild(messageActions);
   messageActions.appendChild(replyButton);
   messageContainer.appendChild(messageDisplay);
-  cache.messages.push([message._id, message.author, message.content, message.masquerade]);
+  cache.messages.push({
+    id: message._id,
+    author: message.author,
+    content: message.content,
+    masquerade: message.masquerade
+  });
   scrollChatToBottom();
 }
 
@@ -927,34 +954,34 @@ async function buildChannelCache(channels) {
   for (let i = 0; i < channels.length; i++) {
     switch (channels[i].channel_type) {
       case "TextChannel":
-        cache.channels.push([
-          channels[i]._id,
-          channels[i].name,
-          channels[i].channel_type,
-          channels[i].server,
-          channels[i].last_message_id,
-        ]);
+        cache.channels.push({
+          id: channels[i]._id,
+          name: channels[i].name,
+          type: channels[i].channel_type,
+          server: channels[i].server,
+          lastMessage: channels[i].last_message_id,
+        });
         break;
 
       case "Group":
-        cache.channels.push([
-          channels[i]._id,
-          channels[i].name,
-          channels[i].channel_type,
-        ]);
+        cache.channels.push({
+          id: channels[i]._id,
+          name: channels[i].name,
+          type: channels[i].channel_type,
+        });
         break;
 
       case "DirectMessage":
-        cache.channels.push([
-          channels[i]._id,
-          channels[i].recipients,
-          channels[i].channel_type,
-        ]);
+        cache.channels.push({
+          id: channels[i]._id,
+          recipients: channels[i].recipients,
+          type: channels[i].channel_type,
+        });
     }
   }
 
   for (const server in cache.servers) {
-    cache.servers[server][5].forEach((category) => {
+    cache.servers[server].categories.forEach((category) => {
       let tmpCategory = [];
 
       category.channels.forEach((channel) => {
@@ -969,36 +996,36 @@ async function buildChannelCache(channels) {
         tmpCategory.push(channels[anthTmpChannel]);
       });
 
-      cache.categories.push({ [category]: tmpCategory });
+      cache.servers[server].categories.push({ [category]: tmpCategory });
     });
   }
 }
 
 async function buildUserCache(users) {
   for (let i = 0; i < users.length; i++) {
-      cache.users.push([
-        users[i]._id,
-        users[i].username,
-        users[i].avatar,
-        users[i].bot,
-        users[i].discriminator,
-        users[i].display_name ? users[i].display_name : users[i].display_name,
-        users[i].relationship,
-      ]);
+      cache.users.push({
+        id: users[i]._id,
+        username: users[i].username,
+        pfp: users[i].avatar,
+        bot: users[i].bot,
+        discriminator: users[i].discriminator,
+        displayName: users[i].display_name ? users[i].display_name : users[i].display_name,
+        relationship: users[i].relationship,
+    });
   }
 }
 
 async function buildServerCache(servers) {
   for (let i = 0; i < servers.length; i++) {
-    cache.servers.push([
-      servers[i]["_id"],
-      servers[i]["name"],
-      servers[i].icon ? servers[i].icon._id : null,
-      servers[i].roles,
-      [],
-      servers[i].categories,
-      servers[i].channels,
-    ]);
+    cache.servers.push({
+      id: servers[i]["_id"],
+      name: servers[i]["name"],
+      icon: servers[i].icon ? servers[i].icon._id : null,
+      roles: servers[i].roles,
+      members: [],
+      categories: servers[i].categories,
+      channels: servers[i].channels,
+    });
   }
   getServers();
 }
@@ -1028,15 +1055,15 @@ async function getMessages(id) {
 
   for (let i = 0; i < users.length; i++) {
     if (cacheLookup("users", users[i]._id) === 1)
-      cache.users.push([
-        users[i]._id,
-        users[i].username,
-        users[i].avatar,
-        users[i].bot,
-        users[i].discriminator,
-        users[i].display_name ? users[i].display_name : users[i].username,
-        users[i].relationship,
-      ]);
+      cache.users.push({
+        id: users[i]._id,
+        username: users[i].username,
+        pfp: users[i].avatar,
+        bot: users[i].bot,
+        discriminator: users[i].discriminator,
+        displayName: users[i].display_name ? users[i].display_name : users[i].username,
+        relationship: users[i].relationship,
+    });
   }
 
   if (placeholder.members) {
@@ -1044,7 +1071,7 @@ async function getMessages(id) {
 
     for (let i = 0; i < members.length; i++) {
       if (cacheLookup("members", members[i]._id.user, activeServer) === 1)
-        cache.servers[cacheIndexLookup("servers", activeServer)][4].push(
+        cache.servers[cacheIndexLookup("servers", activeServer)].members.push(
           members[i]
         );
     }
@@ -1093,31 +1120,31 @@ async function loadDMs() {
 
   for (let i = 0; i < cache.channels.length; i++) {
     //Checking for only DMs
-    if (!["DirectMessage", "Group"].includes(cache.channels[i][2])) continue;
+    if (!["DirectMessage", "Group"].includes(cache.channels[i].type)) continue;
 
     const dmButton = document.createElement("button");
     dmButton.classList.add("channel");
 
-    if (cache.channels[i][2] === "Group") {
-      dmButton.textContent = cache.channels[i][1];
+    if (cache.channels[i].type === "Group") {
+      dmButton.textContent = cache.channels[i].name;
     } else {
       let user;
 
-      if (cache.channels[i][1][1] !== userProfile._id) {
-        user = await userLookup(cache.channels[i][1][1])
+      if (cache.channels[i].recipients[1] !== userProfile._id) {
+        user = await userLookup(cache.channels[i].recipients[1])
       } else {
-        user = await userLookup(cache.channels[i][1][0])
+        user = await userLookup(cache.channels[i].recipients[0])
       }
 
-      dmButton.textContent = `@${user[1]}#${user[4]}`;
+      dmButton.textContent = `@${user.username}#${user.discriminator}`;
     }
 
     dmButton.onclick = () => {
-      getMessages(cache.channels[i][0]);
-      document.getElementById("channelName").innerText = "FIXME";
+      getMessages(cache.channels[i].id);
+      document.getElementById("channelName").innerText = dmButton.textContent;
     };
 
-    dmButton.id = cache.channels[i][0];
+    dmButton.id = cache.channels[i].id;
     userCat.appendChild(dmButton);
   }
   channelContainer.appendChild(userCat);
@@ -1139,13 +1166,13 @@ async function loadProfile(userID) {
   let bio = document.getElementById("bio");
   let roleContainer = document.getElementById("roleContainer");
 
-  username.textContent = `${user[1]}#${user[4]}`;
-  displayName.textContent = user[5] ? user[5] : user[1];
+  username.textContent = `${user.username}#${user.discriminator}`;
+  displayName.textContent = user.displayName;
 
-  if (user[2]) {
-    profilePicture.src = `https://autumn.revolt.chat/avatars/${user[2]._id}`;
+  if (user.pfp) {
+    profilePicture.src = `https://autumn.revolt.chat/avatars/${user.pfp._id}`;
   } else {
-    profilePicture.src = `https://api.revolt.chat/users/${userProfile._id}/default_avatar`
+    profilePicture.src = `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`
   }
 
   if (Object.keys(userProfile).indexOf("background") > -1) {
