@@ -476,7 +476,7 @@ async function getServers() {
       document.getElementById("channelName").innerText = "";
     };
 
-    cache.servers[serverIndex].categories.forEach((channel) => {
+    cache.servers[serverIndex].channels.forEach((channel) => {
       if (
         unreadChannels.indexOf(channel) !== -1 &&
         mutedChannels.indexOf(channel) === -1
@@ -735,7 +735,11 @@ async function parseMessage(message, id = null) {
   userData.appendChild(username);
 
   if (user.relationship !== "Blocked") {
-    messageContent.innerHTML = converter.makeHtml(message.content);
+    let sanitizedContent = message.content.replace(/</g, "&lt;");
+    sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
+    messageContent.innerText = sanitizedContent;
+
+    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
 
     //Mention parser
     if (message.mentions) {
