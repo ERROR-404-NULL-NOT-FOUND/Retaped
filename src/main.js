@@ -1,5 +1,5 @@
 // Import markdown renderer
-var converter = new showdown.Converter()
+var converter = new showdown.Converter();
 //
 // Variables
 //
@@ -16,7 +16,7 @@ var cache = {
 };
 
 var activeReplies = [];
-var emojis = { };
+var emojis = {};
 var activeServer;
 var activeChannel;
 var token;
@@ -52,8 +52,7 @@ window.onload = function () {
 document.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "Enter":
-      if (keysDown.indexOf('Shift') === -1) sendMessage();
-
+      if (keysDown.indexOf("Shift") === -1) sendMessage();
       else {
         let input = document.getElementById("input");
         input.value = `${input.value}\n`;
@@ -72,10 +71,10 @@ document.addEventListener("keydown", (event) => {
   return;
 });
 
-document.addEventListener("keyup", (event) => { 
+document.addEventListener("keyup", (event) => {
   keysDown.splice(keysDown.indexOf(event.key), 1);
   return;
-})
+});
 
 //
 // Utility functions
@@ -85,7 +84,6 @@ document.addEventListener("keyup", (event) => {
 function cacheLookup(resource, ID, serverID = null) {
   if (resource === "members" || resource === "roles") {
     for (let i = 0; i < cache.servers.length; i++) {
-
       if (cache.servers[i].id === serverID) {
         const index = resource === "members" ? "members" : "roles";
 
@@ -95,11 +93,9 @@ function cacheLookup(resource, ID, serverID = null) {
               return cache.servers[i][index][j];
           }
         } else {
-
           for (const role in cache.servers[i][index]) {
             if (role === ID) return cache.servers[i][index][role];
           }
-
         }
       }
     }
@@ -115,19 +111,19 @@ function cacheLookup(resource, ID, serverID = null) {
 
 // Basically the same as the function above, but fetches the user and adds it to the cache if it isn't found
 async function userLookup(ID) {
-  if (cacheLookup('users', ID) !== 1) return cacheLookup('users', ID);
+  if (cacheLookup("users", ID) !== 1) return cacheLookup("users", ID);
   user = await fetchResource(`users/${ID}`);
 
   let fmtUser;
-    fmtUser = {
-      id: user._id,
-      username: user.username,
-      pfp: user.avatar,
-      bot: user.bot,
-      discriminator: user.discriminator,
-      displayName: user.display_name ? user.display_name : user.username,
-      relationSHip: user.relationship,
-    };
+  fmtUser = {
+    id: user._id,
+    username: user.username,
+    pfp: user.avatar,
+    bot: user.bot,
+    discriminator: user.discriminator,
+    displayName: user.display_name ? user.display_name : user.username,
+    relationSHip: user.relationship,
+  };
   cache.users.push(fmtUser);
   return fmtUser;
 }
@@ -158,7 +154,7 @@ async function fetchResource(target) {
 }
 
 async function updateUnreads(channelID, messageID) {
-  for (let i = 0; i < unreads.length; i++){
+  for (let i = 0; i < unreads.length; i++) {
     if (unreads[i]._id.channel === channelID) {
       unreads[i].last_id = messageID;
       return 0;
@@ -183,7 +179,7 @@ async function loadSyncSettings() {
         keys: ["theme", "notifications", "ordering"],
       }),
       method: "POST",
-    }
+    },
   ).then((response) => response.json());
 
   fetch("https://api.revolt.chat/sync/unreads", {
@@ -244,7 +240,7 @@ async function bonfire() {
         document.getElementById("status").innerText = "Connected";
         break;
 
-        // Used for message unreads and adding new messages to the messagebox
+      // Used for message unreads and adding new messages to the messagebox
       case "Message":
         if (data.channel === activeChannel) {
           parseMessage(data);
@@ -255,31 +251,43 @@ async function bonfire() {
                 "x-session-token": token,
               },
               method: "PUT",
-            }
+            },
           );
         } else {
-          if ((channel = document.getElementById(data.channel)) && mutedChannels.indexOf(data.channel) === -1) {
+          if (
+            (channel = document.getElementById(data.channel)) &&
+            mutedChannels.indexOf(data.channel) === -1
+          ) {
             channel.classList.add(
-              data.mentions && data.mentions.indexOf(userProfile._id) !== -1 
+              data.mentions && data.mentions.indexOf(userProfile._id) !== -1
                 ? "mentionedChannel"
-                : "unreadCHannel");
+                : "unreadCHannel",
+            );
           }
 
-          if (mutedChannels.indexOf(data.channel) === -1 && mutedServers.indexOf(cacheLookup("channels", data.channel).server) === -1){
-            document.getElementById(
-              cacheLookup("channels", data.channel).server
-            ).classList.add(
-             data.mentions && data.mentions.indexOf(userProfile._id) !== -1
-               ? "mentionedServer"
-               : "unreadServer");
+          if (
+            mutedChannels.indexOf(data.channel) === -1 &&
+            mutedServers.indexOf(
+              cacheLookup("channels", data.channel).server,
+            ) === -1
+          ) {
+            document
+              .getElementById(cacheLookup("channels", data.channel).server)
+              .classList.add(
+                data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+                  ? "mentionedServer"
+                  : "unreadServer",
+              );
           }
         }
         break;
 
       case "MessageDelete":
         if (data.channel_id === activeChannel) {
-          document.querySelector("#messagesContainer").removeChild(document.getElementById(data.id))
-        };
+          document
+            .querySelector("#messagesContainer")
+            .removeChild(document.getElementById(data.id));
+        }
         break;
 
       /*case "MessageUpdate":
@@ -297,17 +305,20 @@ async function bonfire() {
         }
 
         let stillUnread = false;
-        for (const channel in cacheLookup("servers", cacheLookup("channels", data.id).server).channels) {
-          if (unreadChannels.indexOf(channel) !== -1)
-          {
+        for (const channel in cacheLookup(
+          "servers",
+          cacheLookup("channels", data.id).server,
+        ).channels) {
+          if (unreadChannels.indexOf(channel) !== -1) {
             stillUnread = true;
             break;
           }
         }
-        if(!stillUnread){
-          document.getElementById(
-           cacheLookup("channels", data.id).server
-         ).classList.remove("unreadServer").classList.remove("mentionedServer");
+        if (!stillUnread) {
+          document
+            .getElementById(cacheLookup("channels", data.id).server)
+            .classList.remove("unreadServer")
+            .classList.remove("mentionedServer");
         }
         break;
 
@@ -332,7 +343,8 @@ async function bonfire() {
           data.id !== activeChannel ||
           currentlyTyping.indexOf(data.user) !== -1 ||
           document.getElementById(data.user) === null
-        ) break;
+        )
+          break;
 
         const typingMember = cacheLookup("members", data.user, activeServer);
         const typingUser = await userLookup(data.user);
@@ -397,7 +409,7 @@ async function login() {
           password: document.getElementById("password").value,
           friendly_name: "Retaped",
         }),
-      }
+      },
     )
       .then((res) => res.json())
       .then((data) => data);
@@ -420,19 +432,24 @@ async function login() {
               },
               friendly_name: "Retaped",
             }),
-          }
+          },
         )
-        .then((res) => res.json())
-        .then((data) => data);
+          .then((res) => res.json())
+          .then((data) => data);
         if (mfaTokenResponse.result === "Success") {
           token = mfaTokenResponse.token;
         } else {
-          console.error("You've scuffed your MFA key, for some reason the server returned: " + JSON.stringify(mfaTokenResponse));
+          console.error(
+            "You've scuffed your MFA key, for some reason the server returned: " +
+              JSON.stringify(mfaTokenResponse),
+          );
         }
       }
     }
   } else {
-    console.error("No login method provided, how the fuck do you expect to log in?");
+    console.error(
+      "No login method provided, how the fuck do you expect to log in?",
+    );
     return;
   }
 
@@ -447,7 +464,9 @@ async function login() {
 
   loadSyncSettings();
   bonfire();
-  fetch('./emojis.json').then((res) => res.json()).then((json)=>emojis=json)
+  fetch("./emojis.json")
+    .then((res) => res.json())
+    .then((json) => (emojis = json));
 
   document.querySelector(".login-screen").style.display = "none";
   document.getElementById("app").style.display = "grid";
@@ -464,7 +483,8 @@ async function getServers() {
 
   unreads.forEach((unread) => {
     if (
-      unread.last_id < cacheLookup("channels", unread._id.channel).lastMessage &&
+      unread.last_id <
+        cacheLookup("channels", unread._id.channel).lastMessage &&
       mutedChannels.indexOf(unread._id.channel) === -1
     ) {
       unreadChannels.push(unread._id.channel);
@@ -482,27 +502,30 @@ async function getServers() {
       getChannels(cache.servers[serverIndex].id);
       clearMessages();
 
-      document.getElementById("serverName").innerText = cache.servers[serverIndex].name;
+      document.getElementById("serverName").innerText =
+        cache.servers[serverIndex].name;
       document.getElementById("channelName").innerText = "";
     };
 
     if (cache.servers[serverIndex].channels) {
       cache.servers[serverIndex].channels.forEach((channel) => {
-        if (
-          unreadChannels.indexOf(channel) !== -1
-        ) {
-          server.classList.add((unreadMentions.indexOf(channel) !== -1) ? "mentionServer" : "unreadServer");
+        if (unreadChannels.indexOf(channel) !== -1) {
+          server.classList.add(
+            unreadMentions.indexOf(channel) !== -1
+              ? "mentionServer"
+              : "unreadServer",
+          );
         }
       });
     }
 
-   if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1) {
-    server.classList.remove("mentionServer");
-    server.classList.remove("unreadServer");
-  }
-    
+    if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1) {
+      server.classList.remove("mentionServer");
+      server.classList.remove("unreadServer");
+    }
+
     server.classList.add("server");
-    
+
     server.id = cache.servers[serverIndex].id;
 
     if (cache.servers[serverIndex].icon === null) {
@@ -527,61 +550,64 @@ async function getChannels(id) {
 
   let addedChannels = [];
   if (server.categories) {
-    server.categories.forEach(
-      (category) => {
-        let categoryContainer = document.createElement("details");
-        let categoryText = document.createElement("summary");
-    
-        categoryContainer.open = true;
-        categoryContainer.classList.add("channel-category");
-    
-        categoryText.textContent = category.title;
-        categoryText.classList.add("categoryText");
-        categoryContainer.appendChild(categoryText);
+    server.categories.forEach((category) => {
+      let categoryContainer = document.createElement("details");
+      let categoryText = document.createElement("summary");
 
-        if (category.channels) {
-          for (let j = 0; j < category.channels.length; j++) {
-            const currentChannel = cacheLookup("channels", category.channels[j]);
-            let channel = document.createElement("button");
-            let channelText = document.createElement("span");
-    
-            if (currentChannel.type !== "TextChannel" || currentChannel.server !== id) continue;
-    
-            addedChannels.push(currentChannel.id);
-    
-            channel.classList.add("channel");
-    
-            channel.onclick = () => {
-               getMessages(currentChannel.id);
-              document.getElementById("channelName").innerText = currentChannel.name;
-            };
-    
-            channel.id = currentChannel.id;
-            channelText.innerText = currentChannel.name;
-    
-            for (let i = 0; i < unreads.length; i++) {
-              if (unreads[i]._id.channel === currentChannel.id) {
-                if (
-                  mutedChannels.indexOf(currentChannel.id) === -1 &&
-                  currentChannel.lastMessage > unreads[i].lastMessage
-                )
-                  channel.classList.add("unreadChannel");
-    
-                break;
-              }
+      categoryContainer.open = true;
+      categoryContainer.classList.add("channel-category");
+
+      categoryText.textContent = category.title;
+      categoryText.classList.add("categoryText");
+      categoryContainer.appendChild(categoryText);
+
+      if (category.channels) {
+        for (let j = 0; j < category.channels.length; j++) {
+          const currentChannel = cacheLookup("channels", category.channels[j]);
+          let channel = document.createElement("button");
+          let channelText = document.createElement("span");
+
+          if (
+            currentChannel.type !== "TextChannel" ||
+            currentChannel.server !== id
+          )
+            continue;
+
+          addedChannels.push(currentChannel.id);
+
+          channel.classList.add("channel");
+
+          channel.onclick = () => {
+            getMessages(currentChannel.id);
+            document.getElementById("channelName").innerText =
+              currentChannel.name;
+          };
+
+          channel.id = currentChannel.id;
+          channelText.innerText = currentChannel.name;
+
+          for (let i = 0; i < unreads.length; i++) {
+            if (unreads[i]._id.channel === currentChannel.id) {
+              if (
+                mutedChannels.indexOf(currentChannel.id) === -1 &&
+                currentChannel.lastMessage > unreads[i].lastMessage
+              )
+                channel.classList.add("unreadChannel");
+
+              break;
             }
-    
-            channel.appendChild(channelText);
-    
-            if (mutedChannels.indexOf(currentChannel.id) !== -1)
-             channel.classList.add("unreadChannel");
-            categoryContainer.appendChild(channel);
           }
-        }
 
-        channelContainer.appendChild(categoryContainer);
+          channel.appendChild(channelText);
+
+          if (mutedChannels.indexOf(currentChannel.id) !== -1)
+            channel.classList.add("unreadChannel");
+          categoryContainer.appendChild(channel);
+        }
       }
-    );
+
+      channelContainer.appendChild(categoryContainer);
+    });
   }
 
   let defaultCategory = document.createElement("details");
@@ -594,9 +620,12 @@ async function getChannels(id) {
   defaultCategory.appendChild(defaultCategoryText);
 
   for (let i = 0; i < cache.channels.length; i++) {
-    if (cache.channels[i].server !== id ||
+    if (
+      cache.channels[i].server !== id ||
       cache.channels[i].type !== "TextChannel" ||
-      addedChannels.indexOf(cache.channels[i].id) !== -1) continue;
+      addedChannels.indexOf(cache.channels[i].id) !== -1
+    )
+      continue;
 
     const currentChannel = cache.channels[i];
 
@@ -658,8 +687,10 @@ async function parseMessage(message, id = null) {
   messageContent.classList.add("message-content");
 
   let user;
-  if(message.system) {
-    user = await userLookup(message.system.id ? message.system.id : message.system.by);
+  if (message.system) {
+    user = await userLookup(
+      message.system.id ? message.system.id : message.system.by,
+    );
   } else {
     user = await userLookup(message.author);
   }
@@ -667,13 +698,17 @@ async function parseMessage(message, id = null) {
   if (message.system) {
     username.textContent = user.username;
 
-    profilePicture.src = user.pfp ?
-      `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256` :
-      `https://api.revolt.chat/users/${user.id}/default_avatar`;
+    profilePicture.src = user.pfp
+      ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
+      : `https://api.revolt.chat/users/${user.id}/default_avatar`;
 
     switch (message.system.type) {
       case "user_added":
-        messageContainer.textContent = `User ${await userLookup(message.system.by) ? await userLookup(message.system) : message.system.by}`;
+        messageContainer.textContent = `User ${
+          (await userLookup(message.system.by))
+            ? await userLookup(message.system)
+            : message.system.by
+        }`;
     }
 
     username.onclick = () => {
@@ -688,18 +723,19 @@ async function parseMessage(message, id = null) {
     messageContainer.appendChild(userData);
     messageContainer.appendChild(messageContent);
     return;
-
   } else {
     if (!message.masquerade) {
-      username.textContent = member.nickname ? member.nickname : user.displayName;
+      username.textContent = member.nickname
+        ? member.nickname
+        : user.displayName;
       if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
 
       username.appendChild(masqueradeBadge);
       profilePicture.src = member.avatar
         ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
         : user.pfp
-          ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
-          : `https://api.revolt.chat/users/${user.id}/default_avatar`;
+        ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
+        : `https://api.revolt.chat/users/${user.id}/default_avatar`;
 
       if (member.roles) {
         for (let i = member.roles.length + 1; i >= 0; i--) {
@@ -709,8 +745,8 @@ async function parseMessage(message, id = null) {
               "colour"
             ])
           ) {
-
-            if (/^#[0-9A-F]{6}$/i.test(tmpColour)) { // Testing if it's a valid hex code
+            if (/^#[0-9A-F]{6}$/i.test(tmpColour)) {
+              // Testing if it's a valid hex code
               username.style.backgroundColor = tmpColour;
               break;
             } else {
@@ -722,8 +758,12 @@ async function parseMessage(message, id = null) {
       }
     } else {
       masqueradeBadge.textContent = "Masq";
-      if (message.masquerade.name) username.textContent = message.masquerade.name;
-      else username.textContent = member.nickname ? member.nickname : user.displayName;
+      if (message.masquerade.name)
+        username.textContent = message.masquerade.name;
+      else
+        username.textContent = member.nickname
+          ? member.nickname
+          : user.displayName;
 
       username.appendChild(masqueradeBadge);
 
@@ -749,12 +789,17 @@ async function parseMessage(message, id = null) {
   userData.appendChild(username);
 
   if (user.relationship !== "Blocked") {
-    messageContent.innerHTML = converter.makeHtml(message.content);
+    let sanitizedContent = message.content.replace(/</g, "&lt;");
+    sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
+    messageContent.innerText = sanitizedContent;
+
+    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
 
     //Mention parser
     if (message.mentions) {
       message.mentions.forEach(async (mention) => {
-        if (messageContent.innerText.split(`<@${mention}>`).length === 1) return;
+        if (messageContent.innerText.split(`<@${mention}>`).length === 1)
+          return;
 
         let segConcat = document.createElement("div");
         let newSeg;
@@ -778,9 +823,9 @@ async function parseMessage(message, id = null) {
         ping.appendChild(mentionPfp);
         mentionText.textContent = cacheLookup("users", mention).displayName;
 
-
-        mentionPfp.src = tmpUserProfile.pfp ? `https://autumn.revolt.chat/avatars/${tmpUserProfile.pfp._id}?max_side=256` :
-          `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
+        mentionPfp.src = tmpUserProfile.pfp
+          ? `https://autumn.revolt.chat/avatars/${tmpUserProfile.pfp._id}?max_side=256`
+          : `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
         mentionText.textContent = cacheLookup("users", mention).displayName;
 
         ping.appendChild(mentionPfp);
@@ -792,7 +837,7 @@ async function parseMessage(message, id = null) {
         //CSS TODO: Make this show a pointer on hover
         ping.onclick = () => {
           loadProfile(mention);
-        }
+        };
 
         if (mention === tmpUserProfile._id) {
           messageContent.classList.add("selfMentioned");
@@ -801,13 +846,16 @@ async function parseMessage(message, id = null) {
     }
 
     // Emojis
-    Object.keys(emojis.standard).forEach(emoji => {
+    Object.keys(emojis.standard).forEach((emoji) => {
       if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
-        messageContent.innerHTML = messageContent.innerHTML.replace(`:${emoji}:`, emojis.standard[emoji])
+        messageContent.innerHTML = messageContent.innerHTML.replace(
+          `:${emoji}:`,
+          emojis.standard[emoji],
+        );
       }
     });
 
-    Object.keys(emojis.custom).forEach(emoji => {
+    Object.keys(emojis.custom).forEach((emoji) => {
       if (messageContent.textContent.search(`:${emoji}`) === -1) return;
 
       let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
@@ -816,21 +864,28 @@ async function parseMessage(message, id = null) {
       emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
       messageContent.replaceChildren();
 
-      for (let i = 0; i < tmpMsg.length; i++){
-        if (i !== tmpMsg.length - 1) messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML
+      for (let i = 0; i < tmpMsg.length; i++) {
+        if (i !== tmpMsg.length - 1)
+          messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML;
         else messageContent.innerHTML += tmpMsg[i];
       }
-    })
+    });
 
-    if (messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
-      let matches = messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g)
+    if (
+      messageContent.innerHTML.match(
+        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
+      ) !== null
+    ) {
+      let matches = messageContent.innerHTML.match(
+        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
+      );
 
       for (let i = 0; i < matches.length; i++) {
         let emoji = matches[i].split(":")[1];
         let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
         let tmpImg = document.createElement("img");
         tmpImg.classList.add("emoji");
-        let outputToGetAroundStupidDomManipulationShit = ""; 
+        let outputToGetAroundStupidDomManipulationShit = "";
 
         tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
 
@@ -855,13 +910,16 @@ async function parseMessage(message, id = null) {
       messageDisplay.appendChild(reply);
     }
 
-    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1].author !== message.author || cache.messages[cache.messages.length - 1].masquerade !== undefined))
+    if (
+      cache.messages.length === 0 ||
+      cache.messages[cache.messages.length - 1].author !== message.author ||
+      cache.messages[cache.messages.length - 1].masquerade !== undefined
+    )
       messageDisplay.appendChild(userData);
     messageDisplay.appendChild(messageContent);
 
     messageDisplay.id = message._id;
     messageDisplay.class = "message";
-
 
     if (message.attachments) {
       let attachments = document.createElement("div");
@@ -924,7 +982,11 @@ async function parseMessage(message, id = null) {
       messageDisplay.appendChild(reply);
     }
 
-    if (cache.messages.length === 0 || (cache.messages[cache.messages.length - 1].author !== message.author || cache.messages[cache.messages.length - 1].masquerade !== undefined))
+    if (
+      cache.messages.length === 0 ||
+      cache.messages[cache.messages.length - 1].author !== message.author ||
+      cache.messages[cache.messages.length - 1].masquerade !== undefined
+    )
       messageDisplay.appendChild(userData);
     messageDisplay.appendChild(messageContent);
 
@@ -955,7 +1017,7 @@ async function parseMessage(message, id = null) {
     id: message._id,
     author: message.author,
     content: message.content,
-    masquerade: message.masquerade
+    masquerade: message.masquerade,
   });
   scrollChatToBottom();
 }
@@ -1019,14 +1081,16 @@ async function buildChannelCache(channels) {
 
 async function buildUserCache(users) {
   for (let i = 0; i < users.length; i++) {
-      cache.users.push({
-        id: users[i]._id,
-        username: users[i].username,
-        pfp: users[i].avatar,
-        bot: users[i].bot,
-        discriminator: users[i].discriminator,
-        displayName: users[i].display_name ? users[i].display_name : users[i].display_name,
-        relationship: users[i].relationship,
+    cache.users.push({
+      id: users[i]._id,
+      username: users[i].username,
+      pfp: users[i].avatar,
+      bot: users[i].bot,
+      discriminator: users[i].discriminator,
+      displayName: users[i].display_name
+        ? users[i].display_name
+        : users[i].display_name,
+      relationship: users[i].relationship,
     });
   }
 }
@@ -1065,7 +1129,7 @@ async function getMessages(id) {
   // });
 
   const placeholder = await fetchResource(
-    `channels/${id}/messages?include_users=true&sort=latest`
+    `channels/${id}/messages?include_users=true&sort=latest`,
   );
   const users = placeholder.users;
 
@@ -1077,9 +1141,11 @@ async function getMessages(id) {
         pfp: users[i].avatar,
         bot: users[i].bot,
         discriminator: users[i].discriminator,
-        displayName: users[i].display_name ? users[i].display_name : users[i].username,
+        displayName: users[i].display_name
+          ? users[i].display_name
+          : users[i].username,
         relationship: users[i].relationship,
-    });
+      });
   }
 
   if (placeholder.members) {
@@ -1088,7 +1154,7 @@ async function getMessages(id) {
     for (let i = 0; i < members.length; i++) {
       if (cacheLookup("members", members[i]._id.user, activeServer) === 1)
         cache.servers[cacheIndexLookup("servers", activeServer)].members.push(
-          members[i]
+          members[i],
         );
     }
   }
@@ -1108,7 +1174,7 @@ async function getMessages(id) {
         "x-session-token": token,
       },
       method: "PUT",
-    }
+    },
   );
   parseMessage(messages[0]);
 }
@@ -1128,7 +1194,7 @@ async function loadDMs() {
     dmButton.classList.add("channel");
     dmButton.onclick = () => {
       getMessages(response._id);
-    }
+    };
 
     dmButton.id = response._id;
     userCat.appendChild(dmButton);
@@ -1147,9 +1213,9 @@ async function loadDMs() {
       let user;
 
       if (cache.channels[i].recipients[1] !== userProfile._id) {
-        user = await userLookup(cache.channels[i].recipients[1])
+        user = await userLookup(cache.channels[i].recipients[1]);
       } else {
-        user = await userLookup(cache.channels[i].recipients[0])
+        user = await userLookup(cache.channels[i].recipients[0]);
       }
 
       dmButton.textContent = `@${user.username}#${user.discriminator}`;
@@ -1188,7 +1254,7 @@ async function loadProfile(userID) {
   if (user.pfp) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${user.pfp._id}`;
   } else {
-    profilePicture.src = `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`
+    profilePicture.src = `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`;
   }
 
   if (Object.keys(tmpUserProfile).indexOf("background") > -1) {
@@ -1199,13 +1265,16 @@ async function loadProfile(userID) {
   bio.innerHTML = converter.makeHtml(tmpUserProfile.content);
 
   // Emojis
-  Object.keys(emojis.standard).forEach(emoji => {
-      if (bio.innerHTML.search(`:${emoji}:`) !== -1) {
-        bio.innerHTML = bio.innerHTML.replace(`:${emoji}:`, emojis.standard[emoji])
-      }
-    });
+  Object.keys(emojis.standard).forEach((emoji) => {
+    if (bio.innerHTML.search(`:${emoji}:`) !== -1) {
+      bio.innerHTML = bio.innerHTML.replace(
+        `:${emoji}:`,
+        emojis.standard[emoji],
+      );
+    }
+  });
 
-  Object.keys(emojis.custom).forEach(emoji => {
+  Object.keys(emojis.custom).forEach((emoji) => {
     if (bio.innerHTML.search(`:${emoji}`) === -1) return;
 
     let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
@@ -1217,13 +1286,18 @@ async function loadProfile(userID) {
     bio.innerHTML = "";
 
     for (let i = 0; i < tmpMsg.length; i++) {
-      if (i !== tmpMsg.length - 1) bio.innerHTML += tmpMsg[i] + emojiImage.outerHTML
-        else bio.innerHTML += tmpMsg[i];
-      }
-    })
+      if (i !== tmpMsg.length - 1)
+        bio.innerHTML += tmpMsg[i] + emojiImage.outerHTML;
+      else bio.innerHTML += tmpMsg[i];
+    }
+  });
 
-  if (bio.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
-    let matches = bio.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g);
+  if (
+    bio.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null
+  ) {
+    let matches = bio.innerHTML.match(
+      /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
+    );
     for (let i = 0; i < matches.length; i++) {
       let emoji = matches[i].split(":")[1];
       let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
@@ -1234,7 +1308,7 @@ async function loadProfile(userID) {
       bio.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
 
       for (let j = 1; j < tmpMsg.length; j++) {
-        bio.innerHTML += tmpMsg[j]
+        bio.innerHTML += tmpMsg[j];
       }
     }
   }
@@ -1260,7 +1334,7 @@ async function loadProfile(userID) {
 //
 
 async function sendMessage() {
-  if(isMessageSending) return;
+  if (isMessageSending) return;
 
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
@@ -1281,35 +1355,67 @@ async function sendMessage() {
   }
   */
 
- let embeds = undefined;
- let masquerade = undefined;
- 
- if (document.querySelector("#embedTitle").value || document.querySelector("#embedDesc").value || document.querySelector("#embedColour").value || document.querySelector("#embedIconURL").value || document.querySelector("#embedMedia").value || document.querySelector("#embedURL").value) {
-   embeds = [{
-     title: document.querySelector("#embedTitle").value ? document.querySelector("#embedTitle").value : null,
-      description: document.querySelector("#embedDesc").value ? document.querySelector("#embedDesc").value : null,
-      colour: document.querySelector("#embedColour").value ? document.querySelector("#embedColour").value : null,
-      icon_url: document.querySelector("#embedIconURL").value ? document.querySelector("#embedIconURL").value : null,
-      url: document.querySelector("#embedURL").value ? document.querySelector("#embedURL").value : null,
-      media: document.querySelector("#embedMedia").value ? document.querySelector("#embedMedia").value : null,
-    }];
+  let embeds = undefined;
+  let masquerade = undefined;
+
+  if (
+    document.querySelector("#embedTitle").value ||
+    document.querySelector("#embedDesc").value ||
+    document.querySelector("#embedColour").value ||
+    document.querySelector("#embedIconURL").value ||
+    document.querySelector("#embedMedia").value ||
+    document.querySelector("#embedURL").value
+  ) {
+    embeds = [
+      {
+        title: document.querySelector("#embedTitle").value
+          ? document.querySelector("#embedTitle").value
+          : null,
+        description: document.querySelector("#embedDesc").value
+          ? document.querySelector("#embedDesc").value
+          : null,
+        colour: document.querySelector("#embedColour").value
+          ? document.querySelector("#embedColour").value
+          : null,
+        icon_url: document.querySelector("#embedIconURL").value
+          ? document.querySelector("#embedIconURL").value
+          : null,
+        url: document.querySelector("#embedURL").value
+          ? document.querySelector("#embedURL").value
+          : null,
+        media: document.querySelector("#embedMedia").value
+          ? document.querySelector("#embedMedia").value
+          : null,
+      },
+    ];
   }
 
-  if (document.querySelector("#masqName").value || document.querySelector("#masqPfp").value || document.querySelector("#masqColour").value) {
+  if (
+    document.querySelector("#masqName").value ||
+    document.querySelector("#masqPfp").value ||
+    document.querySelector("#masqColour").value
+  ) {
     masquerade = {
-      name: document.querySelector("#masqName").value ? document.querySelector("#masqName").value : null,
-      avatar: document.querySelector("#masqPfp").value ? document.querySelector("#masqPfp").value : null,
-      colour: document.querySelector("#masqColour").value ? document.querySelector("#masqColour").value : null,
+      name: document.querySelector("#masqName").value
+        ? document.querySelector("#masqName").value
+        : null,
+      avatar: document.querySelector("#masqPfp").value
+        ? document.querySelector("#masqPfp").value
+        : null,
+      colour: document.querySelector("#masqColour").value
+        ? document.querySelector("#masqColour").value
+        : null,
     };
   }
 
-  let body = sendRawJSON ? message :
-    JSON.stringify({
-      content: message,
-      replies: activeReplies,
-      masquerade,
-      embeds,
-    });
+  let body = sendRawJSON
+    ? message
+    : JSON.stringify({
+        content: message,
+        replies: activeReplies,
+        masquerade,
+        embeds,
+      });
 
   isMessageSending = true;
 
@@ -1318,14 +1424,16 @@ async function sendMessage() {
       "x-session-token": token,
     },
     method: "POST",
-    body: body
+    body: body,
   })
     .then((response) => response.json())
     .then((data) => {
       isMessageSending = false;
-      fetch(`https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`, { method: "PUT", headers: {"x-session-token": token}})
-    }
-  );
+      fetch(
+        `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
+        { method: "PUT", headers: { "x-session-token": token } },
+      );
+    });
 
   messageContainer.value = "";
   activeReplies = [];
@@ -1344,7 +1452,7 @@ toolbarBtn.addEventListener("click", () => {
 });
 
 function scrollChatToBottom() {
-  const  element = document.getElementById("messagesContainer");
+  const element = document.getElementById("messagesContainer");
   element.scrollTo(0, element.scrollHeight);
 }
 
@@ -1377,4 +1485,4 @@ function loadSetting(setting) {
   return localStorage.getItem(setting);
 }
 
-function createSettingDiv(settingName, settingValueType) { }
+function createSettingDiv(settingName, settingValueType) {}
