@@ -438,3 +438,22 @@ fieldset legend {
   padding: .4rem;
 }
 
+.unreadServer {
+  box-shadow: var(--foreground) 0px 0px 0px 3px !important;
+}
+
+.mentionServer {
+  box-shadow: var(--accent) 0px 0px 0px 3px !important;
+}
+
+.server {
+  box-shadow: var(--tertiary-background)
+}
+
+.unreadChannel {
+  colour: var(--foreground);
+}
+
+.mentionedChannel {
+  colour: var(--accent); 
+}

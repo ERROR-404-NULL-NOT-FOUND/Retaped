@@ -28,6 +28,7 @@ var mutedChannels = [];
 var mutedServers = [];
 var unreads = [];
 var unreadChannels = [];
+var unreadMentions = [];
 var cssVars = getComputedStyle(document.querySelector(":root"));
 var keysDown = [];
 var sendRawJSON = false;
@@ -258,20 +259,19 @@ async function bonfire() {
           );
         } else {
           if ((channel = document.getElementById(data.channel)) && mutedChannels.indexOf(data.channel) === -1) {
-            channel.style.color =
-              data.mentions && data.mentions.indexOf(userProfile._id) !== -1
-                ? cssVars.getPropertyValue("--accent")
-                : cssVars.getPropertyValue("--foreground");
-
-            channel.classList.add("channel-unread");
+            channel.classList.add(
+              data.mentions && data.mentions.indexOf(userProfile._id) !== -1 
+                ? "mentionedChannel"
+                : "unreadCHannel");
           }
-          if (mutedChannels.indexOf(data.channel) === -1){
+
+          if (mutedChannels.indexOf(data.channel) === -1 && mutedServers.indexOf(cacheLookup("channels", data.channel).server) === -1){
             document.getElementById(
               cacheLookup("channels", data.channel).server
-            ).style.boxShadow =
+            ).classList.add(
              data.mentions && data.mentions.indexOf(userProfile._id) !== -1
-               ? cssVars.getPropertyValue("--accent")
-               : cssVars.getPropertyValue("--foreground");
+               ? "mentionedServer"
+               : "unreadServer");
           }
         }
         break;
@@ -290,18 +290,25 @@ async function bonfire() {
 
       // Channel has been acknowledge as read
       case "ChannelAck":
-        updateUnreads(data._id, data.message_id);
+        updateUnreads(data.id, data.message_id);
 
         if ((channel = document.getElementById(data.id))) {
-          channel.style.colour = cssVars.getPropertyValue("--foreground");
           channel.classList.remove("channel-unread");
         }
 
-        document.getElementById(
-          cacheLookup("channels", data._id).server
-        ).style.boxShadow =
-          "rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51, 51) 0px 0px 0px 3px";
-
+        let stillUnread = false;
+        for (const channel in cacheLookup("servers", cacheLookup("channels", data.id).server).channels) {
+          if (unreadChannels.indexOf(channel) !== -1)
+          {
+            stillUnread = true;
+            break;
+          }
+        }
+        if(!stillUnread){
+          document.getElementById(
+           cacheLookup("channels", data.id).server
+         ).classList.remove("unreadServer").classList.remove("mentionedServer");
+        }
         break;
 
       // Uh oh
@@ -323,7 +330,8 @@ async function bonfire() {
       case "ChannelStartTyping":
         if (
           data.id !== activeChannel ||
-          currentlyTyping.indexOf(data.user) !== -1
+          currentlyTyping.indexOf(data.user) !== -1 ||
+          document.getElementById(data.user) === null
         ) break;
 
         const typingMember = cacheLookup("members", data.user, activeServer);
@@ -460,6 +468,8 @@ async function getServers() {
       mutedChannels.indexOf(unread._id.channel) === -1
     ) {
       unreadChannels.push(unread._id.channel);
+      if (unread.mentions && unread.mentions.indexOf(userProfile._id) !== -1)
+        unreadMentions.push(unread._id.channel);
     }
   });
 
@@ -476,23 +486,26 @@ async function getServers() {
       document.getElementById("channelName").innerText = "";
     };
 
-    cache.servers[serverIndex].categories.forEach((channel) => {
-      if (
-        unreadChannels.indexOf(channel) !== -1 &&
-        mutedChannels.indexOf(channel) === -1
-      ) {
-        server.style.boxShadow = `${cssVars.getPropertyValue(
-          "--foreground"
-        )} 0px 0px 0px 3px`;
-      }
-    });
+    if (cache.servers[serverIndex].channels) {
+      cache.servers[serverIndex].channels.forEach((channel) => {
+        if (
+          unreadChannels.indexOf(channel) !== -1
+        ) {
+          server.classList.add((unreadMentions.indexOf(channel) !== -1) ? "mentionServer" : "unreadServer");
+        }
+      });
+    }
 
-    if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1)
-      server.style.boxShadow = `hsl(0, 0%, 20%) 0px 0px 0px 3px`;
-
+   if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1) {
+    server.classList.remove("mentionServer");
+    server.classList.remove("unreadServer");
+  }
+    
+    server.classList.add("server");
+    
     server.id = cache.servers[serverIndex].id;
 
-    if (cache.servers[serverIndex].icon == null) {
+    if (cache.servers[serverIndex].icon === null) {
       server.innerText = cache.servers[serverIndex].name.charAt(0);
     } else {
       let serverIcon = document.createElement("img");
@@ -509,65 +522,67 @@ async function getServers() {
 // Renders channels from the cache
 async function getChannels(id) {
   let channelContainer = document.getElementById("channelsContainer");
+  const server = cacheLookup("servers", activeServer);
   channelContainer.replaceChildren();
 
   let addedChannels = [];
+  if (server.categories) {
+    server.categories.forEach(
+      (category) => {
+        let categoryContainer = document.createElement("details");
+        let categoryText = document.createElement("summary");
+    
+        categoryContainer.open = true;
+        categoryContainer.classList.add("channel-category");
+    
+        categoryText.textContent = category.title;
+        categoryText.classList.add("categoryText");
+        categoryContainer.appendChild(categoryText);
 
-  cache.servers[cacheIndexLookup("servers", activeServer)].categories.forEach(
-    (category) => {
-      let categoryContainer = document.createElement("details");
-      let categoryText = document.createElement("summary");
-
-      categoryContainer.open = true;
-      categoryContainer.classList.add("channel-category");
-
-      categoryText.textContent = category.title;
-      categoryText.classList.add("categoryText");
-      categoryContainer.appendChild(categoryText);
-
-      for (let j = 0; j < category.channels.length; j++) {
-        const currentChannel = cacheLookup("channels", category.channels[j]);
-        let channel = document.createElement("button");
-        let channelText = document.createElement("span");
-
-        if (currentChannel.type !== "TextChannel" || currentChannel.server !== id) continue;
-
-        addedChannels.push(currentChannel.id);
-
-        channel.classList.add("channel");
-
-        channel.onclick = () => {
-          getMessages(currentChannel.id);
-          document.getElementById("channelName").innerText = currentChannel.name;
-        };
-
-        channel.id = currentChannel.id;
-        channelText.innerText = currentChannel.name;
-
-        for (let i = 0; i < unreads.length; i++) {
-          if (unreads[i]["_id"].channel === currentChannel.id) {
-            //currentChannel[0] is the ID of the channel currently being returned
-            if (
-              mutedChannels.indexOf(currentChannel.id) === -1 &&
-              currentChannel.lastMessage > unreads[i].lastMessage
-            )
-              channel.style.fontWeight = "bold";
-
-            break;
+        if (category.channels) {
+          for (let j = 0; j < category.channels.length; j++) {
+            const currentChannel = cacheLookup("channels", category.channels[j]);
+            let channel = document.createElement("button");
+            let channelText = document.createElement("span");
+    
+            if (currentChannel.type !== "TextChannel" || currentChannel.server !== id) continue;
+    
+            addedChannels.push(currentChannel.id);
+    
+            channel.classList.add("channel");
+    
+            channel.onclick = () => {
+               getMessages(currentChannel.id);
+              document.getElementById("channelName").innerText = currentChannel.name;
+            };
+    
+            channel.id = currentChannel.id;
+            channelText.innerText = currentChannel.name;
+    
+            for (let i = 0; i < unreads.length; i++) {
+              if (unreads[i]._id.channel === currentChannel.id) {
+                if (
+                  mutedChannels.indexOf(currentChannel.id) === -1 &&
+                  currentChannel.lastMessage > unreads[i].lastMessage
+                )
+                  channel.classList.add("unreadChannel");
+    
+                break;
+              }
+            }
+    
+            channel.appendChild(channelText);
+    
+            if (mutedChannels.indexOf(currentChannel.id) !== -1)
+             channel.classList.add("unreadChannel");
+            categoryContainer.appendChild(channel);
           }
         }
 
-        channel.appendChild(channelText);
-
-        if (mutedChannels.indexOf(currentChannel.id) !== -1)
-          //Loki TODO: make this use a theme colour
-          channel.style.color = "#777777";
-        categoryContainer.appendChild(channel);
+        channelContainer.appendChild(categoryContainer);
       }
-
-      channelContainer.appendChild(categoryContainer);
-    }
-  );
+    );
+  }
 
   let defaultCategory = document.createElement("details");
   let defaultCategoryText = document.createElement("summary");
@@ -579,7 +594,6 @@ async function getChannels(id) {
   defaultCategory.appendChild(defaultCategoryText);
 
   for (let i = 0; i < cache.channels.length; i++) {
-    console.log("test")
     if (cache.channels[i].server !== id ||
       cache.channels[i].type !== "TextChannel" ||
       addedChannels.indexOf(cache.channels[i].id) !== -1) continue;
@@ -755,7 +769,7 @@ async function parseMessage(message, id = null) {
         let pingContainer = document.createElement("div");
         let mentionPfp = document.createElement("img");
         let mentionText = document.createElement("span");
-        let userProfile = cacheLookup("users", mention);
+        let tmpUserProfile = cacheLookup("users", mention);
 
         mentionPfp.classList.add("mentionPfp");
         mentionText.classList.add("mentionText");
@@ -765,7 +779,7 @@ async function parseMessage(message, id = null) {
         mentionText.textContent = cacheLookup("users", mention).displayName;
 
 
-        mentionPfp.src = userProfile.pfp ? `https://autumn.revolt.chat/avatars/${userProfile.pfp._id}?max_side=256` :
+        mentionPfp.src = tmpUserProfile.pfp ? `https://autumn.revolt.chat/avatars/${tmpUserProfile.pfp._id}?max_side=256` :
           `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
         mentionText.textContent = cacheLookup("users", mention).displayName;
 
@@ -780,7 +794,7 @@ async function parseMessage(message, id = null) {
           loadProfile(mention);
         }
 
-        if (mention === userProfile._id) {
+        if (mention === tmpUserProfile._id) {
           messageContent.classList.add("selfMentioned");
         }
       });
@@ -981,13 +995,15 @@ async function buildChannelCache(channels) {
   }
 
   for (const server in cache.servers) {
+    if (!cache.servers[server].categories) continue;
+
     cache.servers[server].categories.forEach((category) => {
       let tmpCategory = [];
 
       category.channels.forEach((channel) => {
         let anthTmpChannel;
-        for (tmpChannel in channels) {
-          if (channels[tmpChannel]._id === channel) {
+        for (const tmpChannel in channels) {
+          if (channels[tmpChannel].id === channel) {
             anthTmpChannel = tmpChannel;
             break;
           }
@@ -1155,7 +1171,7 @@ async function loadDMs() {
 //
 
 async function loadProfile(userID) {
-  const userProfile = await fetchResource(`users/${userID}/profile`);
+  const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, activeServer);
   const user = await userLookup(userID);
 
@@ -1175,12 +1191,12 @@ async function loadProfile(userID) {
     profilePicture.src = `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`
   }
 
-  if (Object.keys(userProfile).indexOf("background") > -1) {
+  if (Object.keys(tmpUserProfile).indexOf("background") > -1) {
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 10%, rgba(0,0,0,0) 100%),
-        url(https://autumn.revolt.chat/backgrounds/${userProfile.background._id}) center center / cover`;
+        url(https://autumn.revolt.chat/backgrounds/${tmpUserProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
 
-  bio.innerHTML = converter.makeHtml(userProfile.content);
+  bio.innerHTML = converter.makeHtml(tmpUserProfile.content);
 
   // Emojis
   Object.keys(emojis.standard).forEach(emoji => {
