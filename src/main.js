@@ -35,6 +35,8 @@ var sendRawJSON = false;
 var ordering = [];
 var isMessageSending = false;
 var editingMessageID = "";
+var attachments = [];
+var attachmentIDs = [];
 
 //
 // Run on page load
@@ -69,6 +71,45 @@ window.addEventListener("keydown", (event) => {
   }
   return;
 });
+
+document.querySelector("#upload").addEventListener("input", (event) => {
+  if (attachments.length > 5) return;
+
+  const upload = document.querySelector("#upload").files[0];
+  const uploadsContainer = document.getElementById("uploadsBarContainer");
+
+  let attachmentContainer = document.createElement("div");
+  let uploadPreview = document.createElement("img");
+  let attachmentText = document.createElement("span");
+  
+  if (upload.type.startsWith("image")) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      uploadPreview.src = fr.result;
+    }
+    fr.readAsDataURL(upload);
+  };
+  
+  attachmentContainer.onclick = () => {
+    const uploadContainer = document.getElementById(`IMG-${upload.name}`);
+    uploadContainer.parentNode.removeChild(uploadContainer);
+    attachments.splice(upload, 1);
+  }
+  
+  attachmentContainer.classList.add("attachmentContainer");
+  attachmentContainer.id = `IMG-${upload.name}`;
+  attachmentText.innerText = upload.name;
+  
+  attachmentContainer.appendChild(uploadPreview);
+  attachmentContainer.appendChild(attachmentText);  
+
+  uploadsContainer.appendChild(attachmentContainer);
+  
+  uploadsContainer.hidden = false;
+
+  attachments.push(upload);
+})
+
 //
 // Utility functions
 //
@@ -215,6 +256,21 @@ async function loadSyncSettings() {
     themeVars.style.setProperty("--mention", theme.mention);
 
     document.querySelector("#themeLabel").textContent = "Revolt theme";
+  }
+}
+
+async function uploadToAutumn() {
+    console.log(attachments);
+  for (let i=0; i < attachments.length; i++){
+    const formData = new FormData();
+    formData.append('myFile', attachments[i]);
+
+    await fetch('https://autumn.revolt.chat/attachments', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {attachmentIDs.push(data.id)});
   }
 }
 
@@ -760,7 +816,6 @@ function parseMessageContent(message) {
   sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
     messageContent.innerText = sanitizedContent;
 
-    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
 
     //Mention parser
     if (message.mentions) {
@@ -816,7 +871,7 @@ function parseMessageContent(message) {
     Object.keys(emojis.standard).forEach((emoji) => {
       if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
         messageContent.innerHTML = messageContent.innerHTML.replace(
-          `:${emoji}:`,
+          new RegExp(`:${emoji}:`, 'g'),
           emojis.standard[emoji],
         );
       }
@@ -837,15 +892,11 @@ function parseMessageContent(message) {
         else messageContent.innerHTML += tmpMsg[i];
       }
     });
+    
+    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
 
-    if (
-      messageContent.innerHTML.match(
-        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-      ) !== null
-    ) {
-      let matches = messageContent.innerHTML.match(
-        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-      );
+    if (messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
+      let matches = messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g);
 
       for (let i = 0; i < matches.length; i++) {
         let emoji = matches[i].split(":")[1];
@@ -862,6 +913,7 @@ function parseMessageContent(message) {
         messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
       }
     }
+
     return messageContent;
 }
 
@@ -1513,6 +1565,7 @@ async function sendMessage() {
       },
     ];
   }
+  
 
   if (
     document.querySelector("#masqName").value ||
@@ -1532,18 +1585,23 @@ async function sendMessage() {
     };
   }
 
-  let body = sendRawJSON
-    ? message
-    : JSON.stringify({
-        content: message,
-        replies: activeReplies,
-        masquerade,
-        embeds,
-      });
+
 
   isMessageSending = true;
   messageContainer.classList.add("messageSending");
   messageContainer.readOnly = true;
+
+  if (attachments) await uploadToAutumn();
+
+  let body = sendRawJSON
+    ? message
+    : JSON.stringify({
+      content: message,
+      replies: activeReplies,
+      masquerade,
+      embeds,
+      attachments: attachmentIDs,
+  });
 
   await fetch((editingMessageID === "") ? `https://api.revolt.chat/channels/${activeChannel}/messages` : `https://api.revolt.chat/channels/${activeChannel}/messages/${editingMessageID}`, {
     headers: {
@@ -1567,8 +1625,13 @@ async function sendMessage() {
         { method: "PUT", headers: { "x-session-token": token } },
       );
     });
+
   messageContainer.value = "";
   activeReplies = [];
+  attachments = [];
+  attachmentIDs = [];
+
+  document.querySelector("#uploadsBarContainer").replaceChildren();
   document.querySelector(".replying-container").replaceChildren();
   scrollChatToBottom();
 }

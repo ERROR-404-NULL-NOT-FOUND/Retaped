@@ -471,3 +471,19 @@ fieldset legend {
 .messageSending {
   color: var(--tertiary-foreground);
 }
+
+input[type="file"] {
+  display: none;
+}
+
+.uploadsBarContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.attachmentContainer {
+  display: flex;
+  height: 5em;
+  width: 5em;
+  flex-direction: row; 
+}

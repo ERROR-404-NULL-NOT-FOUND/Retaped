@@ -142,6 +142,7 @@
                 <input type="file" id="mediaUpload" />
 
                 <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
+                <div id="uploadsBarContainer" hidden=true></div>
                 <div class="toolbar">
                     <button onclick="bonfire()">Re-establish websocket</button>
                     <button onclick="getMessages(activeChannel);">
@@ -155,7 +156,9 @@
                     <button class="toolbar-btn">↑</button>
                     <!-- FIXME: the width of the label is really small so pressing it is hard. -->
                     <button>
-                        <label class="upload-label" for="upload">+</label>
+                        <label class="upload-label" for="upload" multiple>+
+                          <input type="file" id="upload">
+                        </label>
                     </button>
                     <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=200 autofocus=1></textarea>
                     <button class="send-btn" onclick="sendMessage()">⟶</button>
