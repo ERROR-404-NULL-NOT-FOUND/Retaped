@@ -165,11 +165,6 @@ fieldset legend {
   text-align: left;
 }
 
-.channel-unread {
-  opacity: 1;
-  font-weight: bold;
-}
-
 #channelsContainer button::before {
   content: "# ";
   font-size: 1.1em;
@@ -443,17 +438,36 @@ fieldset legend {
 }
 
 .mentionServer {
-  box-shadow: var(--accent) 0px 0px 0px 3px !important;
+  box-shadow: var(--mention) 0px 0px 0px 3px !important;
 }
 
 .server {
-  box-shadow: var(--tertiary-background)
+  box-shadow: var(--tertiary-background) 0px 0px 0px 3px;
 }
 
 .unreadChannel {
-  colour: var(--foreground);
+  color: var(--foreground);
+  background-color: var(--secondary-backgound);
+  font-weight: bold;
+  opacity: 1;
 }
 
 .mentionedChannel {
-  colour: var(--accent); 
+  color: var(--mention); 
+  background-color: var(--tertiary-backgound);
+  font-weight: bold;
+  opacity: 1;
+}
+
+.selfMentioned {
+  background-color: var(--mention); 
+  border-radius: 5px;
+}
+
+#input {
+  resize: none;
+}
+
+.messageSending {
+  color: var(--tertiary-foreground);
 }

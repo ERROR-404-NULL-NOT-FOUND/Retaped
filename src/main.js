@@ -34,6 +34,7 @@ var keysDown = [];
 var sendRawJSON = false;
 var ordering = [];
 var isMessageSending = false;
+var editingMessageID = "";
 
 //
 // Run on page load
@@ -49,16 +50,14 @@ window.onload = function () {
 // Keybinds
 //
 
-document.addEventListener("keydown", (event) => {
+window.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "Enter":
-      if (keysDown.indexOf("Shift") === -1) sendMessage();
-      else {
-        let input = document.getElementById("input");
-        input.value = `${input.value}\n`;
+      if (!event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+        break;
       }
-
-      break;
 
     case "Escape":
       activeReplies.pop();
@@ -70,12 +69,6 @@ document.addEventListener("keydown", (event) => {
   }
   return;
 });
-
-document.addEventListener("keyup", (event) => {
-  keysDown.splice(keysDown.indexOf(event.key), 1);
-  return;
-});
-
 //
 // Utility functions
 //
@@ -213,9 +206,13 @@ async function loadSyncSettings() {
     themeVars.style.setProperty("--servers-bg", theme.background);
     themeVars.style.setProperty("--channels-bg", theme["secondary-background"]);
     themeVars.style.setProperty("--secondary-background", theme["message-box"]);
+    themeVars.style.setProperty("--tertiary-background", theme["tertiary-background"]);
+    themeVars.style.setProperty("--tertiary-foreground", theme["tertiary-foreground"]);
     themeVars.style.setProperty("--background", theme["primary-background"]);
     themeVars.style.setProperty("--foreground", theme["foreground"]);
+    themeVars.style.setProperty("--secondary-foreground", theme["secondary-foreground"]);
     themeVars.style.setProperty("--hover", theme.hover);
+    themeVars.style.setProperty("--mention", theme.mention);
 
     document.querySelector("#themeLabel").textContent = "Revolt theme";
   }
@@ -242,6 +239,7 @@ async function bonfire() {
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":
+        updateUnreads(data.id, data.message_id);
         if (data.channel === activeChannel) {
           parseMessage(data);
           fetch(
@@ -261,7 +259,7 @@ async function bonfire() {
             channel.classList.add(
               data.mentions && data.mentions.indexOf(userProfile._id) !== -1
                 ? "mentionedChannel"
-                : "unreadCHannel",
+                : "unreadChannel",
             );
           }
 
@@ -271,10 +269,9 @@ async function bonfire() {
               cacheLookup("channels", data.channel).server,
             ) === -1
           ) {
-            document
-              .getElementById(cacheLookup("channels", data.channel).server)
+            document.getElementById(`SERVER-${cacheLookup("channels", data.channel).server}`)
               .classList.add(
-                data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+                (data.mentions && data.mentions.indexOf(userProfile._id) !== -1)
                   ? "mentionedServer"
                   : "unreadServer",
               );
@@ -290,18 +287,20 @@ async function bonfire() {
         }
         break;
 
-      /*case "MessageUpdate":
+      case "MessageUpdate":
         if (data.channel === activeChannel) {
-          parseMessage(data.data, data.id);
+          messageDisplay = document.querySelector(`#MSG-${data.id}`)
+          messageContent = messageDisplay.querySelector(".messageContent")
+          messageContent.innerHTML = parseMessageContent(data.data).innerHTML;
         }
-        */
 
       // Channel has been acknowledge as read
       case "ChannelAck":
         updateUnreads(data.id, data.message_id);
 
         if ((channel = document.getElementById(data.id))) {
-          channel.classList.remove("channel-unread");
+          channel.classList.remove("unreadChannel");
+          channel.classList.remove("mentionedChannel");
         }
 
         let stillUnread = false;
@@ -315,10 +314,9 @@ async function bonfire() {
           }
         }
         if (!stillUnread) {
-          document
-            .getElementById(cacheLookup("channels", data.id).server)
-            .classList.remove("unreadServer")
-            .classList.remove("mentionedServer");
+          let server = document.getElementById(`SERVER-${cacheLookup("channels", data.id).server}`)
+            server.classList.remove("unreadServer")
+            server.classList.remove("mentionedServer");
         }
         break;
 
@@ -385,11 +383,9 @@ async function bonfire() {
       }
 
       case "MessageReact": {
-        let reactionsContainer = document.getElementById(
-          `reactionsContainer${data.id}`,
-        );
+        let reactionsContainer = document.getElementById(`reactionsContainer${data.id}`);
+        if (reactionContainer = undefined) return;
         let message = cacheLookup("messages", data.id);
-        console.log(Object.keys(message.reactions));
         if (Object.keys(message.reactions).indexOf(data.emoji_id) === -1) {
           reactionsContainer.appendChild(
             renderReactions(
@@ -553,7 +549,7 @@ async function getServers() {
       mutedChannels.indexOf(unread._id.channel) === -1
     ) {
       unreadChannels.push(unread._id.channel);
-      if (unread.mentions && unread.mentions.indexOf(userProfile._id) !== -1)
+      if (unread.mentions)
         unreadMentions.push(unread._id.channel);
     }
   });
@@ -591,7 +587,7 @@ async function getServers() {
 
     server.classList.add("server");
 
-    server.id = cache.servers[serverIndex].id;
+    server.id = `SERVER-${cache.servers[serverIndex].id}`;
 
     if (cache.servers[serverIndex].icon === null) {
       server.innerText = cache.servers[serverIndex].name.charAt(0);
@@ -631,11 +627,7 @@ async function getChannels(id) {
           const currentChannel = cacheLookup("channels", category.channels[j]);
           let channel = document.createElement("button");
           let channelText = document.createElement("span");
-
-          if (
-            currentChannel.type !== "TextChannel" ||
-            currentChannel.server !== id
-          )
+          if (currentChannel.type !== "TextChannel")
             continue;
 
           addedChannels.push(currentChannel.id);
@@ -651,22 +643,15 @@ async function getChannels(id) {
           channel.id = currentChannel.id;
           channelText.innerText = currentChannel.name;
 
-          for (let i = 0; i < unreads.length; i++) {
-            if (unreads[i]._id.channel === currentChannel.id) {
-              if (
-                mutedChannels.indexOf(currentChannel.id) === -1 &&
-                currentChannel.lastMessage > unreads[i].lastMessage
-              )
-                channel.classList.add("unreadChannel");
-
-              break;
-            }
+          if (unreadChannels.indexOf(currentChannel.id) !== -1 && mutedChannels.indexOf(currentChannel.id) === -1) {
+             if (unreadMentions.indexOf(currentChannel.id) !== -1) channel.classList.add("mentionedChannel");
+             else channel.classList.add("unreadChannel");
           }
 
           channel.appendChild(channelText);
 
           if (mutedChannels.indexOf(currentChannel.id) !== -1)
-            channel.classList.add("unreadChannel");
+            channel.classList.add("mutedChannel");
           categoryContainer.appendChild(channel);
         }
       }
@@ -728,7 +713,6 @@ function clearMessages() {
 }
 
 function renderReactions(reactions, channelID, messageID) {
-  console.log(reactions);
   let children = [];
   Object.keys(reactions).forEach((reaction) => {
     let reactionContainer = document.createElement("button");
@@ -736,7 +720,6 @@ function renderReactions(reactions, channelID, messageID) {
     let reactionIndicator = document.createElement("span");
 
     reactionContainer.onclick = () => {
-      console.log(cacheLookup("messages", messageID));
       if (
         cacheLookup("messages", messageID).reactions[reaction].indexOf(
           userProfile._id,
@@ -767,11 +750,126 @@ function renderReactions(reactions, channelID, messageID) {
   });
   return children;
 }
+
+function parseMessageContent(message) {
+  let messageContent = document.createElement("div");
+
+  messageContent.classList.add("messageContent");
+
+  let sanitizedContent = message.content.replace(/</g, "&lt;");
+  sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
+    messageContent.innerText = sanitizedContent;
+
+    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
+
+    //Mention parser
+    if (message.mentions) {
+      message.mentions.forEach((mention) => {
+        if (messageContent.innerText.split(`<@${mention}>`).length === 1)
+          return;
+
+        let segConcat = document.createElement("div");
+        let newSeg;
+
+        messageContent.innerText.split(`<@${mention}>`).forEach((segment) => {
+          newSeg = document.createElement("span");
+          newSeg.innerText = segment;
+          segConcat.appendChild(newSeg);
+        });
+
+        let ping = document.createElement("div");
+        let pingContainer = document.createElement("div");
+        let mentionPfp = document.createElement("img");
+        let mentionText = document.createElement("span");
+        let tmpUserProfile = cacheLookup("users", mention);
+
+        mentionPfp.classList.add("mentionPfp");
+        mentionText.classList.add("mentionText");
+        ping.classList.add("tag");
+
+        ping.appendChild(mentionPfp);
+        mentionText.textContent = cacheLookup("users", mention).displayName;
+
+        mentionPfp.src = tmpUserProfile.pfp
+          ? `https://autumn.revolt.chat/avatars/${tmpUserProfile.pfp._id}?max_side=256`
+          : `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
+        mentionText.textContent = cacheLookup("users", mention).displayName;
+
+        ping.appendChild(mentionPfp);
+        ping.appendChild(mentionText);
+        pingContainer.appendChild(ping);
+        segConcat.insertBefore(pingContainer, newSeg);
+        messageContent = segConcat;
+
+        //CSS TODO: Make this show a pointer on hover
+        ping.onclick = () => {
+          loadProfile(mention);
+        };
+
+        if (mention === userProfile._id) {
+          messageContent.classList.add("selfMentioned");
+        }
+      });
+    }
+
+    // Emojis
+    Object.keys(emojis.standard).forEach((emoji) => {
+      if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
+        messageContent.innerHTML = messageContent.innerHTML.replace(
+          `:${emoji}:`,
+          emojis.standard[emoji],
+        );
+      }
+    });
+
+    Object.keys(emojis.custom).forEach((emoji) => {
+      if (messageContent.textContent.search(`:${emoji}`) === -1) return;
+
+      let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
+      let emojiImage = document.createElement("img");
+
+      emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
+      messageContent.replaceChildren();
+
+      for (let i = 0; i < tmpMsg.length; i++) {
+        if (i !== tmpMsg.length - 1)
+          messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML;
+        else messageContent.innerHTML += tmpMsg[i];
+      }
+    });
+
+    if (
+      messageContent.innerHTML.match(
+        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
+      ) !== null
+    ) {
+      let matches = messageContent.innerHTML.match(
+        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
+      );
+
+      for (let i = 0; i < matches.length; i++) {
+        let emoji = matches[i].split(":")[1];
+        let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
+        let tmpImg = document.createElement("img");
+        tmpImg.classList.add("emoji");
+        let outputToGetAroundStupidDomManipulationShit = "";
+
+        tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
+
+        for (let j = 1; j < tmpMsg.length; j++) {
+          outputToGetAroundStupidDomManipulationShit += tmpMsg[j];
+        }
+        messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
+      }
+    }
+    return messageContent;
+}
+
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling
 // Loki TODO: add some flair for messages sent by friends
-async function parseMessage(message, id = null) {
+async function parseMessage(message, returnMessage = false) {
   const member = cacheLookup("members", message.author, activeServer);
   const messageContainer = document.getElementById("messagesContainer");
 
@@ -781,6 +879,8 @@ async function parseMessage(message, id = null) {
   let username = document.createElement("button");
   let profilePicture = document.createElement("img");
   let replyButton = document.createElement("button");
+  let editButton = document.createElement("button");
+  let deleteButton = document.createElement("button")
   let masqueradeBadge = document.createElement("span");
   let messageDisplay = document.createElement("div");
   let reactionsContainer = document.createElement("div");
@@ -813,7 +913,7 @@ async function parseMessage(message, id = null) {
 
     switch (message.system.type) {
       case "user_added":
-        messageContainer.textContent = `User ${
+        messageDisplay.textContent = `User ${
           (await userLookup(message.system.by))
             ? await userLookup(message.system)
             : message.system.by
@@ -898,112 +998,7 @@ async function parseMessage(message, id = null) {
   userData.appendChild(username);
 
   if (user.relationship !== "Blocked") {
-    let sanitizedContent = message.content.replace(/</g, "&lt;");
-    sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
-    messageContent.innerText = sanitizedContent;
-
-    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
-
-    //Mention parser
-    if (message.mentions) {
-      message.mentions.forEach(async (mention) => {
-        if (messageContent.innerText.split(`<@${mention}>`).length === 1)
-          return;
-
-        let segConcat = document.createElement("div");
-        let newSeg;
-
-        messageContent.innerText.split(`<@${mention}>`).forEach((segment) => {
-          newSeg = document.createElement("span");
-          newSeg.innerText = segment;
-          segConcat.appendChild(newSeg);
-        });
-
-        let ping = document.createElement("div");
-        let pingContainer = document.createElement("div");
-        let mentionPfp = document.createElement("img");
-        let mentionText = document.createElement("span");
-        let tmpUserProfile = cacheLookup("users", mention);
-
-        mentionPfp.classList.add("mentionPfp");
-        mentionText.classList.add("mentionText");
-        ping.classList.add("tag");
-
-        ping.appendChild(mentionPfp);
-        mentionText.textContent = cacheLookup("users", mention).displayName;
-
-        mentionPfp.src = tmpUserProfile.pfp
-          ? `https://autumn.revolt.chat/avatars/${tmpUserProfile.pfp._id}?max_side=256`
-          : `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
-        mentionText.textContent = cacheLookup("users", mention).displayName;
-
-        ping.appendChild(mentionPfp);
-        ping.appendChild(mentionText);
-        pingContainer.appendChild(ping);
-        segConcat.insertBefore(pingContainer, newSeg);
-        messageContent = segConcat;
-
-        //CSS TODO: Make this show a pointer on hover
-        ping.onclick = () => {
-          loadProfile(mention);
-        };
-
-        if (mention === tmpUserProfile._id) {
-          messageContent.classList.add("selfMentioned");
-        }
-      });
-    }
-
-    // Emojis
-    Object.keys(emojis.standard).forEach((emoji) => {
-      if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
-        messageContent.innerHTML = messageContent.innerHTML.replace(
-          `:${emoji}:`,
-          emojis.standard[emoji],
-        );
-      }
-    });
-
-    Object.keys(emojis.custom).forEach((emoji) => {
-      if (messageContent.textContent.search(`:${emoji}`) === -1) return;
-
-      let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
-      let emojiImage = document.createElement("img");
-
-      emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
-      messageContent.replaceChildren();
-
-      for (let i = 0; i < tmpMsg.length; i++) {
-        if (i !== tmpMsg.length - 1)
-          messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML;
-        else messageContent.innerHTML += tmpMsg[i];
-      }
-    });
-
-    if (
-      messageContent.innerHTML.match(
-        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-      ) !== null
-    ) {
-      let matches = messageContent.innerHTML.match(
-        /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-      );
-
-      for (let i = 0; i < matches.length; i++) {
-        let emoji = matches[i].split(":")[1];
-        let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
-        let tmpImg = document.createElement("img");
-        tmpImg.classList.add("emoji");
-        let outputToGetAroundStupidDomManipulationShit = "";
-
-        tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
-
-        for (let j = 1; j < tmpMsg.length; j++) {
-          outputToGetAroundStupidDomManipulationShit += tmpMsg[j];
-        }
-        messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
-      }
-    }
+    messageContent = parseMessageContent(message);  
 
     if (message.replies) {
       let reply = document.createElement("div");
@@ -1027,7 +1022,7 @@ async function parseMessage(message, id = null) {
       messageDisplay.appendChild(userData);
     messageDisplay.appendChild(messageContent);
 
-    messageDisplay.id = message._id;
+    messageDisplay.id = `MSG-${message._id}`;
     messageDisplay.class = "message";
 
     if (message.attachments) {
@@ -1110,7 +1105,7 @@ async function parseMessage(message, id = null) {
     messageDisplay.id = message._id;
     messageDisplay.class = "message";
     messageContent.innerText = "<Blocked user>";
-    messageContainer.classList.add("blockedMessage");
+    messageDisplay.classList.add("blockedMessage");
   }
 
   replyButton.onclick = () => {
@@ -1125,12 +1120,22 @@ async function parseMessage(message, id = null) {
     document.querySelector(".replying-container").appendChild(replyText);
     scrollChatToBottom();
   };
+  
+  editButton.onclick = () => {
+    editingMessageID = message._id;
+    document.querySelector("#input").value = message.content;
+  };
 
   replyButton.innerText = "Reply";
-  messageDisplay.appendChild(messageActions);
+  editButton.innerText = "Edit";
+
   messageActions.appendChild(replyButton);
-  messageContainer.appendChild(messageDisplay);
-  messageContainer.appendChild(reactionsContainer);
+  if (message.author === userProfile._id) messageActions.appendChild(editButton);
+
+  messageDisplay.appendChild(messageActions);
+  messageDisplay.appendChild(reactionsContainer);
+  if (returnMessage) return messageDisplay;
+  else messageContainer.appendChild(messageDisplay);
   cache.messages.push({
     id: message._id,
     author: message.author,
@@ -1537,23 +1542,31 @@ async function sendMessage() {
       });
 
   isMessageSending = true;
+  messageContainer.classList.add("messageSending");
+  messageContainer.readOnly = true;
 
-  await fetch(`https://api.revolt.chat/channels/${activeChannel}/messages`, {
+  await fetch((editingMessageID === "") ? `https://api.revolt.chat/channels/${activeChannel}/messages` : `https://api.revolt.chat/channels/${activeChannel}/messages/${editingMessageID}`, {
     headers: {
       "x-session-token": token,
     },
-    method: "POST",
+    method: (editingMessageID === "") ? "POST" : "PATCH",
     body: body,
   })
     .then((response) => response.json())
     .then((data) => {
       isMessageSending = false;
+      messageContainer.readOnly = false;
+      messageContainer.classList.remove("messageSending");
+      
+      if (editingMessageID !== "") {
+        editingMessageID = "";
+        return;
+      }
       fetch(
         `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
         { method: "PUT", headers: { "x-session-token": token } },
       );
     });
-
   messageContainer.value = "";
   activeReplies = [];
   document.querySelector(".replying-container").replaceChildren();
