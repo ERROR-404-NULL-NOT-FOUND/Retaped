@@ -338,7 +338,7 @@ async function bonfire() {
 
       // User begins typing
       // TODO: add timeout
-      case "ChannelStartTyping":
+      case "ChannelStartTyping": {
         if (
           data.id !== activeChannel ||
           currentlyTyping.indexOf(data.user) !== -1 ||
@@ -368,19 +368,84 @@ async function bonfire() {
         document.getElementById("typingBarContainer").style.display = "flex";
         scrollChatToBottom();
         break;
+      }
 
       // User stops typing
-      case "ChannelStopTyping":
+      case "ChannelStopTyping": {
         if (data.id !== activeChannel) break;
 
-        const typingUserContainerz = document.getElementById(data.user);
-        if (typingUserContainerz) {
-          typingUserContainerz.remove();
+        const typingUserContainer = document.getElementById(data.user);
+        if (typingUserContainer) {
+          typingUserContainer.remove();
           currentlyTyping.splice(currentlyTyping.indexOf(data.user), 1);
         }
 
         if (typingBar.children.length === 0)
           document.getElementById("typingBarContainer").style.display = "none";
+      }
+
+      case "MessageReact": {
+        let reactionsContainer = document.getElementById(
+          `reactionsContainer${data.id}`,
+        );
+        let message = cacheLookup("messages", data.id);
+        console.log(Object.keys(message.reactions));
+        if (Object.keys(message.reactions).indexOf(data.emoji_id) === -1) {
+          reactionsContainer.appendChild(
+            renderReactions(
+              { [data.emoji_id]: [data.user_id] },
+              data.channel_id,
+              data.id,
+            )[0],
+          );
+        } else {
+          let reactionContainer = reactionsContainer.querySelector(
+            `#REACTION-${data.emoji_id}`,
+          );
+          reactionContainer.querySelector(".reactionCount").innerText =
+            Number(
+              reactionsContainer.querySelector(".reactionCount").innerText,
+            ) + 1;
+        }
+        if (message.reactions && message.reactions[data.emoji_id])
+          message.reactions[data.emoji_id].push(data.user_id);
+        else if (message.reactions)
+          message.reactions[data.emoji_id] = [data.user_id];
+
+        break;
+      }
+
+      case "MessageUnreact": {
+        let reactionsContainer = document.getElementById(
+          `reactionsContainer${data.id}`,
+        );
+        let message = cacheLookup("messages", data.id);
+        message.reactions[data.emoji_id].splice(
+          message.reactions[data.emoji_id].indexOf(data.user_id),
+          1,
+        );
+        let reactionContainer = reactionsContainer.querySelector(
+          `#REACTION-${data.emoji_id}`,
+        );
+        if (Object.keys(message.reactions).indexOf(data.emoji_id)) {
+          message.reactions[data.emoji_id] = undefined;
+          reactionsContainer.removeChild(reactionContainer);
+        } else {
+          reactionContainer.querySelector(".reactionCount").innerText =
+            Number(
+              reactionsContainer.querySelector(".reactionCount").innerText,
+            ) - 1;
+        }
+        break;
+      }
+
+      case "MessageRemoveReaction": {
+        console.log("");
+        let reactionsContainer = document.getElementById(
+          `reactionsContainer${data.id}`,
+        );
+        let message = cacheLookup("messages", data.id);
+      }
     }
   });
 
@@ -662,6 +727,46 @@ function clearMessages() {
   document.getElementById("messagesContainer").replaceChildren();
 }
 
+function renderReactions(reactions, channelID, messageID) {
+  console.log(reactions);
+  let children = [];
+  Object.keys(reactions).forEach((reaction) => {
+    let reactionContainer = document.createElement("button");
+    let customEmoteImage = document.createElement("img");
+    let reactionIndicator = document.createElement("span");
+
+    reactionContainer.onclick = () => {
+      console.log(cacheLookup("messages", messageID));
+      if (
+        cacheLookup("messages", messageID).reactions[reaction].indexOf(
+          userProfile._id,
+        ) === -1
+      ) {
+        fetch(
+          `https://api.revolt.chat/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          { method: "PUT", headers: { "x-session-token": token } },
+        );
+      } else {
+        fetch(
+          `https://api.revolt.chat/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          { method: "DELETE", headers: { "x-session-token": token } },
+        );
+      }
+    };
+
+    customEmoteImage.src = `https://autumn.revolt.chat/emojis/${reaction}`;
+    reactionIndicator.innerText = reactions[reaction].length;
+    reactionIndicator.classList.add("reactionCount");
+    if (reactions[reaction].indexOf(userProfile._id) !== -1)
+      reactionContainer.classList.add("selfReacted");
+
+    reactionContainer.id = `REACTION-${reaction}`;
+    reactionContainer.appendChild(customEmoteImage);
+    reactionContainer.appendChild(reactionIndicator);
+    children.push(reactionContainer);
+  });
+  return children;
+}
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling
@@ -678,6 +783,7 @@ async function parseMessage(message, id = null) {
   let replyButton = document.createElement("button");
   let masqueradeBadge = document.createElement("span");
   let messageDisplay = document.createElement("div");
+  let reactionsContainer = document.createElement("div");
 
   messageDisplay.classList.add("message-display");
   messageActions.classList.add("message-actions");
@@ -685,6 +791,9 @@ async function parseMessage(message, id = null) {
   userData.classList.add("userdata");
   username.classList.add("username");
   messageContent.classList.add("message-content");
+  reactionsContainer.classList.add("reactionsContainer");
+
+  reactionsContainer.id = `reactionsContainer${message._id}`;
 
   let user;
   if (message.system) {
@@ -968,6 +1077,14 @@ async function parseMessage(message, id = null) {
       });
       messageDisplay.appendChild(attachments);
     }
+
+    if (message.reactions) {
+      renderReactions(message.reactions, message.channel, message._id).forEach(
+        (reactionContainer) => {
+          reactionsContainer.appendChild(reactionContainer);
+        },
+      );
+    }
   } else {
     if (message.replies) {
       let reply = document.createElement("div");
@@ -1013,11 +1130,13 @@ async function parseMessage(message, id = null) {
   messageDisplay.appendChild(messageActions);
   messageActions.appendChild(replyButton);
   messageContainer.appendChild(messageDisplay);
+  messageContainer.appendChild(reactionsContainer);
   cache.messages.push({
     id: message._id,
     author: message.author,
     content: message.content,
     masquerade: message.masquerade,
+    reactions: message.reactions,
   });
   scrollChatToBottom();
 }
