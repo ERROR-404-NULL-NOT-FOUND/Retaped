@@ -37,6 +37,7 @@ var isMessageSending = false;
 var editingMessageID = "";
 var attachments = [];
 var attachmentIDs = [];
+var unreadMessages = [];
 
 //
 // Run on page load
@@ -99,12 +100,12 @@ document.querySelector("#upload").addEventListener("input", (event) => {
   attachmentContainer.classList.add("attachmentContainer");
   attachmentContainer.id = `IMG-${upload.name}`;
   attachmentText.innerText = upload.name;
-  
+
   attachmentContainer.appendChild(uploadPreview);
-  attachmentContainer.appendChild(attachmentText);  
+  attachmentContainer.appendChild(attachmentText);
 
   uploadsContainer.appendChild(attachmentContainer);
-  
+
   uploadsContainer.hidden = false;
 
   attachments.push(upload);
@@ -604,6 +605,7 @@ async function getServers() {
         cacheLookup("channels", unread._id.channel).lastMessage &&
       mutedChannels.indexOf(unread._id.channel) === -1
     ) {
+      unreadMessages.push(unread.last_id);
       unreadChannels.push(unread._id.channel);
       if (unread.mentions)
         unreadMentions.push(unread._id.channel);
@@ -618,6 +620,7 @@ async function getServers() {
       activeServer = cache.servers[serverIndex].id;
       getChannels(cache.servers[serverIndex].id);
       clearMessages();
+      activeChannel = "";
 
       document.getElementById("serverName").innerText =
         cache.servers[serverIndex].name;
@@ -814,6 +817,7 @@ function parseMessageContent(message) {
 
   let sanitizedContent = message.content.replace(/</g, "&lt;");
   sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
+  sanitizedContent = sanitizedContent.replace(/\n/g, "<br>");
     messageContent.innerText = sanitizedContent;
 
 
@@ -1265,7 +1269,7 @@ async function buildUserCache(users) {
       discriminator: users[i].discriminator,
       displayName: users[i].display_name
         ? users[i].display_name
-        : users[i].display_name,
+        : users[i].username,
       relationship: users[i].relationship,
     });
   }
@@ -1297,7 +1301,7 @@ async function getMessages(id) {
 
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
-
+  document.querySelector("#typingBar").hidden = true;
   // fetchResource(`channels/${id}`).then((data) => {
   //   // document.getElementById("serverName").innerText =
   //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
@@ -1340,7 +1344,17 @@ async function getMessages(id) {
   const messages = placeholder.messages;
 
   for (let i = messages.length - 1; i >= 1; i--) {
-    parseMessage(messages[i]);
+    await parseMessage(messages[i]);
+    if (unreadMessages.indexOf(messages[i]._id) !== -1) {
+      let unreadMarkerContainer = document.createElement("div");
+      let unreadMarkerText = document.createElement("span");
+
+      unreadMarkerText.innerText = "NEW";
+      unreadMarkerContainer.classList.add("unreadMarkerContainer");
+
+      unreadMarkerContainer.appendChild(unreadMarkerText);
+      document.querySelector("#messagesContainer").appendChild(unreadMarkerContainer);
+    }
   }
 
   fetch(

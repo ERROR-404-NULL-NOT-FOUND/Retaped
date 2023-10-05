@@ -487,3 +487,19 @@ input[type="file"] {
   width: 5em;
   flex-direction: row; 
 }
+
+.unreadMarkerContainer {
+  width: 100%;
+  background-color: var(--mention);
+  height: 0.5em;
+  margin-top: 7px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.unreadMarkerContainer > span {
+  padding: 5px;
+  border-radius: var(--border-radius);
+  background-color: inherit;
+}
