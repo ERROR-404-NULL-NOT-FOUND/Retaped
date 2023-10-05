@@ -63,8 +63,14 @@ window.addEventListener("keydown", (event) => {
       }
 
     case "Escape":
-      activeReplies.pop();
-      document.querySelector(".replying-container").lastChild.remove();
+      if (activeReplies.length !== 0) {
+        activeReplies.pop();
+        document.querySelector(".replying-container").lastChild.remove();
+      }
+      else {
+        editingMessageID = "";
+        document.querySelector("#input").value = ""
+      }
       break;
 
     default:
@@ -73,10 +79,25 @@ window.addEventListener("keydown", (event) => {
   return;
 });
 
+
 document.querySelector("#upload").addEventListener("input", (event) => {
+  addFile(document.querySelector("#upload").files[0]);
+});
+
+document.querySelector("#input").addEventListener("paste", (event) => {
+  let item = event.clipboardData.items[0];
+ 
+  if (item.type.indexOf("image") === 0)
+  {
+    let blob = item.getAsFile();
+    addFile(blob);
+  }
+});
+
+function addFile (file) {
   if (attachments.length > 5) return;
 
-  const upload = document.querySelector("#upload").files[0];
+  const upload = file;
   const uploadsContainer = document.getElementById("uploadsBarContainer");
 
   let attachmentContainer = document.createElement("div");
@@ -109,7 +130,17 @@ document.querySelector("#upload").addEventListener("input", (event) => {
   uploadsContainer.hidden = false;
 
   attachments.push(upload);
-})
+}
+
+/*document.querySelector("#messagesContainer").addEventListener('scroll', async function(e) {
+  let documentHeight = document.querySelector("#messagesContainer");
+  if (documentHeight.scrollTop === 1) {
+    initialHeight = documentHeight.scrollHeight;
+    await getNewMessages(activeChannel, document.querySelector("#messagesContainer").firstChild.id.replace("MSG-", ""));
+    documentHeight.scrollTo(0, documentHeight.scrollHeight - initialHeight);
+  }
+});*/
+
 
 //
 // Utility functions
@@ -182,7 +213,7 @@ async function fetchResource(target) {
   })
     .then((res) => res.json())
     .catch((error) => {
-      console.log(error);
+      console.error(error);
       return false;
     });
   return res;
@@ -261,7 +292,6 @@ async function loadSyncSettings() {
 }
 
 async function uploadToAutumn() {
-    console.log(attachments);
   for (let i=0; i < attachments.length; i++){
     const formData = new FormData();
     formData.append('myFile', attachments[i]);
@@ -298,16 +328,18 @@ async function bonfire() {
       case "Message":
         updateUnreads(data.id, data.message_id);
         if (data.channel === activeChannel) {
-          parseMessage(data);
-          fetch(
-            `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
-            {
-              headers: {
-                "x-session-token": token,
+          document.querySelector("#messagesContainer").appendChild(await parseMessage(data));
+          if (document.hasFocus) {
+            fetch(
+              `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
+              {
+                headers: {
+                  "x-session-token": token,
+                },
+                method: "PUT",
               },
-              method: "PUT",
-            },
-          );
+            );
+          }
         } else {
           if (
             (channel = document.getElementById(data.channel)) &&
@@ -443,7 +475,7 @@ async function bonfire() {
         let reactionsContainer = document.getElementById(`reactionsContainer${data.id}`);
         if (reactionContainer = undefined) return;
         let message = cacheLookup("messages", data.id);
-        if (Object.keys(message.reactions).indexOf(data.emoji_id) === -1) {
+        if (message.reactions && Object.keys(message.reactions).indexOf(data.emoji_id) === -1) {
           reactionsContainer.appendChild(
             renderReactions(
               { [data.emoji_id]: [data.user_id] },
@@ -490,14 +522,6 @@ async function bonfire() {
             ) - 1;
         }
         break;
-      }
-
-      case "MessageRemoveReaction": {
-        console.log("");
-        let reactionsContainer = document.getElementById(
-          `reactionsContainer${data.id}`,
-        );
-        let message = cacheLookup("messages", data.id);
       }
     }
   });
@@ -925,7 +949,7 @@ function parseMessageContent(message) {
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling
 // Loki TODO: add some flair for messages sent by friends
-async function parseMessage(message, returnMessage = false) {
+async function parseMessage(message) {
   const member = cacheLookup("members", message.author, activeServer);
   const messageContainer = document.getElementById("messagesContainer");
 
@@ -1190,16 +1214,14 @@ async function parseMessage(message, returnMessage = false) {
 
   messageDisplay.appendChild(messageActions);
   messageDisplay.appendChild(reactionsContainer);
-  if (returnMessage) return messageDisplay;
-  else messageContainer.appendChild(messageDisplay);
-  cache.messages.push({
+    cache.messages.push({
     id: message._id,
     author: message.author,
     content: message.content,
     masquerade: message.masquerade,
     reactions: message.reactions,
   });
-  scrollChatToBottom();
+  return messageDisplay;
 }
 
 //
@@ -1293,24 +1315,12 @@ async function buildServerCache(servers) {
 //
 // Wildcard category
 //
-
-async function getMessages(id) {
-  cache.messages = [];
-  activeReplies = [];
-  activeChannel = id;
-
-  document.querySelector(".replying-container").replaceChildren();
-  document.querySelector("#typingBar").replaceChildren();
-  document.querySelector("#typingBar").hidden = true;
-  // fetchResource(`channels/${id}`).then((data) => {
-  //   // document.getElementById("serverName").innerText =
-  //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
-  //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
-  // });
-
+async function getNewMessages(id, startingMessage = undefined) {
+  let messagesContainer = document.querySelector("#messagesContainer");
   const placeholder = await fetchResource(
-    `channels/${id}/messages?include_users=true&sort=latest`,
+    `channels/${id}/messages?include_users=true&${startingMessage ? `sort=latest&before=${startingMessage}`: "sort=latest"}`,
   );
+
   const users = placeholder.users;
 
   for (let i = 0; i < users.length; i++) {
@@ -1339,12 +1349,14 @@ async function getMessages(id) {
     }
   }
 
-  clearMessages();
+  let messages
+  if(startingMessage) messages = placeholder.messages.reverse();
+  else messages = placeholder.messages;
 
-  const messages = placeholder.messages;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (startingMessage) messagesContainer.insertBefore(await parseMessage(messages[i]), messagesContainer.firstChild);
+    else messagesContainer.appendChild(await parseMessage(messages[i]));
 
-  for (let i = messages.length - 1; i >= 1; i--) {
-    await parseMessage(messages[i]);
     if (unreadMessages.indexOf(messages[i]._id) !== -1) {
       let unreadMarkerContainer = document.createElement("div");
       let unreadMarkerText = document.createElement("span");
@@ -1357,17 +1369,37 @@ async function getMessages(id) {
     }
   }
 
+  return messages;
+
+}
+
+async function getMessages(id) {
+  cache.messages = [];
+  activeReplies = [];
+  activeChannel = id;
+
+  document.querySelector(".replying-container").replaceChildren();
+  document.querySelector("#typingBar").replaceChildren();
+  document.querySelector("#typingBar").hidden = true;
+  // fetchResource(`channels/${id}`).then((data) => {
+  //   // document.getElementById("serverName").innerText =
+  //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
+  //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
+  // });
+  clearMessages();
+  let messages = getNewMessages(id);
+  scrollChatToBottom();
   fetch(
     `https://api.revolt.chat/channels/${activeChannel}/ack/${messages[0]._id}`,
     {
       headers: {
         "x-session-token": token,
       },
-      method: "PUT",
-    },
-  );
-  parseMessage(messages[0]);
-}
+        method: "PUT",
+      },
+    );
+
+  }
 
 async function loadDMs() {
   let channelContainer = document.getElementById("channelsContainer");
@@ -1661,7 +1693,7 @@ toolbarBtn.addEventListener("click", () => {
 });
 
 function scrollChatToBottom() {
-  const element = document.getElementById("messagesContainer");
+  const element = document.querySelector("#messagesContainer");
   element.scrollTo(0, element.scrollHeight);
 }
 
