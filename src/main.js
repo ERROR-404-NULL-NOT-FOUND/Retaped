@@ -480,7 +480,7 @@ async function bonfire() {
         let reactionContainer = reactionsContainer.querySelector(
           `#REACTION-${data.emoji_id}`,
         );
-        if (Object.keys(message.reactions).indexOf(data.emoji_id)) {
+        if (!Object.keys(message.reactions).indexOf(data.emoji_id)) {
           message.reactions[data.emoji_id] = undefined;
           reactionsContainer.removeChild(reactionContainer);
         } else {
