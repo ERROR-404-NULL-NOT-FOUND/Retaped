@@ -59,8 +59,8 @@ window.addEventListener("keydown", (event) => {
       if (!event.shiftKey) {
         event.preventDefault();
         sendMessage();
-        break;
       }
+      break;
 
     case "Escape":
       if (activeReplies.length !== 0) {
@@ -132,14 +132,14 @@ function addFile (file) {
   attachments.push(upload);
 }
 
-/*document.querySelector("#messagesContainer").addEventListener('scroll', async function(e) {
+document.querySelector("#messagesContainer").addEventListener('scroll', async function(e) {
   let documentHeight = document.querySelector("#messagesContainer");
-  if (documentHeight.scrollTop === 1) {
+  if (documentHeight.scrollTop === 0) {
     initialHeight = documentHeight.scrollHeight;
     await getNewMessages(activeChannel, document.querySelector("#messagesContainer").firstChild.id.replace("MSG-", ""));
     documentHeight.scrollTo(0, documentHeight.scrollHeight - initialHeight);
   }
-});*/
+});
 
 
 //
@@ -173,6 +173,21 @@ function cacheLookup(resource, ID, serverID = null) {
   }
 
   return 1;
+}
+
+function checkPermission(channelID, permission) {
+  const channel = cacheLookup("channels", channelID);
+
+  if (channel.defaultPermissions && channel.defaultPermissions["Denied"][permission]) {
+    if (roles = cacheLookup("members", userProfile._id, channel.server).roles){
+    roles.forEach(role => {
+      if (channel.rolePermissions[role]["Allowed"][permission]) return true;
+    });
+      return false;
+    }
+  } else {
+    return true;
+  }
 }
 
 // Basically the same as the function above, but fetches the user and adds it to the cache if it isn't found
@@ -799,7 +814,12 @@ function renderReactions(reactions, channelID, messageID) {
   let children = [];
   Object.keys(reactions).forEach((reaction) => {
     let reactionContainer = document.createElement("button");
-    let customEmoteImage = document.createElement("img");
+    let customEmoteImage;
+    if (Object.values(emojis.standard).indexOf(reaction) === -1) customEmoteImage = document.createElement("img");
+    else {
+      customEmoteImage = document.createElement("span");
+      customEmoteImage.innerText = reaction;
+    }
     let reactionIndicator = document.createElement("span");
 
     reactionContainer.onclick = () => {
@@ -819,8 +839,8 @@ function renderReactions(reactions, channelID, messageID) {
         );
       }
     };
-
-    customEmoteImage.src = `https://autumn.revolt.chat/emojis/${reaction}`;
+    if (Object.values(emojis.standard).indexOf(reaction) === -1)
+      customEmoteImage.src = `https://autumn.revolt.chat/emojis/${reaction}`;
     reactionIndicator.innerText = reactions[reaction].length;
     reactionIndicator.classList.add("reactionCount");
     if (reactions[reaction].indexOf(userProfile._id) !== -1)
@@ -841,22 +861,21 @@ function parseMessageContent(message) {
 
   let sanitizedContent = message.content.replace(/</g, "&lt;");
   sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
-  sanitizedContent = sanitizedContent.replace(/\n/g, "<br>");
-    messageContent.innerText = sanitizedContent;
+    messageContent.innerHTML = sanitizedContent;
 
 
     //Mention parser
     if (message.mentions) {
       message.mentions.forEach((mention) => {
-        if (messageContent.innerText.split(`<@${mention}>`).length === 1)
+        if (messageContent.innerHTML.split(`<@${mention}>`).length === 1)
           return;
 
         let segConcat = document.createElement("div");
         let newSeg;
 
-        messageContent.innerText.split(`<@${mention}>`).forEach((segment) => {
+        messageContent.innerHTML.split(`<@${mention}>`).forEach((segment) => {
           newSeg = document.createElement("span");
-          newSeg.innerText = segment;
+          newSeg.innerHTML = segment;
           segConcat.appendChild(newSeg);
         });
 
@@ -897,7 +916,7 @@ function parseMessageContent(message) {
 
     // Emojis
     Object.keys(emojis.standard).forEach((emoji) => {
-      if (messageContent.textContent.search(`:${emoji}:`) !== -1) {
+      if (messageContent.innerHTML.search(`:${emoji}:`) !== -1) {
         messageContent.innerHTML = messageContent.innerHTML.replace(
           new RegExp(`:${emoji}:`, 'g'),
           emojis.standard[emoji],
@@ -906,7 +925,7 @@ function parseMessageContent(message) {
     });
 
     Object.keys(emojis.custom).forEach((emoji) => {
-      if (messageContent.textContent.search(`:${emoji}`) === -1) return;
+      if (messageContent.innerHTML.search(`:${emoji}`) === -1) return;
 
       let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
       let emojiImage = document.createElement("img");
@@ -921,7 +940,7 @@ function parseMessageContent(message) {
       }
     });
     
-    messageContent.innerHTML = converter.makeHtml(messageContent.innerText);
+    //Disabled due to being a pain in the ass
 
     if (messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null) {
       let matches = messageContent.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g);
@@ -941,6 +960,7 @@ function parseMessageContent(message) {
         messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
       }
     }
+    messageContent.innerHTML = converter.makeHtml(messageContent.innerHTML).replace(/\n/g, "<br>");
 
     return messageContent;
 }
@@ -1228,6 +1248,42 @@ async function parseMessage(message) {
 // Cache building
 //
 
+function getPermissions(permissionsInt) {
+  if (!permissionsInt) return null;
+  let permissionsAllowedBit = permissionsInt["a"].toString(2); 
+  let permissionsDeniedBit = permissionsInt["d"].toString(2); 
+  let permissionsAllowed = {
+    ViewChannel: permissionsAllowedBit[20],
+    ReadMessageHistory: permissionsAllowedBit[21],
+    SendMessage: permissionsAllowedBit[22],
+    ManageMessages: permissionsAllowedBit[23],
+    SendEmbeds: permissionsAllowedBit[26],
+    UploadFiles: permissionsAllowedBit[27],
+    Masquerade: permissionsAllowedBit[28],
+    React: permissionsAllowedBit[29],
+  };
+  let permissionsDenied = {
+    ViewChannel: permissionsDeniedBit[20],
+    ReadMessageHistory: permissionsDeniedBit[21],
+    SendMessage: permissionsDeniedBit[22],
+    ManageMessages: permissionsDeniedBit[23],
+    SendEmbeds: permissionsDeniedBit[26],
+    UploadFiles: permissionsDeniedBit[27],
+    Masquerade: permissionsDeniedBit[28],
+    React: permissionsDeniedBit[29],
+  }
+  return {Allowed: permissionsAllowed, Denied: permissionsDenied};
+}
+
+function getRolePermissions(roleObjects) {
+  if (!roleObjects) return null
+  let permissions = {};
+  Object.keys(roleObjects).forEach((role) => {
+    permissions[role] = getPermissions(roleObjects[role]);
+  });
+  return permissions;
+}
+
 async function buildChannelCache(channels) {
   for (let i = 0; i < channels.length; i++) {
     switch (channels[i].channel_type) {
@@ -1238,6 +1294,8 @@ async function buildChannelCache(channels) {
           type: channels[i].channel_type,
           server: channels[i].server,
           lastMessage: channels[i].last_message_id,
+          defaultPermissions: getPermissions(channels[i].default_permissions),
+          rolePermissions: getRolePermissions(channels[i].role_permissions),
         });
         break;
 
@@ -1369,7 +1427,7 @@ async function getNewMessages(id, startingMessage = undefined) {
     }
   }
 
-  return messages;
+  return placeholder.messages;
 
 }
 
@@ -1377,18 +1435,35 @@ async function getMessages(id) {
   cache.messages = [];
   activeReplies = [];
   activeChannel = id;
+  const channel = cacheLookup("channels", id);
+  const input = document.querySelector("#input");
+
+  input.value = "";
+  input.readOnly= false;
 
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
+  const uploadsBarContainer = document.querySelector("#uploadsBarContainer");
+
+  uploadsBarContainer.replaceChildren();
+  uploadsBarContainer.hidden = true;
+  attachments = [];
+  
   // fetchResource(`channels/${id}`).then((data) => {
   //   // document.getElementById("serverName").innerText =
   //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
   //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
   // });
+  if (!checkPermission(id, "SendMessage", "Denied")) {
+    input.value = "You don't have permission to send messages in this channel";
+    input.readOnly = true;
+  } 
+
   clearMessages();
-  let messages = getNewMessages(id);
+  let messages = await getNewMessages(id);
   scrollChatToBottom();
+
   fetch(
     `https://api.revolt.chat/channels/${activeChannel}/ack/${messages[0]._id}`,
     {
@@ -1484,57 +1559,7 @@ async function loadProfile(userID) {
         url(https://autumn.revolt.chat/backgrounds/${tmpUserProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
 
-  bio.innerHTML = converter.makeHtml(tmpUserProfile.content);
-
-  // Emojis
-  Object.keys(emojis.standard).forEach((emoji) => {
-    if (bio.innerHTML.search(`:${emoji}:`) !== -1) {
-      bio.innerHTML = bio.innerHTML.replace(
-        `:${emoji}:`,
-        emojis.standard[emoji],
-      );
-    }
-  });
-
-  Object.keys(emojis.custom).forEach((emoji) => {
-    if (bio.innerHTML.search(`:${emoji}`) === -1) return;
-
-    let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
-    let emojiImage = document.createElement("img");
-    emojiImage.classList.add("emoji");
-
-    emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
-    bio.textContent = "";
-    bio.innerHTML = "";
-
-    for (let i = 0; i < tmpMsg.length; i++) {
-      if (i !== tmpMsg.length - 1)
-        bio.innerHTML += tmpMsg[i] + emojiImage.outerHTML;
-      else bio.innerHTML += tmpMsg[i];
-    }
-  });
-
-  if (
-    bio.innerHTML.match(/:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g) !== null
-  ) {
-    let matches = bio.innerHTML.match(
-      /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-    );
-    for (let i = 0; i < matches.length; i++) {
-      let emoji = matches[i].split(":")[1];
-      let tmpMsg = bio.innerHTML.split(`:${emoji}:`);
-      let tmpImg = document.createElement("img");
-      tmpImg.classList.add("emoji");
-
-      tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
-      bio.innerHTML = tmpMsg[0] + tmpImg.outerHTML;
-
-      for (let j = 1; j < tmpMsg.length; j++) {
-        bio.innerHTML += tmpMsg[j];
-      }
-    }
-  }
-
+  bio.innerHTML = parseMessageContent(tmpUserProfile).innerHTML;
   roleContainer.replaceChildren();
 
   if (memberData.roles)
@@ -1678,6 +1703,7 @@ async function sendMessage() {
   attachmentIDs = [];
 
   document.querySelector("#uploadsBarContainer").replaceChildren();
+  document.querySelector("#uploadsBarContainer").hidden=true;
   document.querySelector(".replying-container").replaceChildren();
   scrollChatToBottom();
 }
