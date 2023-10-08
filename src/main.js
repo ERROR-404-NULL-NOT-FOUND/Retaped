@@ -17,6 +17,7 @@ var cache = {
 
 var activeReplies = [];
 var emojis = {};
+var badges = {};
 var activeServer;
 var activeChannel;
 var token;
@@ -95,7 +96,8 @@ document.querySelector("#input").addEventListener("paste", (event) => {
 });
 
 function addFile (file) {
-  if (attachments.length > 5) return;
+  if (attachments.length >= 5) return;
+  if (!checkPermission(activeChannel, "UploadFiles")) return;
 
   const upload = file;
   const uploadsContainer = document.getElementById("uploadsBarContainer");
@@ -203,7 +205,8 @@ async function userLookup(ID) {
     bot: user.bot,
     discriminator: user.discriminator,
     displayName: user.display_name ? user.display_name : user.username,
-    relationSHip: user.relationship,
+    relationship: user.relationship,
+    badges: getBadges(user.badges),
   };
   cache.users.push(fmtUser);
   return fmtUser;
@@ -237,6 +240,7 @@ async function fetchResource(target) {
 async function updateUnreads(channelID, messageID) {
   for (let i = 0; i < unreads.length; i++) {
     if (unreads[i]._id.channel === channelID) {
+      unreadChannels.push(channelID);
       unreads[i].last_id = messageID;
       return 0;
     }
@@ -354,6 +358,7 @@ async function bonfire() {
                 method: "PUT",
               },
             );
+            scrollChatToBottom();
           }
         } else {
           if (
@@ -624,6 +629,10 @@ async function login() {
   fetch("./emojis.json")
     .then((res) => res.json())
     .then((json) => (emojis = json));
+
+  fetch("./badges.json")
+    .then((res) => res.json())
+    .then((json) => (badges = json));
 
   document.querySelector(".login-screen").style.display = "none";
   document.getElementById("app").style.display = "grid";
@@ -966,7 +975,6 @@ function parseMessageContent(message) {
 }
 
 function renderEmbed(embed) {
-  console.log(embed)
   let embedContainer = document.createElement("div");
   //Loki TODO: style
   embedContainer.style.backgroundColor = embed.colour;
@@ -987,7 +995,7 @@ function renderEmbed(embed) {
   
   if (embed.description) {
     let description = document.createElement("pre");
-    description.classList.add("embedDescription");
+    description.classList.add("embedDesc");
     description.textContent = embed.description;
     embedContainer.appendChild(description);
   }
@@ -1165,7 +1173,6 @@ async function parseMessage(message) {
       let embeds = document.createElement("div");
       embeds.classList.add("embedsContainer")
       message.embeds.forEach((embed) => {
-        console.log(embed)
         embeds.appendChild(renderEmbed(embed));
       });
       messageContainer.appendChild(embeds);
@@ -1275,7 +1282,6 @@ async function parseMessage(message) {
 
   deleteButton.onclick = (event) => {
     if (checkPermission(message.channel, "ManageMessages") || message.author === userProfile._id && event.shiftKey) {
-      console.log(message)
       fetch(`https://api.revolt.chat/channels/${message.channel}/messages/${message._id}`,
         {
           method: "DELETE",
@@ -1311,6 +1317,26 @@ async function parseMessage(message) {
 //
 // Cache building
 //
+
+function getBadges (badgesInt) {
+  if (!badgesInt) return null;
+  let badgesBit = badgesInt.toString(2);
+
+  let badges = {
+    Developer: badgesBit[0],
+    Translator: badgesBit[1],
+    Supporter: badgesBit[2],
+    ResponsibleDisclosure: badgesBit[3],
+    Founder: badgesBit[4],
+    Paw: badgesBit[5],
+    ActiveSupporter: badgesBit[6],
+    PlatformModeration: badgesBit[7],
+    EarlyAdopter: badgesBit[8],
+    ReservedRelevantJokeBadge1: badgesBit[9],
+    ReservedRelevantJokeBadge2: badgesBit[10],
+  }
+  return badges;
+}
 
 function getPermissions(permissionsInt) {
   if (!permissionsInt) return null;
@@ -1415,6 +1441,7 @@ async function buildUserCache(users) {
         ? users[i].display_name
         : users[i].username,
       relationship: users[i].relationship,
+      badges: getBadges(users[i].badges),
     });
   }
 }
@@ -1457,6 +1484,7 @@ async function getNewMessages(id, startingMessage = undefined) {
           ? users[i].display_name
           : users[i].username,
         relationship: users[i].relationship,
+        badges: getBadges(users[i].badges),
       });
   }
 
@@ -1601,16 +1629,19 @@ async function loadProfile(userID) {
   const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, activeServer);
   const user = await userLookup(userID);
+  console.log(user)
 
   let displayName = document.getElementById("displayName");
   let username = document.getElementById("username");
   let profilePicture = document.getElementById("profilePicture");
   let profileBackground = document.getElementById("profileMedia");
+  let badgesContainer = document.querySelector("#badgesContainer");
   let bio = document.getElementById("bio");
   let roleContainer = document.getElementById("roleContainer");
 
   username.textContent = `${user.username}#${user.discriminator}`;
   displayName.textContent = user.displayName;
+  badgesContainer.replaceChildren();
 
   if (user.pfp) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${user.pfp._id}`;
@@ -1618,7 +1649,24 @@ async function loadProfile(userID) {
     profilePicture.src = `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`;
   }
 
+  if (user.badges) {
+    //Loki TODO: style badges
+    Object.keys(user.badges).forEach((badge) => {
+      if (user.badges[badge] === "1") {
+        let badgeContainer = document.createElement("div");
+        let badgeImg = document.createElement("img");
+        
+        badgeImg.src = `https://app.revolt.chat${badges[badge]}`;
+        badgeContainer.classList.add("badge", badge);
+
+        badgeContainer.appendChild(badgeImg);
+        badgesContainer.appendChild(badgeContainer);
+      }
+    })
+  }
+
   if (Object.keys(tmpUserProfile).indexOf("background") > -1) {
+    //Loki TODO: Move this shit into style.css
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 10%, rgba(0,0,0,0) 100%),
         url(https://autumn.revolt.chat/backgrounds/${tmpUserProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
