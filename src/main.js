@@ -384,10 +384,10 @@ async function bonfire() {
         break;
 
       case "MessageDelete":
-        if (data.channel_id === activeChannel) {
+        if (data.channel === activeChannel) {
           document
             .querySelector("#messagesContainer")
-            .removeChild(document.getElementById(data.id));
+            .removeChild(document.getElementById(`MSG-${data.id}`));
         }
         break;
 
@@ -965,6 +965,42 @@ function parseMessageContent(message) {
     return messageContent;
 }
 
+function renderEmbed(embed) {
+  console.log(embed)
+  let embedContainer = document.createElement("div");
+  //Loki TODO: style
+  embedContainer.style.backgroundColor = embed.colour;
+  
+  if (embed.icon_url) {
+    let icon = document.createElement("img");
+    icon.src = `https://jan.revolt.chat/proxy?url=${embed.icon_url}`;
+    icon.classList.add("embedIcon");
+    embedContainer.appendChild(icon);
+  }
+
+  if (embed.title) {
+    let title = document.createElement("h3");
+    title.classList.add("embedTitle");
+    title.textContent = embed.title;
+    embedContainer.appendChild(title);
+  }
+  
+  if (embed.description) {
+    let description = document.createElement("pre");
+    description.classList.add("embedDescription");
+    description.textContent = embed.description;
+    embedContainer.appendChild(description);
+  }
+  
+  if (embed.media) {
+    let media = document.createElement("img");
+    media.classList.add("embedMedia");
+    media.src = `https://autumn.revolt.chat/uploads/${embed.media}`;
+    embedContainer.appendChild(media);
+  }
+  return embedContainer
+}
+
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling
@@ -1125,6 +1161,16 @@ async function parseMessage(message) {
     messageDisplay.id = `MSG-${message._id}`;
     messageDisplay.class = "message";
 
+    if (message.embeds) {
+      let embeds = document.createElement("div");
+      embeds.classList.add("embedsContainer")
+      message.embeds.forEach((embed) => {
+        console.log(embed)
+        embeds.appendChild(renderEmbed(embed));
+      });
+      messageContainer.appendChild(embeds);
+    }
+
     if (message.attachments) {
       let attachments = document.createElement("div");
       attachments.classList.add("message-attachments");
@@ -1209,6 +1255,7 @@ async function parseMessage(message) {
   }
 
   replyButton.onclick = () => {
+    if (activeReplies.length >= 5) return;
     activeReplies.push({
       id: message["_id"],
       mention: false,
@@ -1226,11 +1273,28 @@ async function parseMessage(message) {
     document.querySelector("#input").value = message.content;
   };
 
+  deleteButton.onclick = (event) => {
+    if (checkPermission(message.channel, "ManageMessages") || message.author === userProfile._id && event.shiftKey) {
+      console.log(message)
+      fetch(`https://api.revolt.chat/channels/${message.channel}/messages/${message._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "x-session-token": token,
+          }
+        });
+    }
+  }
+
   replyButton.innerText = "Reply";
   editButton.innerText = "Edit";
+  deleteButton.innerText = "Delete";
+
+  deleteButton.classList.add("deleteButton");
 
   messageActions.appendChild(replyButton);
   if (message.author === userProfile._id) messageActions.appendChild(editButton);
+  messageActions.appendChild(deleteButton);
 
   messageDisplay.appendChild(messageActions);
   messageDisplay.appendChild(reactionsContainer);
@@ -1455,7 +1519,7 @@ async function getMessages(id) {
   //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
   //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
   // });
-  if (!checkPermission(id, "SendMessage", "Denied")) {
+  if (!checkPermission(id, "SendMessage")) {
     input.value = "You don't have permission to send messages in this channel";
     input.readOnly = true;
   } 
