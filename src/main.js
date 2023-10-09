@@ -1679,8 +1679,15 @@ async function getMessages(id) {
 async function loadDMs() {
   let channelContainer = document.getElementById("channelsContainer");
   let userCat = document.createElement("summary");
+
+  activeChannel = "";
+
   userCat.classList.add("categoryText");
 
+  document.querySelector("#serverBG").src = ``;
+
+  document.getElementById("serverName").innerText = "Direct Messages";
+  document.getElementById("channelName").innerText = "";
   channelContainer.replaceChildren();
   clearMessages();
 
