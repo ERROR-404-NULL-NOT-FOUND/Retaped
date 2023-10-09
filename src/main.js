@@ -15,6 +15,20 @@ var cache = {
   messages: [],
 };
 
+var settings = {
+  behaviour: {
+    dataSaver: false,
+    extremeDataSaver: false,
+    loadImages: true,
+    rememberMe: true,
+  },
+  visual: {
+    legacyStyleSheet: false,
+    compactMode: false,
+    revoltTheme: true,
+  }
+}
+
 var activeReplies = [];
 var emojis = {};
 var badges = {};
@@ -50,6 +64,13 @@ window.onload = function () {
   login();
 };
 
+  fetch("./emojis.json")
+    .then((res) => res.json())
+    .then((json) => (emojis = json));
+
+  fetch("./badges.json")
+    .then((res) => res.json())
+    .then((json) => (badges = json));
 //
 // Keybinds
 //
@@ -180,13 +201,15 @@ function cacheLookup(resource, ID, serverID = null) {
 function checkPermission(channelID, permission) {
   const channel = cacheLookup("channels", channelID);
 
-  if (channel.defaultPermissions && channel.defaultPermissions["Denied"][permission]) {
-    if (roles = cacheLookup("members", userProfile._id, channel.server).roles){
-    roles.forEach(role => {
-      if (channel.rolePermissions[role]["Allowed"][permission]) return true;
-    });
-      return false;
+  if (channel.defaultPermissions && channel.defaultPermissions["Denied"][permission] === "0") {
+    if ((roles = cacheLookup("members", userProfile._id, channel.server).roles) && channel.rolePermissions){
+      roles.forEach(role => {
+        console.log(cacheLookup("roles", role, cacheLookup("channels", channelID).server));
+        console.log(channel)
+        if (channel.rolePermissions[role] && (channel.rolePermissions[role]["Allowed"][permission] === "1" || channel.rolePermissions[role]["Denied"] === "0")) return true;
+      });
     }
+    return false;
   } else {
     return true;
   }
@@ -237,10 +260,14 @@ async function fetchResource(target) {
   return res;
 }
 
-async function updateUnreads(channelID, messageID) {
+async function updateUnreads(channelID, messageID, unread=true) {
   for (let i = 0; i < unreads.length; i++) {
     if (unreads[i]._id.channel === channelID) {
-      unreadChannels.push(channelID);
+      if (unread) {
+        unreadChannels.push(channelID);
+      } else {
+        unreadChannels.splice(unreadChannels.indexOf(channelID), 1);
+      }
       unreads[i].last_id = messageID;
       return 0;
     }
@@ -405,27 +432,25 @@ async function bonfire() {
 
       // Channel has been acknowledge as read
       case "ChannelAck":
-        updateUnreads(data.id, data.message_id);
+        updateUnreads(data.id, data.message_id, false);
 
-        if ((channel = document.getElementById(data.id))) {
+        if (channel = document.getElementById(data.id)) {
           channel.classList.remove("unreadChannel");
           channel.classList.remove("mentionedChannel");
         }
 
         let stillUnread = false;
-        for (const channel in cacheLookup(
-          "servers",
-          cacheLookup("channels", data.id).server,
-        ).channels) {
+        for (const channel in cacheLookup("servers", cacheLookup("channels", data.id).server).channels) {
           if (unreadChannels.indexOf(channel) !== -1) {
             stillUnread = true;
             break;
           }
         }
+
         if (!stillUnread) {
-          let server = document.getElementById(`SERVER-${cacheLookup("channels", data.id).server}`)
-            server.classList.remove("unreadServer")
-            server.classList.remove("mentionedServer");
+          let server = document.getElementById(`SERVER-${cacheLookup("channels", data.id).server}`);
+          server.classList.remove("unreadServer");
+          server.classList.remove("mentionedServer");
         }
         break;
 
@@ -547,7 +572,7 @@ async function bonfire() {
   });
 
   socket.addEventListener("error", async function (event) {
-    document.getElementById("error");
+    document.getElementById("error").innerText = JOSN.stringify(event);
   });
 }
 
@@ -555,6 +580,9 @@ async function bonfire() {
 // TODO: replace all of the fucking if statements
 async function login() {
   let toggleToken = document.querySelector("#toggleToken");
+  if (localStorage.getItem("settings")) settings = JSON.parse(localStorage.getItem("settings"));
+  if (!toggleToken) settings.behaviour.rememberMe = false;
+  setSettings();
 
   if (document.getElementById("token").value || token) {
     if (!token) token = document.getElementById("token").value;
@@ -620,19 +648,12 @@ async function login() {
     return;
   }
 
-  if (toggleToken.checked == true) {
+  if (settings.behaviour.rememberMe) {
     if (!localStorage.getItem("token")) localStorage.setItem("token", token);
   }
 
   loadSyncSettings();
   bonfire();
-  fetch("./emojis.json")
-    .then((res) => res.json())
-    .then((json) => (emojis = json));
-
-  fetch("./badges.json")
-    .then((res) => res.json())
-    .then((json) => (badges = json));
 
   document.querySelector(".login-screen").style.display = "none";
   document.getElementById("app").style.display = "grid";
@@ -670,6 +691,10 @@ async function getServers() {
       clearMessages();
       activeChannel = "";
 
+      //Loki TODO: styling
+      if (cache.servers[serverIndex].background)
+        document.querySelector("#serverBG").src = `https://autumn.revolt.chat/banners/${cache.servers[serverIndex].background._id}?width=480`;
+
       document.getElementById("serverName").innerText =
         cache.servers[serverIndex].name;
       document.getElementById("channelName").innerText = "";
@@ -702,7 +727,7 @@ async function getServers() {
       let serverIcon = document.createElement("img");
 
       serverIcon.classList.add("serverIcon");
-      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex].icon}?max_side=64`;
+      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex].icon._id}?max_side=64`;
       server.appendChild(serverIcon);
     }
 
@@ -715,6 +740,11 @@ async function getChannels(id) {
   let channelContainer = document.getElementById("channelsContainer");
   const server = cacheLookup("servers", activeServer);
   channelContainer.replaceChildren();
+
+  fetchResource(`servers/${id}/members/${userProfile._id}`).then( (member) => {
+    if (cacheLookup("members", member._id.user, activeServer) === 1)
+      cache.servers[cacheIndexLookup("servers", activeServer)].members.push(member);
+    });
 
   let addedChannels = [];
   if (server.categories) {
@@ -867,6 +897,7 @@ function parseMessageContent(message) {
   let messageContent = document.createElement("div");
 
   messageContent.classList.add("messageContent");
+  if (!message.content) return messageContent;
 
   let sanitizedContent = message.content.replace(/</g, "&lt;");
   sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
@@ -976,6 +1007,7 @@ function parseMessageContent(message) {
 
 function renderEmbed(embed) {
   let embedContainer = document.createElement("div");
+  if (embed.type === "Text" && embed.type === "Website") {
   //Loki TODO: style
   embedContainer.style.backgroundColor = embed.colour;
   
@@ -1000,11 +1032,25 @@ function renderEmbed(embed) {
     embedContainer.appendChild(description);
   }
   
-  if (embed.media) {
+  //Loki TODO: cap image size
+  if (embed.media && !settings.behaviour.dataSaver) {
     let media = document.createElement("img");
     media.classList.add("embedMedia");
     media.src = `https://autumn.revolt.chat/uploads/${embed.media}`;
     embedContainer.appendChild(media);
+  }
+  } else {
+    if (embed.type === "Image" && !settings.behaviour.dataSaver) {
+      let media = document.createElement("img");
+      media.classList.add("embedMedia");
+      media.src = `https://jan.revolt.chat/proxy?url=${embed.url}`;
+      embedContainer.appendChild(media);
+    } else {
+      let media = document.createElement("video");
+      media.classList.add("embedMedia");
+      media.src = `https://jan.revolt.chat/proxy?url=${embed.url}`;
+      embedContainer.appendChild(media);
+    }
   }
   return embedContainer
 }
@@ -1055,14 +1101,7 @@ async function parseMessage(message) {
       ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
       : `https://api.revolt.chat/users/${user.id}/default_avatar`;
 
-    switch (message.system.type) {
-      case "user_added":
-        messageDisplay.textContent = `User ${
-          (await userLookup(message.system.by))
-            ? await userLookup(message.system)
-            : message.system.by
-        }`;
-    }
+    messageContent.textContent = message.system.type;
 
     username.onclick = () => {
       loadProfile(user.id);
@@ -1074,8 +1113,8 @@ async function parseMessage(message) {
     userData.appendChild(profilePicture);
     userData.appendChild(username);
     messageContainer.appendChild(userData);
-    messageContainer.appendChild(messageContent);
-    return;
+    messageContainer.appendChild(messageContent);;
+    return messageDisplay;
   } else {
     if (!message.masquerade) {
       username.textContent = member.nickname
@@ -1175,10 +1214,10 @@ async function parseMessage(message) {
       message.embeds.forEach((embed) => {
         embeds.appendChild(renderEmbed(embed));
       });
-      messageContainer.appendChild(embeds);
+      messageDisplay.appendChild(embeds);
     }
 
-    if (message.attachments) {
+    if (message.attachments && !settings.behaviour.dataSaver) {
       let attachments = document.createElement("div");
       attachments.classList.add("message-attachments");
 
@@ -1371,6 +1410,7 @@ function getRolePermissions(roleObjects) {
   Object.keys(roleObjects).forEach((role) => {
     permissions[role] = getPermissions(roleObjects[role]);
   });
+  console.log(permissions)
   return permissions;
 }
 
@@ -1451,7 +1491,8 @@ async function buildServerCache(servers) {
     cache.servers.push({
       id: servers[i]["_id"],
       name: servers[i]["name"],
-      icon: servers[i].icon ? servers[i].icon._id : null,
+      icon: servers[i].icon,
+      background: servers[i].banner,
       roles: servers[i].roles,
       members: [],
       categories: servers[i].categories,
@@ -1527,7 +1568,6 @@ async function getMessages(id) {
   cache.messages = [];
   activeReplies = [];
   activeChannel = id;
-  const channel = cacheLookup("channels", id);
   const input = document.querySelector("#input");
 
   input.value = "";
@@ -1629,7 +1669,6 @@ async function loadProfile(userID) {
   const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, activeServer);
   const user = await userLookup(userID);
-  console.log(user)
 
   let displayName = document.getElementById("displayName");
   let username = document.getElementById("username");
@@ -1646,7 +1685,7 @@ async function loadProfile(userID) {
   if (user.pfp) {
     profilePicture.src = `https://autumn.revolt.chat/avatars/${user.pfp._id}`;
   } else {
-    profilePicture.src = `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`;
+    profilePicture.src = `https://api.revolt.chat/users/${user._id}/default_avatar`;
   }
 
   if (user.badges) {
@@ -1847,21 +1886,30 @@ function closeSettings() {
   document.querySelector("#settings").style.display = "none";
 }
 
-function loadSetting(setting) {
-  switch (setting) {
-    case "behaviour":
-      let mainSettings = document.querySelector("mainSettings");
-      document.querySelector("#settingCatName").innerText = "Behaviour";
-      mainSettings;
-  }
+function loadSetting(settingCategory) {
+  let mainSettings = document.querySelector("#mainSettings");
+  let settingCatName = document.querySelector("#settingCatName");
+      settingCatName.innerText = settingCategory;
+      Object.keys(settings[settingCategory]).forEach((setting) => {
+        let settingContainer = document.createElement("input");
+        let settingContainerLabel = document.createElement("label");
+        
+        settingContainer.type = "checkbox";
+        settingContainer.checked = settings[settingCategory][setting];
+        settingContainer.id = setting;
+        settingContainer.onclick = () => {
+          settings[settingCategory][setting] = !settings[settingCategory][setting];
+          setSettings();
+        }
+
+        settingContainerLabel.textContent = setting;
+        settingContainerLabel.for = setting;
+        settingContainer.classList.add("settingContainer");
+        mainSettings.appendChild(settingContainer);
+        mainSettings.appendChild(settingContainerLabel);
+      })
 }
 
-function setSetting(setting, value) {
-  localStorage.setItem(setting, value);
+function setSettings() {
+  localStorage.setItem("settings", JSON.stringify(settings));
 }
-
-function loadSetting(setting) {
-  return localStorage.getItem(setting);
-}
-
-function createSettingDiv(settingName, settingValueType) {}

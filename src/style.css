@@ -471,6 +471,9 @@ fieldset legend {
 .messageSending {
   color: var(--tertiary-foreground);
 }
+/*
+* Loki TODO: redo all of the below CSS, as it's all proof-of-concept
+* */
 
 input[type="file"] {
   display: none;
