@@ -213,10 +213,6 @@ function checkPermission(channelID, permission) {
       channel.rolePermissions
     ) {
       roles.forEach((role) => {
-        console.log(
-          cacheLookup("roles", role, cacheLookup("channels", channelID).server),
-        );
-        console.log(channel);
         if (
           channel.rolePermissions[role] &&
           (channel.rolePermissions[role]["Allowed"][permission] === "1" ||
@@ -276,19 +272,27 @@ async function fetchResource(target) {
   return res;
 }
 
-async function updateUnreads(channelID, messageID, unread = true) {
+async function updateUnreads(channelID, messageID, unread = true, mentioned = false) {
+  if (unread) {
+    if (unreadChannels.indexOf(channelID) === -1) unreadChannels.push(channelID);
+  }
+  else unreadChannels.splice(unreadChannels.indexOf(channelID), 1);
+
+  if (unreadMentions.indexOf(channelID) !== -1) unreadMentions.splice(unreadChannels.indexOf(channelID), 1);
+
+  if (mentioned) {
+    if (unread) {
+      if (unreadMentions.indexOf(channelID) === -1) unreadMentions.push(channelID);
+    }
+  }
+
   for (let i = 0; i < unreads.length; i++) {
     if (unreads[i]._id.channel === channelID) {
-      if (unread) {
-        unreadChannels.push(channelID);
-      } else {
-        unreadChannels.splice(unreadChannels.indexOf(channelID), 1);
-      }
       unreads[i].last_id = messageID;
       return 0;
     }
   }
-  return 1;
+  return -1;
 }
 
 //
@@ -399,7 +403,7 @@ async function bonfire() {
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":
-        updateUnreads(data.id, data.message_id);
+        await updateUnreads(data.channel, data._id, true, data.mentions ? data.mentions.indexOf(userProfile._id) !== -1 : false);
         if (data.channel === activeChannel) {
           document
             .querySelector("#messagesContainer")
@@ -464,7 +468,7 @@ async function bonfire() {
 
       // Channel has been acknowledge as read
       case "ChannelAck":
-        updateUnreads(data.id, data.message_id, false);
+        await updateUnreads(data.id, data.message_id, false);
 
         if ((channel = document.getElementById(data.id))) {
           channel.classList.remove("unreadChannel");
@@ -472,23 +476,18 @@ async function bonfire() {
         }
 
         let stillUnread = false;
-        for (const channel in cacheLookup(
-          "servers",
-          cacheLookup("channels", data.id).server,
-        ).channels) {
-          if (unreadChannels.indexOf(channel) !== -1) {
-            stillUnread = true;
-            break;
-          }
-        }
+        let stillMentioned = false;
+        cacheLookup("servers", cacheLookup("channels", data.id).server).channels.forEach((channel) => {
+          if (unreadChannels.indexOf(channel) !== -1) stillUnread = true;
+          if (unreadMentions.indexOf(channel) !== -1) stillMentioned = true;
+        });
 
-        if (!stillUnread) {
-          let server = document.getElementById(
-            `SERVER-${cacheLookup("channels", data.id).server}`,
-          );
-          server.classList.remove("unreadServer");
-          server.classList.remove("mentionedServer");
-        }
+        let server = document.getElementById(
+          `SERVER-${cacheLookup("channels", data.id).server}`,
+        );
+        console.log(stillUnread)
+        if (!stillUnread) server.classList.remove("unreadServer");
+        if (!stillMentioned) server.classList.remove("mentionedServer");
         break;
 
       // Uh oh
@@ -749,7 +748,7 @@ async function getServers() {
         if (unreadChannels.indexOf(channel) !== -1) {
           server.classList.add(
             unreadMentions.indexOf(channel) !== -1
-              ? "mentionServer"
+              ? "mentionedServer"
               : "unreadServer",
           );
         }
@@ -757,7 +756,7 @@ async function getServers() {
     }
 
     if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1) {
-      server.classList.remove("mentionServer");
+      server.classList.remove("mentionedServer");
       server.classList.remove("unreadServer");
     }
 
@@ -1472,7 +1471,6 @@ function getRolePermissions(roleObjects) {
   Object.keys(roleObjects).forEach((role) => {
     permissions[role] = getPermissions(roleObjects[role]);
   });
-  console.log(permissions);
   return permissions;
 }
 

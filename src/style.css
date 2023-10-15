@@ -437,7 +437,7 @@ fieldset legend {
   box-shadow: var(--foreground) 0px 0px 0px 3px !important;
 }
 
-.mentionServer {
+.mentionedServer {
   box-shadow: var(--mention) 0px 0px 0px 3px !important;
 }
 
