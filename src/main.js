@@ -955,12 +955,12 @@ function parseMessageContent(message) {
   //Mention parser
   if (message.mentions) {
     message.mentions.forEach((mention) => {
-      if (messageContent.innerHTML.split(`<@${mention}>`).length === 1) return;
+      if (messageContent.innerHTML.split(`&lt;@${mention}&gt;`).length === 1) return;
 
       let segConcat = document.createElement("div");
       let newSeg;
 
-      messageContent.innerHTML.split(`<@${mention}>`).forEach((segment) => {
+      messageContent.innerHTML.split(`&lt;@${mention}&gt;`).forEach((segment) => {
         newSeg = document.createElement("span");
         newSeg.innerHTML = segment;
         segConcat.appendChild(newSeg);
