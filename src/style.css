@@ -460,7 +460,7 @@ fieldset legend {
 }
 
 .selfMentioned {
-  background-color: var(--mention); 
+  background-color: var(--mention) !important;
   border-radius: 5px;
 }
 

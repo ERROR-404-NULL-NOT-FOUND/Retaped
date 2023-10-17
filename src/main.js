@@ -27,6 +27,11 @@ var settings = {
     compactMode: false,
     revoltTheme: true,
   },
+  instance: {
+    delta: "https://api.revolt.chat",
+    bonfire: "wss://ws.revolt.chat",
+    autumn: "https://autumn.revolt.chat"
+  }
 };
 
 var activeReplies = [];
@@ -485,7 +490,6 @@ async function bonfire() {
         let server = document.getElementById(
           `SERVER-${cacheLookup("channels", data.id).server}`,
         );
-        console.log(stillUnread)
         if (!stillUnread) server.classList.remove("unreadServer");
         if (!stillMentioned) server.classList.remove("mentionedServer");
         break;
@@ -570,9 +574,7 @@ async function bonfire() {
             )[0],
           );
         } else {
-          let reactionContainer = reactionsContainer.querySelector(
-            `#REACTION-${data.emoji_id}`,
-          );
+          if (!(reactionContainer = reactionsContainer.querySelector(`#REACTION-${data.emoji_id}`))) break;
           reactionContainer.querySelector(".reactionCount").innerText =
             Number(
               reactionsContainer.querySelector(".reactionCount").innerText,
@@ -729,8 +731,6 @@ async function getServers() {
     server.onclick = () => {
       activeServer = cache.servers[serverIndex].id;
       getChannels(cache.servers[serverIndex].id);
-      clearMessages();
-      activeChannel = "";
 
       //Loki TODO: styling
       if (cache.servers[serverIndex].background)
@@ -764,7 +764,7 @@ async function getServers() {
 
     server.id = `SERVER-${cache.servers[serverIndex].id}`;
 
-    if (cache.servers[serverIndex].icon === null) {
+    if (cache.servers[serverIndex].icon === undefined) {
       server.innerText = cache.servers[serverIndex].name.charAt(0);
     } else {
       let serverIcon = document.createElement("img");
@@ -955,18 +955,19 @@ function parseMessageContent(message) {
   //Mention parser
   if (message.mentions) {
     message.mentions.forEach((mention) => {
-      if (messageContent.innerHTML.split(`&lt;@${mention}&gt;`).length === 1) return;
+      let splitMessage;
+      if ((splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`)).length === 1) return;
 
       let segConcat = document.createElement("div");
       let newSeg;
 
-      messageContent.innerHTML.split(`&lt;@${mention}&gt;`).forEach((segment) => {
+      splitMessage.forEach((segment) => {
         newSeg = document.createElement("span");
         newSeg.innerHTML = segment;
         segConcat.appendChild(newSeg);
       });
 
-      let ping = document.createElement("div");
+      let ping = document.createElement("button");
       let pingContainer = document.createElement("div");
       let mentionPfp = document.createElement("img");
       let mentionText = document.createElement("span");
@@ -975,6 +976,12 @@ function parseMessageContent(message) {
       mentionPfp.classList.add("mentionPfp");
       mentionText.classList.add("mentionText");
       ping.classList.add("tag");
+
+      //TODO: make this work
+      ping.onclick = () => {
+        console.log("test")
+        loadProfile(mention);
+      };
 
       ping.appendChild(mentionPfp);
       mentionText.textContent = cacheLookup("users", mention).displayName;
@@ -989,15 +996,6 @@ function parseMessageContent(message) {
       pingContainer.appendChild(ping);
       segConcat.insertBefore(pingContainer, newSeg);
       messageContent = segConcat;
-
-      //CSS TODO: Make this show a pointer on hover
-      ping.onclick = () => {
-        loadProfile(mention);
-      };
-
-      if (mention === userProfile._id) {
-        messageContent.classList.add("selfMentioned");
-      }
     });
   }
 
@@ -1062,7 +1060,7 @@ function parseMessageContent(message) {
 
 function renderEmbed(embed) {
   let embedContainer = document.createElement("div");
-  if (embed.type === "Text" && embed.type === "Website") {
+  if (embed.type === "Text" || embed.type === "Website") {
     //Loki TODO: style
     embedContainer.style.backgroundColor = embed.colour;
 
@@ -1171,6 +1169,8 @@ async function parseMessage(message) {
     messageContainer.appendChild(messageContent);
     return messageDisplay;
   } else {
+    if (message.mentions && message.mentions.indexOf(userProfile._id) !== -1) messageDisplay.classList.add("selfMentioned");
+
     if (!message.masquerade) {
       username.textContent = member.nickname
         ? member.nickname
