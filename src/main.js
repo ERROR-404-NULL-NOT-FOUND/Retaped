@@ -30,7 +30,10 @@ var settings = {
   instance: {
     delta: "https://api.revolt.chat",
     bonfire: "wss://ws.revolt.chat",
-    autumn: "https://autumn.revolt.chat"
+    autumn: "https://autumn.revolt.chat",
+    january: "https://jan.revolt.chat",
+    badgeHost: "https://app.revolt.chat",
+    legacyEmotes: "https://dl.insrt.uk",
   }
 };
 
@@ -263,7 +266,7 @@ function cacheIndexLookup(resource, ID) {
 // Macro to fetch remote resources
 async function fetchResource(target) {
   //Return of false means that it failed
-  const res = await fetch(`https://api.revolt.chat/${target}`, {
+  const res = await fetch(`${settings.instance.delta}/${target}`, {
     headers: {
       "x-session-token": token,
     },
@@ -307,7 +310,7 @@ async function updateUnreads(channelID, messageID, unread = true, mentioned = fa
 // Loads settings from the user's Revolt account, mainly for colour loading
 async function loadSyncSettings() {
   const rawSettings = await fetch(
-    "https://api.revolt.chat/sync/settings/fetch",
+    `${settings.instance.delta}/sync/settings/fetch`,
     {
       headers: {
         "x-session-token": token,
@@ -319,7 +322,7 @@ async function loadSyncSettings() {
     },
   ).then((response) => response.json());
 
-  fetch("https://api.revolt.chat/sync/unreads", {
+  fetch(`${settings.instance.delta}/sync/unreads`, {
     headers: {
       "x-session-token": token,
     },
@@ -376,7 +379,7 @@ async function uploadToAutumn() {
     const formData = new FormData();
     formData.append("myFile", attachments[i]);
 
-    await fetch("https://autumn.revolt.chat/attachments", {
+    await fetch(`${settings.instance.autumn}/attachments`, {
       method: "POST",
       body: formData,
     })
@@ -389,7 +392,7 @@ async function uploadToAutumn() {
 
 // Function to interface with Revolt's websocket service
 async function bonfire() {
-  socket = new WebSocket("wss://ws.revolt.chat");
+  socket = new WebSocket(settings.instance.bonfire);
 
   socket.addEventListener("open", async function (event) {
     socket.send(`{"type": "Authenticate","token": "${token}"}`);
@@ -415,7 +418,7 @@ async function bonfire() {
             .appendChild(await parseMessage(data));
           if (document.hasFocus) {
             fetch(
-              `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
+              `${settings.instance.delta}/channels/${activeChannel}/ack/${data._id}`,
               {
                 headers: {
                   "x-session-token": token,
@@ -526,8 +529,8 @@ async function bonfire() {
 
         typingUserPfp.src =
           typingMember.pfp === undefined
-            ? `https://autumn.revolt.chat/avatars/${typingUser.pfp._id}?max_side=25`
-            : `https://autumn.revolt.chat/avatars/${typingMember.pfp._id}?max_side=25`;
+            ? `${settings.instance.autumn}/avatars/${typingUser.pfp._id}?max_side=25`
+            : `${settings.instance.autumn}/avatars/${typingMember.pfp._id}?max_side=25`;
         typingUserContainer.appendChild(typingUserPfp);
 
         typingUserName.textContent = typingUser.displayName;
@@ -635,7 +638,7 @@ async function login() {
     document.getElementById("password").value != ""
   ) {
     let tokenResponse = await fetch(
-      "https://api.revolt.chat/auth/session/login",
+      `${settings.instance.delta}/auth/session/login`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -656,7 +659,7 @@ async function login() {
         console.error("Invalid token!");
       } else {
         let mfaTokenResponse = await fetch(
-          "https://api.revolt.chat/auth/session/login",
+          `${settings.instance.delta}/auth/session/login`,
           {
             method: "POST",
             body: JSON.stringify({
@@ -736,7 +739,7 @@ async function getServers() {
       if (cache.servers[serverIndex].background)
         document.querySelector(
           "#serverBG",
-        ).src = `https://autumn.revolt.chat/banners/${cache.servers[serverIndex].background._id}?width=480`;
+        ).src = `${settings.instance.autumn}/banners/${cache.servers[serverIndex].background._id}?width=480`;
 
       document.getElementById("serverName").innerText =
         cache.servers[serverIndex].name;
@@ -770,7 +773,7 @@ async function getServers() {
       let serverIcon = document.createElement("img");
 
       serverIcon.classList.add("serverIcon");
-      serverIcon.src = `https://autumn.revolt.chat/icons/${cache.servers[serverIndex].icon._id}?max_side=64`;
+      serverIcon.src = `${settings.instance.autumn}/icons/${cache.servers[serverIndex].icon._id}?max_side=64`;
       server.appendChild(serverIcon);
     }
 
@@ -917,18 +920,18 @@ function renderReactions(reactions, channelID, messageID) {
         ) === -1
       ) {
         fetch(
-          `https://api.revolt.chat/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
           { method: "PUT", headers: { "x-session-token": token } },
         );
       } else {
         fetch(
-          `https://api.revolt.chat/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
           { method: "DELETE", headers: { "x-session-token": token } },
         );
       }
     };
     if (Object.values(emojis.standard).indexOf(reaction) === -1)
-      customEmoteImage.src = `https://autumn.revolt.chat/emojis/${reaction}`;
+      customEmoteImage.src = `${settings.instance.autumn}/emojis/${reaction}`;
     reactionIndicator.innerText = reactions[reaction].length;
     reactionIndicator.classList.add("reactionCount");
     if (reactions[reaction].indexOf(userProfile._id) !== -1)
@@ -987,8 +990,8 @@ function parseMessageContent(message) {
       mentionText.textContent = cacheLookup("users", mention).displayName;
 
       mentionPfp.src = tmpUserProfile.pfp
-        ? `https://autumn.revolt.chat/avatars/${tmpUserProfile.pfp._id}?max_side=256`
-        : `https://api.revolt.chat/users/${mention}/default_avatar?max_side=256`;
+        ? `${settings.instance.autumn}/avatars/${tmpUserProfile.pfp._id}?max_side=256`
+        : `${settings.instance.delta}/users/${mention}/default_avatar?max_side=256`;
       mentionText.textContent = cacheLookup("users", mention).displayName;
 
       ping.appendChild(mentionPfp);
@@ -1015,7 +1018,7 @@ function parseMessageContent(message) {
     let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
     let emojiImage = document.createElement("img");
 
-    emojiImage.src = `https://dl.insrt.uk/projects/revolt/emotes/${emojis.custom[emoji]}`;
+    emojiImage.src = `${settings.instance.legacyEmotes}/projects/revolt/emotes/${emojis.custom[emoji]}`;
     messageContent.replaceChildren();
 
     for (let i = 0; i < tmpMsg.length; i++) {
@@ -1043,7 +1046,7 @@ function parseMessageContent(message) {
       tmpImg.classList.add("emoji");
       let outputToGetAroundStupidDomManipulationShit = "";
 
-      tmpImg.src = `https://autumn.revolt.chat/emojis/${emoji}`;
+      tmpImg.src = `${settings.instance.autumn}/emojis/${emoji}`;
 
       for (let j = 1; j < tmpMsg.length; j++) {
         outputToGetAroundStupidDomManipulationShit += tmpMsg[j];
@@ -1066,7 +1069,7 @@ function renderEmbed(embed) {
 
     if (embed.icon_url) {
       let icon = document.createElement("img");
-      icon.src = `https://jan.revolt.chat/proxy?url=${embed.icon_url}`;
+      icon.src = `${settings.instance.autumn}/proxy?url=${embed.icon_url}`;
       icon.classList.add("embedIcon");
       embedContainer.appendChild(icon);
     }
@@ -1089,19 +1092,19 @@ function renderEmbed(embed) {
     if (embed.media && !settings.behaviour.dataSaver) {
       let media = document.createElement("img");
       media.classList.add("embedMedia");
-      media.src = `https://autumn.revolt.chat/uploads/${embed.media}`;
+      media.src = `${settings.instance.autumn}/uploads/${embed.media}`;
       embedContainer.appendChild(media);
     }
   } else {
     if (embed.type === "Image" && !settings.behaviour.dataSaver) {
       let media = document.createElement("img");
       media.classList.add("embedMedia");
-      media.src = `https://jan.revolt.chat/proxy?url=${embed.url}`;
+      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
       embedContainer.appendChild(media);
     } else {
       let media = document.createElement("video");
       media.classList.add("embedMedia");
-      media.src = `https://jan.revolt.chat/proxy?url=${embed.url}`;
+      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
       embedContainer.appendChild(media);
     }
   }
@@ -1151,8 +1154,8 @@ async function parseMessage(message) {
     username.textContent = user.username;
 
     profilePicture.src = user.pfp
-      ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
-      : `https://api.revolt.chat/users/${user.id}/default_avatar`;
+      ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
+      : `${settings.instance.delta}/users/${user.id}/default_avatar`;
 
     messageContent.textContent = message.system.type;
 
@@ -1179,10 +1182,10 @@ async function parseMessage(message) {
 
       username.appendChild(masqueradeBadge);
       profilePicture.src = member.avatar
-        ? `https://autumn.revolt.chat/avatars/${member.avatar._id}`
+        ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
         : user.pfp
-        ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
-        : `https://api.revolt.chat/users/${user.id}/default_avatar`;
+        ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
+        : `${settings.instance.delta}/users/${user.id}/default_avatar`;
 
       if (member.roles) {
         for (let i = member.roles.length + 1; i >= 0; i--) {
@@ -1215,11 +1218,11 @@ async function parseMessage(message) {
       username.appendChild(masqueradeBadge);
 
       if (message.masquerade.avatar) {
-        profilePicture.src = `https://jan.revolt.chat/proxy?url=${message.masquerade.avatar}`;
+        profilePicture.src = `${settings.instance.january}/proxy?url=${message.masquerade.avatar}`;
       } else {
         profilePicture.src = user.pfp
-          ? `https://autumn.revolt.chat/avatars/${user.pfp._id}?max_side=256`
-          : `https://api.revolt.chat/users/${user.pfp._id}/default_avatar`;
+          ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
+          : `${settings.instance.delta}/users/${user.pfp._id}/default_avatar`;
         username.style.color = message.masquerade.colour;
       }
     }
@@ -1278,10 +1281,11 @@ async function parseMessage(message) {
 
       message.attachments.forEach((tmpAtchmntAttrs) => {
         let tmpAttachment;
+        //TODO: edit this to only alter what type of element is created, to follow DRY
 
         if (tmpAtchmntAttrs.content_type.startsWith("image")) {
           tmpAttachment = document.createElement("img");
-          tmpAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          tmpAttachment.src = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
         } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
           let subAttachment = document.createElement("source");
 
@@ -1290,7 +1294,7 @@ async function parseMessage(message) {
           tmpAttachment.style.maxWidth = "30%";
           tmpAttachment.style.maxHeight = "30%";
 
-          subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
           subAttachment.type = tmpAtchmntAttrs.content_type;
           tmpAttachment.appendChild(subAttachment);
         } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
@@ -1302,7 +1306,7 @@ async function parseMessage(message) {
           tmpContainer.controls = true;
           tmpContainer.textContent = tmpAtchmntAttrs.filename;
 
-          subAttachment.src = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
           subAttachment.type = tmpAtchmntAttrs.content_type;
 
           tmpContainer.appendChild(subAttachment);
@@ -1313,7 +1317,7 @@ async function parseMessage(message) {
         } else {
           tmpAttachment = document.createElement("a");
           tmpAttachment.textContent = tmpAtchmntAttrs.filename;
-          tmpAttachment.href = `https://autumn.revolt.chat/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
         }
         attachments.appendChild(tmpAttachment);
       });
@@ -1380,7 +1384,7 @@ async function parseMessage(message) {
       (message.author === userProfile._id && event.shiftKey)
     ) {
       fetch(
-        `https://api.revolt.chat/channels/${message.channel}/messages/${message._id}`,
+        `${settings.instance.delta}/channels/${message.channel}/messages/${message._id}`,
         {
           method: "DELETE",
           headers: {
@@ -1664,7 +1668,7 @@ async function getMessages(id) {
   scrollChatToBottom();
 
   fetch(
-    `https://api.revolt.chat/channels/${activeChannel}/ack/${messages[0]._id}`,
+    `${settings.instance.delta}/channels/${activeChannel}/ack/${messages[0]._id}`,
     {
       headers: {
         "x-session-token": token,
@@ -1756,9 +1760,9 @@ async function loadProfile(userID) {
   badgesContainer.replaceChildren();
 
   if (user.pfp) {
-    profilePicture.src = `https://autumn.revolt.chat/avatars/${user.pfp._id}`;
+    profilePicture.src = `${settings.instance.delta}/avatars/${user.pfp._id}`;
   } else {
-    profilePicture.src = `https://api.revolt.chat/users/${user._id}/default_avatar`;
+    profilePicture.src = `${settings.instance.delta}/users/${user._id}/default_avatar`;
   }
 
   if (user.badges) {
@@ -1768,7 +1772,7 @@ async function loadProfile(userID) {
         let badgeContainer = document.createElement("div");
         let badgeImg = document.createElement("img");
 
-        badgeImg.src = `https://app.revolt.chat${badges[badge]}`;
+        badgeImg.src = `${settings.instance.badgehost}${badges[badge]}`;
         badgeContainer.classList.add("badge", badge);
 
         badgeContainer.appendChild(badgeImg);
@@ -1780,7 +1784,7 @@ async function loadProfile(userID) {
   if (Object.keys(tmpUserProfile).indexOf("background") > -1) {
     //Loki TODO: Move this shit into style.css
     profileBackground.style.background = `linear-gradient(0deg, rgba(0,0,0,0.84) 10%, rgba(0,0,0,0) 100%),
-        url(https://autumn.revolt.chat/backgrounds/${tmpUserProfile.background._id}) center center / cover`;
+        url(${settings.instance.autumn}/backgrounds/${tmpUserProfile.background._id}) center center / cover`;
   } else profileBackground.style.background = "";
 
   bio.innerHTML = parseMessageContent(tmpUserProfile).innerHTML;
@@ -1897,8 +1901,8 @@ async function sendMessage() {
 
   await fetch(
     editingMessageID === ""
-      ? `https://api.revolt.chat/channels/${activeChannel}/messages`
-      : `https://api.revolt.chat/channels/${activeChannel}/messages/${editingMessageID}`,
+      ? `${settings.instance.delta}/channels/${activeChannel}/messages`
+      : `${settings.instance.delta}/channels/${activeChannel}/messages/${editingMessageID}`,
     {
       headers: {
         "x-session-token": token,
@@ -1918,7 +1922,7 @@ async function sendMessage() {
         return;
       }
       fetch(
-        `https://api.revolt.chat/channels/${activeChannel}/ack/${data._id}`,
+        `${settings.instance.delta}/channels/${activeChannel}/ack/${data._id}`,
         { method: "PUT", headers: { "x-session-token": token } },
       );
     });
