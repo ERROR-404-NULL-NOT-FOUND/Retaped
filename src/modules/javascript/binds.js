@@ -47,7 +47,7 @@ behaviourSetting.onclick = () => {
 
 modalBackground.forEach((element) => {
     element.onclick = () => {
-        this.parentElement.style.display = 'none';
+        element.parentElement.style.display = 'none';
     }
 });
 
