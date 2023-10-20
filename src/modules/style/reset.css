@@ -56,9 +56,16 @@ code {
   padding: 0 .3rem;
 }
 
-img { border-radius: var(--border-radius); }
+img {
+  border-radius: var(--border-radius);
+  /*VSC won't let me remove everything below this*/
+  -webkit-border-radius: var(--border-radius);
+  -moz-border-radius: var(--border-radius);
+  -ms-border-radius: var(--border-radius);
+  -o-border-radius: var(--border-radius);
+}
 
-hr { 
+hr {
   margin: .6rem 25%;
 }
 

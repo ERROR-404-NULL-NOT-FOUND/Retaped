@@ -5,7 +5,7 @@ var converter = new showdown.Converter();
 //
 
 var cache = {
-  //0 is id, 1 is username, 2 is pfp, 3 is bot, 4 is discrim, 5 is display name, 6 is relationshiphip
+  //id, username, pfp, bot, displayname, relationship
   users: [],
   //0 is id, 1 is name, 2 is channel type, 3 is server, 4 is last message
   channels: [],
@@ -32,7 +32,7 @@ var settings = {
     bonfire: "wss://ws.revolt.chat",
     autumn: "https://autumn.revolt.chat",
     january: "https://jan.revolt.chat",
-    badgeHost: "https://app.revolt.chat",
+    assets: "https://app.revolt.chat",
     legacyEmotes: "https://dl.insrt.uk",
   }
 };
@@ -61,6 +61,7 @@ var editingMessageID = "";
 var attachments = [];
 var attachmentIDs = [];
 var unreadMessages = [];
+var errorTimeout;
 
 //
 // Run on page load
@@ -120,6 +121,23 @@ document.querySelector("#input").addEventListener("paste", (event) => {
     addFile(blob);
   }
 });
+
+function showError(error) {
+  let errorContainer;
+  if (errorTimeout) clearTimeout(errorTimeout);
+
+  if (!token)
+    errorContainer = document.querySelector("#loginErrorContainer");
+  else
+    errorContainer = document.querySelector("#errorContainer");
+  errorContainer.style.display = "block";
+
+  errorContainer.querySelector("#loginErrorContent").innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
+
+  errorTimeout = setTimeout(() => {
+    errorContainer.style.display = "none";
+  }, 30000); //30 seconds
+}
 
 function addFile(file) {
   if (attachments.length >= 5) return;
@@ -274,7 +292,7 @@ async function fetchResource(target) {
   })
     .then((res) => res.json())
     .catch((error) => {
-      console.error(error);
+      showError(error);
       return false;
     });
   return res;
@@ -499,8 +517,7 @@ async function bonfire() {
 
       // Uh oh
       case "Error":
-        document.querySelector("#errorContainer").style.display = "block";
-        document.querySelector("#errorContent").textContent = data.error;
+        showError(error);
         break;
 
       // Cache building, received immediately after 'Authenticated'
@@ -622,20 +639,47 @@ async function bonfire() {
   });
 }
 
+//Processes client-side settings
+async function processSettings() {
+  const toggleToken = document.querySelector("#toggleToken");
+  const instanceURL = document.querySelector("#customInstance");
+  const legacyEmoteServer = document.querySelector("#customLegacyEmotes");
+  const assetsURL = document.querySelector("#customAssets");
+
+  if (localStorage.getItem("settings"))
+    settings = JSON.parse(localStorage.getItem("settings"));
+
+  if (instanceURL.value) {
+    await fetch(isntanceURL.value)
+      .then((res) => res.json())
+      .then((data) => {
+        settings.instance.delta = instanceURL.value;
+        settings.instance.autumn = data.features.autumn.url;
+        settings.instance.january = data.features.january.url;
+      })
+      .catch((error) => {
+        showError(error);
+        exit();
+      });
+  }
+
+  if (legacyEmoteServer.value) settings.instance.legacyEmotes = legacyEmoteServer.value;
+  if (assetsURL.value) settings.instance.assets = assetsURL.value;
+
+  if (!toggleToken) settings.behaviour.rememberMe = false;
+  setSettings();
+}
+
 // Handles login and init
 // TODO: replace all of the fucking if statements
 async function login() {
-  let toggleToken = document.querySelector("#toggleToken");
-  if (localStorage.getItem("settings"))
-    settings = JSON.parse(localStorage.getItem("settings"));
-  if (!toggleToken) settings.behaviour.rememberMe = false;
-  setSettings();
+  await processSettings();
 
   if (document.getElementById("token").value || token) {
     if (!token) token = document.getElementById("token").value;
   } else if (
-    document.getElementById("email").value != "" &&
-    document.getElementById("password").value != ""
+    document.getElementById("email").value &&
+    document.getElementById("password").value
   ) {
     let tokenResponse = await fetch(
       `${settings.instance.delta}/auth/session/login`,
@@ -656,8 +700,13 @@ async function login() {
     } else {
       if (tokenResponse.result === "Unauthorized") {
         localStorage.removeItem("token");
-        console.error("Invalid token!");
+        showError(tokenResponse.result);
       } else {
+        if (!document.querySelector("#mfa").value) {
+          showError({ name: "LoginError", message: "MFA token required but not provided" });
+          return;
+        }
+
         let mfaTokenResponse = await fetch(
           `${settings.instance.delta}/auth/session/login`,
           {
@@ -673,31 +722,25 @@ async function login() {
         )
           .then((res) => res.json())
           .then((data) => data);
-        if (mfaTokenResponse.result === "Success") {
-          token = mfaTokenResponse.token;
-        } else {
-          console.error(
-            "You've scuffed your MFA key, for some reason the server returned: " +
-              JSON.stringify(mfaTokenResponse),
-          );
+
+        if (mfaTokenResponse.result === "Success") token = mfaTokenResponse.token;
+        else {
+          showError(mfaTokenResponse);
+          return;
         }
       }
     }
   } else {
-    console.error(
-      "No login method provided, how the fuck do you expect to log in?",
-    );
+    showError({ name: "loginError", message: "no login method provided" });
     return;
   }
 
   if ((userProfile = await fetchResource("users/@me")) === false) {
-    console.error("Login failed");
+    showError({ name: "loginError", message: "generic" });
     return;
   }
 
-  if (settings.behaviour.rememberMe) {
-    if (!localStorage.getItem("token")) localStorage.setItem("token", token);
-  }
+  if (!localStorage.getItem("token") && settings.behaviour.rememberMe) localStorage.setItem("token", token);
 
   loadSyncSettings();
   bonfire();
@@ -905,12 +948,14 @@ function renderReactions(reactions, channelID, messageID) {
   Object.keys(reactions).forEach((reaction) => {
     let reactionContainer = document.createElement("button");
     let customEmoteImage;
+
     if (Object.values(emojis.standard).indexOf(reaction) === -1)
       customEmoteImage = document.createElement("img");
     else {
       customEmoteImage = document.createElement("span");
       customEmoteImage.innerText = reaction;
     }
+
     let reactionIndicator = document.createElement("span");
 
     reactionContainer.onclick = () => {
@@ -930,6 +975,7 @@ function renderReactions(reactions, channelID, messageID) {
         );
       }
     };
+
     if (Object.values(emojis.standard).indexOf(reaction) === -1)
       customEmoteImage.src = `${settings.instance.autumn}/emojis/${reaction}`;
     reactionIndicator.innerText = reactions[reaction].length;
@@ -938,6 +984,7 @@ function renderReactions(reactions, channelID, messageID) {
       reactionContainer.classList.add("selfReacted");
 
     reactionContainer.id = `REACTION-${reaction}`;
+    reactionContainer.classList.add("reaction")
     reactionContainer.appendChild(customEmoteImage);
     reactionContainer.appendChild(reactionIndicator);
     children.push(reactionContainer);
@@ -982,7 +1029,6 @@ function parseMessageContent(message) {
 
       //TODO: make this work
       ping.onclick = () => {
-        console.log("test")
         loadProfile(mention);
       };
 
@@ -1427,9 +1473,9 @@ function getBadges(badgesInt) {
   let badgesBit = badgesInt.toString(2);
 
   let badges = {
-    Developer: badgesBit[0],
+    Supporter: badgesBit[0],
     Translator: badgesBit[1],
-    Supporter: badgesBit[2],
+    Developer: badgesBit[2],
     ResponsibleDisclosure: badgesBit[3],
     Founder: badgesBit[4],
     Paw: badgesBit[5],
@@ -1760,7 +1806,7 @@ async function loadProfile(userID) {
   badgesContainer.replaceChildren();
 
   if (user.pfp) {
-    profilePicture.src = `${settings.instance.delta}/avatars/${user.pfp._id}`;
+    profilePicture.src = `${settings.instance.autumn}/avatars/${user.pfp._id}`;
   } else {
     profilePicture.src = `${settings.instance.delta}/users/${user._id}/default_avatar`;
   }
@@ -1772,7 +1818,7 @@ async function loadProfile(userID) {
         let badgeContainer = document.createElement("div");
         let badgeImg = document.createElement("img");
 
-        badgeImg.src = `${settings.instance.badgehost}${badges[badge]}`;
+        badgeImg.src = `${settings.instance.assets}${badges[badge]}`;
         badgeContainer.classList.add("badge", badge);
 
         badgeContainer.appendChild(badgeImg);
@@ -1956,14 +2002,6 @@ function scrollChatToBottom() {
 //
 // Settings
 //
-
-function openSettings() {
-  document.querySelector("#settings").style.display = "flex";
-}
-
-function closeSettings() {
-  document.querySelector("#settings").style.display = "none";
-}
 
 function loadSetting(settingCategory) {
   let mainSettings = document.querySelector("#mainSettings");

@@ -488,7 +488,7 @@ input[type="file"] {
   display: flex;
   height: 5em;
   width: 5em;
-  flex-direction: row; 
+  flex-direction: row;
 }
 
 .unreadMarkerContainer {
@@ -505,4 +505,24 @@ input[type="file"] {
   padding: 5px;
   border-radius: var(--border-radius);
   background-color: inherit;
+}
+
+.reaction>img {
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;
+  margin-right: .3rem;
+}
+
+.badge>img {
+  width: 2em;
+  height: 2em;
+  border-radius: 100%;
+  margin-right: .3rem;
+}
+
+#badgesContainer {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: row;
 }

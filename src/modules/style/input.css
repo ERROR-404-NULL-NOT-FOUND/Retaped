@@ -12,6 +12,7 @@ input:not(input[type="checkbox"]) {
 input:focus {
   outline: 1px solid var(--accent);
 }
+
 textarea {
   color: var(--foreground);
   background: var(--secondary-background);

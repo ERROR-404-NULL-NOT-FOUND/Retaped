@@ -4,12 +4,15 @@
 <head>
     <meta charset="utf-8">
     <title>Retaped</title>
+    <!--TODO: Host favicon in the project itself-->
     <link rel="icon" type="image/png"
         href="https://autumn.revolt.chat/attachments/g4v14HHTNuqzrd7Fn_YbZjlK8i6NL1ibajV3gLf2jR/Untitled132_20220310202647.png">
-    <link rel="stylesheet" href="style.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="style.css" type="text/css" media="screen" id="currentCSS">
+    <link rel="stylesheet" href="legacy.css" type="text/css" media="screen" id="legacyCSS" disabled="true">
     <link rel="canonical" href="https://error-404-null-not-found.github.io/Retaped/">
-    <!--<script src="https://js.hcaptcha.com/1/api.js" async defer></script>-->
+    <!--Script loading-->
     <script src="https://unpkg.com/showdown/dist/showdown.min.js" type="text/javascript" defer></script>
+    <script src="modules/javascript/binds.js" type="text/javascript" defer></script>
     <script src="main.js" type="text/javascript" defer></script>
 </head>
 
@@ -22,25 +25,40 @@
                 that's held together by duct tape and bad code
             </h4>
         </div>
+        <!--Login form-->
         <form class="login-form">
+
+            <!--Error display-->
+            <!--FIXME: Styling is weird-->
+            <div id="loginErrorContainer" class="error-container">
+                <p id="loginErrorContent" class="error-content"></p>
+            </div>
+
             <fieldset>
                 <legend>Login method</legend>
 
-                <div id="loginErrorContainer" class="error-container">
-                    <p id="loginErrorContent" class="error-content"></p>
-                </div>
-
+                <!--Main login form-->
                 <label>Use your Revolt email and password</label>
                 <input id="email" autocomplete="on" placeholder="Email address" type="email">
                 <input id="password" placeholder="Password" type="password">
                 <input id="mfa" placeholder="TOTP Key">
 
+                <!--Custom token selection-->
                 <details>
                     <summary>Or use your token</summary>
                     <input id="token" type="password" autocomplete="off" placeholder="Token">
                 </details>
+
+                <!--Custom hosting options-->
+                <details>
+                    <summary>Advanced options</summary>
+                    <input type="url" id="customInstance" placeholder="Custom instance URL">
+                    <input type="url" id="customLegacyEmotes" placeholder="Custom legacy emotes host">
+                    <input type="url" id="customAssets" placeholder="Custom assets host">
+                </details>
             </fieldset>
 
+            <!--Preferences form-->
             <fieldset>
                 <legend>Preferences</legend>
                 <div>
@@ -51,13 +69,16 @@
                     <label for="toggle-token">Remember me</label>
                 </div>
             </fieldset>
-            <button id="login-btn" onclick="login();" type="button">Login</button>
+            <button id="login-btn" type="button">Login</button>
         </form>
     </div>
 
+    <!--Main app skeleton-->
     <div id="app">
+        <!--User profile modal-->
         <div id="userProfile" class="modal-container">
-            <div class="modal-background" onclick="this.parentElement.style.display = 'none';"></div>
+            <div class="modal-background">
+            </div>
             <div class="modal">
                 <div id="profileMedia" class="profile-top">
                     <div class="profile-name">
@@ -74,26 +95,31 @@
             </div>
         </div>
 
+        <!--User settings modal-->
+        <!--FIXME: load previously set settings in the modal-->
         <div id="settings" class="modal-container">
-            <div class="modal-background" onclick="this.parentElement.style.display = 'none';"></div>
+            <div class="modal-background"></div>
             <div class="modal">
                 <h1>Settings</h1>
                 <div id="categories">
-                    <button id="behaviourSetting" onclick="loadSetting('behaviour')">Behaviour</button>
+                    <button id="behaviourSetting">Behaviour</button>
                 </div>
                 <div id="mainSettings">
                     <h3 id="settingCatName"></h3>
                 </div>
-                <button onclick="closeSettings()">Close settings</button>
+                <button id="closeSettingsBtn">Close settings</button>
             </div>
         </div>
 
+        <!--Servers list-->
+        <!--TODO: Scan for unreads in DMs-->
         <div id="serversBar">
-            <button id="dms" onclick="loadDMs()">DMS</button>
+            <button id="dms">DMS</button>
             <hr>
             <div id="serversContainer"></div>
         </div>
 
+        <!--Channel selection-->
         <div id="channelBar">
             <h2 id="serverName"></h2>
             <img id="serverBG">
@@ -101,12 +127,15 @@
             <div id="channelsContainer"></div>
         </div>
 
+        <!--Main container, including channel info, for some reason-->
         <div id="chatContainer">
+            <!--Chat header-->
             <!-- TODO: transform this into a channel header -->
             <!-- TODO: move these stats in the settings modal -->
             <div class="chat-header">
                 <div>
                     <p id="channelName"></p>
+                    <p id="channelDesc"></p>
                 </div>
 
                 <div class="chat-header-right">
@@ -114,13 +143,16 @@
                     -
                     <p id="themeLabel">Default theme</p>
                     <br>
-                    <button onclick="openSettings()">Settings</button>
+                    <button id="openSettingsBtn">Settings</button>
                 </div>
             </div>
 
+            <!--Message header-->
             <div id="messagesContainer"></div>
 
+            <!--Message bar-->
             <div class="messagebar-container">
+                <!--Embed input container; usually hidden-->
                 <div id="embed" hidden="false">
                     <input type="text" autocomplete="off" placeholder="Title" id="embedTitle" />
                     <input type="text" autocomplete="off" placeholder="Icon URL" id="embedIconURL" />
@@ -128,42 +160,70 @@
                     <input type="text" autocomplete="off" placeholder="Color" id="embedColour" />
                     <input type="text" autocomplete="off" placeholder="URL" id="embedURL" />
                     <input type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
-                </div>    
+                </div>
+                <!--Masquerade input container; usually hidden-->
                 <div id="masquerade" hidden="false">
                     <input type="text" autocomplete="off" placeholder="Name" id="masqName" />
                     <input type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
                     <input type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)" id="masqColour" />
                 </div>
 
+                <!--Error container-->
+                <!--FIXME: Actually use this-->
                 <div id="errorContainer" class="error-container">
                     <p id="errorContent" class="error-content"></p>
                 </div>
 
+                <!--Replies container-->
                 <div class="replying-container"></div>
 
-                <input type="file" id="mediaUpload" />
+                <!--Typing indicator-->
+                <div id="typingBarContainer">
+                    <span id="typingBar"></span> is typing
+                </div>
 
-                <div id="typingBarContainer"><span id="typingBar"></span> is typing</div>
-                <div id="uploadsBarContainer" hidden=true></div>
+                <!--List of attachments-->
+                <!--FIXME: Styling-->
+                <div id="uploadsBarContainer" hidden=true>
+                </div>
+
+                <!--Messages toolbar; normally hidden-->
                 <div class="toolbar">
-                    <button onclick="bonfire()">Re-establish websocket</button>
-                    <button onclick="getMessages(activeChannel);">
+                    <button id="bonfireButton">
+                        Re-establish websocket
+                    </button>
+                    <button id="refreshChatButton">
                         Refresh chat
                     </button>
-                    <button onclick="let embed = document.querySelector('#embed'); embed.hidden=!embed.hidden">Send embed</button>
-                    <button onclick="sendRawJSON = !sendRawJSON">JSON</button>
-                    <button onclick="let masq = document.querySelector('#masquerade'); masq.hidden=!masq.hidden">Masquerade</button>
+                    <button id="sendEmbedButton">
+                        Send embed
+                    </button>
+                    <button id="sendJSONbutton">
+                        JSON
+                    </button>
+                    <button id="sendMasqButton">
+                        Masquerade
+                    </button>
                 </div>
+
+                <!--Message bar-->
                 <div id="messageBar">
                     <button class="toolbar-btn">↑</button>
+
                     <!-- FIXME: the width of the label is really small so pressing it is hard. -->
                     <button>
-                        <label class="upload-label" for="upload" multiple>+
+                        <!-- FIXME: Doesn't show cursor on hover-->
+                        <label class="upload-label" for="upload">+
                           <input type="file" id="upload">
                         </label>
                     </button>
-                    <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=200 autofocus=1></textarea>
-                    <button class="send-btn" onclick="sendMessage()">⟶</button>
+                    <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000 autofocus=1>
+                    </textarea>
+
+                    <!--Message send button-->
+                    <button class="send-btn">
+                        ⟶
+                    </button>
                 </div>
             </div>
         </div>
