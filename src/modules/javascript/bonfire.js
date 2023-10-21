@@ -23,14 +23,14 @@ async function bonfire() {
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":
-        await updateUnreads(data.channel, data._id, true, data.mentions ? data.mentions.indexOf(userProfile._id) !== -1 : false);
-        if (data.channel === activeChannel) {
+        await updateUnreads(data.channel, data._id, true, data.mentions ? data.mentions.indexOf(state.connection.userProfile._id) !== -1 : false);
+        if (data.channel === state.active.channel) {
           document
             .querySelector("#messagesContainer")
             .appendChild(await parseMessage(data));
           if (document.hasFocus) {
             fetch(
-              `${settings.instance.delta}/channels/${activeChannel}/ack/${data._id}`,
+              `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
               {
                 headers: {
                   "x-session-token": token,
@@ -43,18 +43,18 @@ async function bonfire() {
         } else {
           if (
             (channel = document.getElementById(data.channel)) &&
-            mutedChannels.indexOf(data.channel) === -1
+            state.unreads.muted.channels.indexOf(data.channel) === -1
           ) {
             channel.classList.add(
-              data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+              data.mentions && data.mentions.indexOf(state.connection.userProfile._id) !== -1
                 ? "mentionedChannel"
                 : "unreadChannel",
             );
           }
 
           if (
-            mutedChannels.indexOf(data.channel) === -1 &&
-            mutedServers.indexOf(
+            state.unreads.muted.channels.indexOf(data.channel) === -1 &&
+            state.unreads.muted.servers.indexOf(
               cacheLookup("channels", data.channel).server,
             ) === -1
           ) {
@@ -63,7 +63,7 @@ async function bonfire() {
                 `SERVER-${cacheLookup("channels", data.channel).server}`,
               )
               .classList.add(
-                data.mentions && data.mentions.indexOf(userProfile._id) !== -1
+                data.mentions && data.mentions.indexOf(state.connection.userProfile._id) !== -1
                   ? "mentionedServer"
                   : "unreadServer",
               );
@@ -72,7 +72,7 @@ async function bonfire() {
         break;
 
       case "MessageDelete":
-        if (data.channel === activeChannel) {
+        if (data.channel === state.active.channel) {
           document
             .querySelector("#messagesContainer")
             .removeChild(document.getElementById(`MSG-${data.id}`));
@@ -80,7 +80,7 @@ async function bonfire() {
         break;
 
       case "MessageUpdate":
-        if (data.channel === activeChannel) {
+        if (data.channel === state.active.channel) {
           messageDisplay = document.querySelector(`#MSG-${data.id}`);
           messageContent = messageDisplay.querySelector(".messageContent");
           messageContent.innerHTML = parseMessageContent(data.data).innerHTML;
@@ -98,8 +98,8 @@ async function bonfire() {
         let stillUnread = false;
         let stillMentioned = false;
         cacheLookup("servers", cacheLookup("channels", data.id).server).channels.forEach((channel) => {
-          if (unreadChannels.indexOf(channel) !== -1) stillUnread = true;
-          if (unreadMentions.indexOf(channel) !== -1) stillMentioned = true;
+          if (state.unreads.unread.channels.indexOf(channel) !== -1) stillUnread = true;
+          if (state.unreads.mentioned.channels.indexOf(channel) !== -1) stillMentioned = true;
         });
 
         let server = document.getElementById(
@@ -126,8 +126,8 @@ async function bonfire() {
       // TODO: add timeout
       case "ChannelStartTyping": {
         if (
-          data.id !== activeChannel ||
-          currentlyTyping.indexOf(data.user) !== -1 ||
+          data.id !== state.active.channel ||
+          state.currentlyTyping.indexOf(data.user) !== -1 ||
           document.getElementById(data.user) === null
         )
           break;
@@ -149,7 +149,7 @@ async function bonfire() {
 
         typingUserContainer.id = typingUser.id;
 
-        currentlyTyping.push(data.user);
+        state.currentlyTyping.push(data.user);
         typingBar.appendChild(typingUserContainer);
         document.getElementById("typingBarContainer").style.display = "flex";
         scrollChatToBottom();
@@ -158,12 +158,12 @@ async function bonfire() {
 
       // User stops typing
       case "ChannelStopTyping": {
-        if (data.id !== activeChannel) break;
+        if (data.id !== state.active.channel) break;
 
         const typingUserContainer = document.getElementById(data.user);
         if (typingUserContainer) {
           typingUserContainer.remove();
-          currentlyTyping.splice(currentlyTyping.indexOf(data.user), 1);
+          state.currentlyTyping.splice(state.currentlyTyping.indexOf(data.user), 1);
         }
 
         if (typingBar.children.length === 0)
@@ -228,8 +228,8 @@ async function bonfire() {
     }
   });
 
-  socket.addEventListener("error", async function (event) {
-    document.getElementById("error").innerText = JOSN.stringify(event);
+  socket.addEventListener("error", function (event) {
+    showError(event);
   });
 }
 

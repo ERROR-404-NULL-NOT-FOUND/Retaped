@@ -13,7 +13,7 @@ var cache = {
   messages: [],
 };
 
-//Populates the server cache from the given argument; only called from bonfire  
+//Populates the server cache from the given argument; only called from bonfire
 async function buildServerCache(servers) {
   for (let i = 0; i < servers.length; i++) {
     cache.servers.push({

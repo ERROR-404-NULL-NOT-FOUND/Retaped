@@ -32,8 +32,8 @@ async function getNewMessages(id, startingMessage = undefined) {
     const members = placeholder.members;
 
     for (let i = 0; i < members.length; i++) {
-      if (cacheLookup("members", members[i]._id.user, activeServer) === 1)
-        cache.servers[cacheIndexLookup("servers", activeServer)].members.push(
+      if (cacheLookup("members", members[i]._id.user, state.active.server) === 1)
+        cache.servers[cacheIndexLookup("servers", state.active.server)].members.push(
           members[i],
         );
     }
@@ -51,7 +51,7 @@ async function getNewMessages(id, startingMessage = undefined) {
       );
     else messagesContainer.appendChild(await parseMessage(messages[i]));
 
-    if (unreadMessages.indexOf(messages[i]._id) !== -1) {
+    if (state.unreads.unread.messages.indexOf(messages[i]._id) !== -1) {
       let unreadMarkerContainer = document.createElement("div");
       let unreadMarkerText = document.createElement("span");
 
@@ -71,7 +71,7 @@ async function getNewMessages(id, startingMessage = undefined) {
 async function getMessages(id) {
   cache.messages = [];
   activeReplies = [];
-  activeChannel = id;
+  state.active.channel = id;
   const input = document.querySelector("#input");
 
   input.value = "";
@@ -98,10 +98,14 @@ async function getMessages(id) {
 
   clearMessages();
   let messages = await getNewMessages(id);
-  scrollChatToBottom();
+
+  //Wait for images to start loading
+  setTimeout(() => {
+    scrollChatToBottom();
+  }, 100);
 
   fetch(
-    `${settings.instance.delta}/channels/${activeChannel}/ack/${messages[0]._id}`,
+    `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
     {
       headers: {
         "x-session-token": token,
@@ -112,7 +116,7 @@ async function getMessages(id) {
 }
 
 async function sendMessage() {
-  if (isMessageSending) return;
+  if (state.messageSending) return;
 
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
@@ -133,107 +137,113 @@ async function sendMessage() {
   }
   */
 
-  let embeds = undefined;
-  let masquerade = undefined;
+  // let embeds = undefined;
+  // let masquerade = undefined;
+  //
+  // if (
+  //   document.querySelector("#embedTitle").value ||
+  //   document.querySelector("#embedDesc").value ||
+  //   document.querySelector("#embedColour").value ||
+  //   document.querySelector("#embedIconURL").value ||
+  //   document.querySelector("#embedMedia").value ||
+  //   document.querySelector("#embedURL").value
+  // ) {
+  //   embeds = [
+  //     {
+  //       title: document.querySelector("#embedTitle").value
+  //         ? document.querySelector("#embedTitle").value
+  //         : null,
+  //       description: document.querySelector("#embedDesc").value
+  //         ? document.querySelector("#embedDesc").value
+  //         : null,
+  //       colour: document.querySelector("#embedColour").value
+  //         ? document.querySelector("#embedColour").value
+  //         : null,
+  //       icon_url: document.querySelector("#embedIconURL").value
+  //         ? document.querySelector("#embedIconURL").value
+  //         : null,
+  //       url: document.querySelector("#embedURL").value
+  //         ? document.querySelector("#embedURL").value
+  //         : null,
+  //       media: document.querySelector("#embedMedia").value
+  //         ? document.querySelector("#embedMedia").value
+  //         : null,
+  //     },
+  //   ];
+  // }
+  //
+  // if (
+  //   document.querySelector("#masqName").value ||
+  //   document.querySelector("#masqPfp").value ||
+  //   document.querySelector("#masqColour").value
+  // ) {
+  //   masquerade = {
+  //     name: document.querySelector("#masqName").value
+  //       ? document.querySelector("#masqName").value
+  //       : null,
+  //     avatar: document.querySelector("#masqPfp").value
+  //       ? document.querySelector("#masqPfp").value
+  //       : null,
+  //     colour: document.querySelector("#masqColour").value
+  //       ? document.querySelector("#masqColour").value
+  //       : null,
+  //   };
+  // }
 
-  if (
-    document.querySelector("#embedTitle").value ||
-    document.querySelector("#embedDesc").value ||
-    document.querySelector("#embedColour").value ||
-    document.querySelector("#embedIconURL").value ||
-    document.querySelector("#embedMedia").value ||
-    document.querySelector("#embedURL").value
-  ) {
-    embeds = [
-      {
-        title: document.querySelector("#embedTitle").value
-          ? document.querySelector("#embedTitle").value
-          : null,
-        description: document.querySelector("#embedDesc").value
-          ? document.querySelector("#embedDesc").value
-          : null,
-        colour: document.querySelector("#embedColour").value
-          ? document.querySelector("#embedColour").value
-          : null,
-        icon_url: document.querySelector("#embedIconURL").value
-          ? document.querySelector("#embedIconURL").value
-          : null,
-        url: document.querySelector("#embedURL").value
-          ? document.querySelector("#embedURL").value
-          : null,
-        media: document.querySelector("#embedMedia").value
-          ? document.querySelector("#embedMedia").value
-          : null,
-      },
-    ];
-  }
-
-  if (
-    document.querySelector("#masqName").value ||
-    document.querySelector("#masqPfp").value ||
-    document.querySelector("#masqColour").value
-  ) {
-    masquerade = {
-      name: document.querySelector("#masqName").value
-        ? document.querySelector("#masqName").value
-        : null,
-      avatar: document.querySelector("#masqPfp").value
-        ? document.querySelector("#masqPfp").value
-        : null,
-      colour: document.querySelector("#masqColour").value
-        ? document.querySelector("#masqColour").value
-        : null,
-    };
-  }
-
-  isMessageSending = true;
+  state.messageSending = true;
   messageContainer.classList.add("messageSending");
   messageContainer.readOnly = true;
 
-  if (attachments) await uploadToAutumn();
+  let attachmentIDs;
+  if (attachments) attachmentIDs = await uploadToAutumn();
 
   let body = sendRawJSON
     ? message
-    : JSON.stringify({
+    : {
         content: message,
-        replies: activeReplies,
-        masquerade,
-        embeds,
+        replies: state.messageMods.replies,
+        masquerade: state.messageMods.masquerade,
+        embeds: state.messageMods.embeds,
         attachments: attachmentIDs,
-      });
+      };
+
+  if (!state.messageMods.masquerade.name)
+    body.masquerade = null;
+
+  if (!state.messageMods.embed.title || !state.messageMods.embed.title)
+    body.embed = null;
 
   await fetch(
-    editingMessageID === ""
-      ? `${settings.instance.delta}/channels/${activeChannel}/messages`
-      : `${settings.instance.delta}/channels/${activeChannel}/messages/${editingMessageID}`,
+    state.messageMods.editing === ""
+      ? `${settings.instance.delta}/channels/${state.active.channel}/messages`
+      : `${settings.instance.delta}/channels/${state.active.channel}/messages/${state.messageMods.editing}`,
     {
       headers: {
         "x-session-token": token,
       },
-      method: editingMessageID === "" ? "POST" : "PATCH",
-      body: body,
+      method: state.messageMods.editing === "" ? "POST" : "PATCH",
+      body: JSON.stringify(body),
     },
   )
     .then((response) => response.json())
     .then((data) => {
-      isMessageSending = false;
+      state.messageSending = false;
       messageContainer.readOnly = false;
       messageContainer.classList.remove("messageSending");
 
-      if (editingMessageID !== "") {
-        editingMessageID = "";
+      if (state.messageMods.editing) {
+        state.messageMods.editing = "";
         return;
       }
       fetch(
-        `${settings.instance.delta}/channels/${activeChannel}/ack/${data._id}`,
+        `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
         { method: "PUT", headers: { "x-session-token": token } },
       );
     });
 
   messageContainer.value = "";
-  activeReplies = [];
-  attachments = [];
-  attachmentIDs = [];
+  state.messageMods.replies.length = 0;
+  state.messageMods.attachments.length = 0;
 
   document.querySelector("#uploadsBarContainer").replaceChildren();
   document.querySelector("#uploadsBarContainer").hidden = true;
@@ -243,4 +253,22 @@ async function sendMessage() {
 
 function clearMessages() {
   document.getElementById("messagesContainer").replaceChildren();
+}
+
+async function uploadToAutumn() {
+  let attachmentIDs = [];
+  for (let i = 0; i < state.messageMods.attachments.length; i++) {
+    const formData = new FormData();
+    formData.append("myFile", state.messageMods.attachments[i]);
+
+    await fetch(`${settings.instance.autumn}/attachments`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        attachmentIDs.push(data.id);
+      });
+  }
+  return attachmentIDs;
 }

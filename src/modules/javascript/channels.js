@@ -6,18 +6,18 @@ async function loadDMs() {
   let channelContainer = document.getElementById("channelsContainer");
   let userCat = document.createElement("summary");
 
-  activeChannel = "";
+  state.active.channel = "";
 
   userCat.classList.add("categoryText");
 
-  document.querySelector("#serverBG").src = ``;
+  document.querySelector("#serverBG").src = '';
 
   document.getElementById("serverName").innerText = "Direct Messages";
   document.getElementById("channelName").innerText = "";
   channelContainer.replaceChildren();
   clearMessages();
 
-  await fetchResource(`users/${userProfile._id}/dm`).then((response) => {
+  await fetchResource(`users/${state.connection.userProfile._id}/dm`).then((response) => {
     const dmButton = document.createElement("button");
 
     dmButton.textContent = "Saved messages";
@@ -42,7 +42,7 @@ async function loadDMs() {
     } else {
       let user;
 
-      if (cache.channels[i].recipients[1] !== userProfile._id) {
+      if (cache.channels[i].recipients[1] !== state.connection.userProfile._id) {
         user = await userLookup(cache.channels[i].recipients[1]);
       } else {
         user = await userLookup(cache.channels[i].recipients[0]);
@@ -65,12 +65,12 @@ async function loadDMs() {
 // Renders channels from the cache
 async function getChannels(id) {
   let channelContainer = document.getElementById("channelsContainer");
-  const server = cacheLookup("servers", activeServer);
+  const server = cacheLookup("servers", state.active.server);
   channelContainer.replaceChildren();
 
-  fetchResource(`servers/${id}/members/${userProfile._id}`).then((member) => {
-    if (cacheLookup("members", member._id.user, activeServer) === 1)
-      cache.servers[cacheIndexLookup("servers", activeServer)].members.push(
+  fetchResource(`servers/${id}/members/${state.connection.userProfile._id}`).then((member) => {
+    if (cacheLookup("members", member._id.user, state.active.server) === 1)
+      cache.servers[cacheIndexLookup("servers", state.active.server)].members.push(
         member,
       );
   });
@@ -109,17 +109,17 @@ async function getChannels(id) {
           channelText.innerText = currentChannel.name;
 
           if (
-            unreadChannels.indexOf(currentChannel.id) !== -1 &&
-            mutedChannels.indexOf(currentChannel.id) === -1
+            state.unreads.unread.channels.indexOf(currentChannel.id) !== -1 &&
+            state.unreads.muted.channels.indexOf(currentChannel.id) === -1
           ) {
-            if (unreadMentions.indexOf(currentChannel.id) !== -1)
+            if (state.unreads.mentioned.channels.indexOf(currentChannel.id) !== -1)
               channel.classList.add("mentionedChannel");
             else channel.classList.add("unreadChannel");
           }
 
           channel.appendChild(channelText);
 
-          if (mutedChannels.indexOf(currentChannel.id) !== -1)
+          if (state.unreads.muted.channels.indexOf(currentChannel.id) !== -1)
             channel.classList.add("mutedChannel");
           categoryContainer.appendChild(channel);
         }
@@ -153,12 +153,12 @@ async function getChannels(id) {
     let channel = document.createElement("button");
     channel.classList.add("channel");
 
-    for (let i = 0; i < unreads.length; i++) {
-      if (unreads[i]["_id"].channel === currentChannel.id) {
+    for (let i = 0; i < state.unreads.unreadList.length; i++) {
+      if (state.unreads.unreadList[i]["_id"].channel === currentChannel.id) {
         //currentChannel[0] is the ID of the channel currently being returned
         if (
-          mutedChannels.indexOf(currentChannel.id) === -1 &&
-          currentChannel.lastMessage > unreads[i].lastMessage
+          state.unreads.muted.channels.indexOf(currentChannel.id) === -1 &&
+          currentChannel.lastMessage > state.unreads.unreadList[i].lastMessage
         )
           channel.style.fontWeight = "bold";
 

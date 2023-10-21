@@ -4,7 +4,7 @@
 
 async function loadProfile(userID) {
   const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
-  const memberData = cacheLookup("members", userID, activeServer);
+  const memberData = cacheLookup("members", userID, state.active.server);
   const user = await userLookup(userID);
 
   let displayName = document.getElementById("displayName");
@@ -53,7 +53,7 @@ async function loadProfile(userID) {
   if (memberData.roles)
     for (let i = 0; i < memberData.roles.length; i++) {
       const role = document.createElement("span");
-      const roleData = cacheLookup("roles", memberData.roles[i], activeServer);
+      const roleData = cacheLookup("roles", memberData.roles[i], state.active.server);
 
       role.classList.add("tag");
       role.textContent = roleData["name"];

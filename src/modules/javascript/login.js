@@ -1,21 +1,24 @@
 // Handles login and init
 // TODO: replace all of the fucking if statements
+
+
+
 async function login() {
   await processSettings();
 
-  if (document.getElementById("token").value || token) {
-    if (!token) token = document.getElementById("token").value;
+  if (loginData.token || token) {
+    if (!token) token = loginData.token;
   } else if (
-    document.getElementById("email").value &&
-    document.getElementById("password").value
+    loginData.email &&
+    loginData.password
   ) {
     let tokenResponse = await fetch(
       `${settings.instance.delta}/auth/session/login`,
       {
         method: "POST",
         body: JSON.stringify({
-          email: document.getElementById("email").value,
-          password: document.getElementById("password").value,
+          email: loginData.email,
+          password: loginData.password,
           friendly_name: "Retaped",
         }),
       },
@@ -28,9 +31,9 @@ async function login() {
     } else {
       if (tokenResponse.result === "Unauthorized") {
         localStorage.removeItem("token");
-        showError(tokenResponse.result);
+        showError(tokenResponse);
       } else {
-        if (!document.querySelector("#mfa").value) {
+        if (!loginData.mfa) {
           showError({ name: "LoginError", message: "MFA token required but not provided" });
           return;
         }
@@ -42,7 +45,7 @@ async function login() {
             body: JSON.stringify({
               mfa_ticket: tokenResponse.ticket,
               mfa_response: {
-                totp_code: document.querySelector("#mfa").value,
+                totp_code: loginData.mfa,
               },
               friendly_name: "Retaped",
             }),
@@ -63,7 +66,7 @@ async function login() {
     return;
   }
 
-  if ((userProfile = await fetchResource("users/@me")) === false) {
+  if ((state.connection.userProfile = await fetchResource("users/@me")) === false) {
     showError({ name: "loginError", message: "generic" });
     return;
   }
@@ -73,6 +76,6 @@ async function login() {
   loadSyncSettings();
   bonfire();
 
-  document.querySelector(".login-screen").style.display = "none";
-  document.getElementById("app").style.display = "grid";
+  screens.login.style.display = "none";
+  screens.app.style.display = "grid";
 }

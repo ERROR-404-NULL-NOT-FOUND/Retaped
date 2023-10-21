@@ -20,7 +20,7 @@ function renderReactions(reactions, channelID, messageID) {
     reactionContainer.onclick = () => {
       if (
         cacheLookup("messages", messageID).reactions[reaction].indexOf(
-          userProfile._id,
+          state.connection.userProfile._id,
         ) === -1
       ) {
         fetch(
@@ -39,7 +39,7 @@ function renderReactions(reactions, channelID, messageID) {
       customEmoteImage.src = `${settings.instance.autumn}/emojis/${reaction}`;
     reactionIndicator.innerText = reactions[reaction].length;
     reactionIndicator.classList.add("reactionCount");
-    if (reactions[reaction].indexOf(userProfile._id) !== -1)
+    if (reactions[reaction].indexOf(state.connection.userProfile._id) !== -1)
       reactionContainer.classList.add("selfReacted");
 
     reactionContainer.id = `REACTION-${reaction}`;
@@ -133,7 +133,6 @@ function parseMessageContent(message) {
     }
   });
 
-  //Disabled due to being a pain in the ass
 
   if (
     messageContent.innerHTML.match(
@@ -149,6 +148,7 @@ function parseMessageContent(message) {
       let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
       let tmpImg = document.createElement("img");
       tmpImg.classList.add("emoji");
+      //This is quite possibly the only bit of code in the entire client that I would classify as "spaghetti"
       let outputToGetAroundStupidDomManipulationShit = "";
 
       tmpImg.src = `${settings.instance.autumn}/emojis/${emoji}`;
@@ -174,42 +174,90 @@ function renderEmbed(embed) {
 
     if (embed.icon_url) {
       let icon = document.createElement("img");
-      icon.src = `${settings.instance.autumn}/proxy?url=${embed.icon_url}`;
+
+      icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
       icon.classList.add("embedIcon");
+
       embedContainer.appendChild(icon);
+    }
+
+    if (embed.original_url) {
+      let originalURL = document.createElement("span");
+
+      originalURL.classList.add("embed-site-name");
+      originalURL.textContent = embed.original_url;
+
+      embedContainer.appendChild(originalURL);
+    }
+
+    if (embed.site_name) {
+      let siteName = document.createElement("span");
+
+      siteName.classList.add("embed-site-name");
+      siteName.textContent = embed.site_name;
+
+      embedContainer.appendChild(siteName);
     }
 
     if (embed.title) {
       let title = document.createElement("h3");
+
       title.classList.add("embedTitle");
       title.textContent = embed.title;
+
       embedContainer.appendChild(title);
     }
 
     if (embed.description) {
       let description = document.createElement("pre");
+
       description.classList.add("embedDesc");
       description.textContent = embed.description;
+
       embedContainer.appendChild(description);
     }
 
     //Loki TODO: cap image size
+    if (embed.image && !settings.behaviour.dataSaver) {
+      let media = document.createElement("img");
+
+      media.classList.add("embedMedia");
+      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+
+      embedContainer.appendChild(media);
+    }
+
+    if (embed.video && !settings.behaviour.dataSaver) {
+      let media = document.createElement("video");
+
+      media.classList.add("embedMedia");
+      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+
+      embedContainer.appendChild(media);
+    }
+
     if (embed.media && !settings.behaviour.dataSaver) {
       let media = document.createElement("img");
+
       media.classList.add("embedMedia");
-      media.src = `${settings.instance.autumn}/uploads/${embed.media}`;
+      media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
+
       embedContainer.appendChild(media);
     }
   } else {
     if (embed.type === "Image" && !settings.behaviour.dataSaver) {
       let media = document.createElement("img");
+
       media.classList.add("embedMedia");
       media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+
       embedContainer.appendChild(media);
     } else {
       let media = document.createElement("video");
+
       media.classList.add("embedMedia");
       media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+
       embedContainer.appendChild(media);
     }
   }
@@ -221,7 +269,7 @@ function renderEmbed(embed) {
 // Loki TODO: Add blocked message styling
 // Loki TODO: add some flair for messages sent by friends
 async function parseMessage(message) {
-  const member = cacheLookup("members", message.author, activeServer);
+  const member = cacheLookup("members", message.author, state.active.server);
   const messageContainer = document.getElementById("messagesContainer");
 
   let messageActions = document.createElement("div");
@@ -277,7 +325,7 @@ async function parseMessage(message) {
     messageContainer.appendChild(messageContent);
     return messageDisplay;
   } else {
-    if (message.mentions && message.mentions.indexOf(userProfile._id) !== -1) messageDisplay.classList.add("selfMentioned");
+    if (message.mentions && message.mentions.indexOf(state.connection.userProfile._id) !== -1) messageDisplay.classList.add("selfMentioned");
 
     if (!message.masquerade) {
       username.textContent = member.nickname
@@ -296,7 +344,7 @@ async function parseMessage(message) {
         for (let i = member.roles.length + 1; i >= 0; i--) {
           let tmpColour;
           if (
-            (tmpColour = cacheLookup("roles", member.roles[i], activeServer)[
+            (tmpColour = cacheLookup("roles", member.roles[i], state.active.server)[
               "colour"
             ])
           ) {
@@ -384,14 +432,14 @@ async function parseMessage(message) {
       let attachments = document.createElement("div");
       attachments.classList.add("message-attachments");
 
-      message.attachments.forEach((tmpAtchmntAttrs) => {
-        let tmpAttachment;
+      message.attachments.forEach((tmpAttchmntAttrs) => {
+        let tmpAttachment
         //TODO: edit this to only alter what type of element is created, to follow DRY
 
-        if (tmpAtchmntAttrs.content_type.startsWith("image")) {
+        if (tmpAttchmntAttrs.content_type.startsWith("image")) {
           tmpAttachment = document.createElement("img");
-          tmpAttachment.src = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-        } else if (tmpAtchmntAttrs.content_type.startsWith("video")) {
+          tmpAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+        } else if (tmpAttchmntAttrs.content_type.startsWith("video")) {
           let subAttachment = document.createElement("source");
 
           tmpAttachment = document.createElement("video");
@@ -399,31 +447,32 @@ async function parseMessage(message) {
           tmpAttachment.style.maxWidth = "30%";
           tmpAttachment.style.maxHeight = "30%";
 
-          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-          subAttachment.type = tmpAtchmntAttrs.content_type;
+          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+          subAttachment.type = tmpAttchmntAttrs.content_type;
           tmpAttachment.appendChild(subAttachment);
-        } else if (tmpAtchmntAttrs.content_type.startsWith("audio")) {
+        } else if (tmpAttchmntAttrs.content_type.startsWith("audio")) {
           let tmpContainer = document.createElement("audio");
           let subAttachment = document.createElement("source");
           let name = document.createElement("span");
 
           tmpAttachment = document.createElement("div");
           tmpContainer.controls = true;
-          tmpContainer.textContent = tmpAtchmntAttrs.filename;
+          tmpContainer.textContent = tmpAttchmntAttrs.filename;
 
-          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
-          subAttachment.type = tmpAtchmntAttrs.content_type;
+          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+          subAttachment.type = tmpAttchmntAttrs.content_type;
 
           tmpContainer.appendChild(subAttachment);
-          name.textContent = tmpAtchmntAttrs.filename + "\n";
+          name.textContent = tmpAttchmntAttrs.filename + "\n";
 
           tmpAttachment.appendChild(name);
           tmpAttachment.appendChild(tmpContainer);
         } else {
           tmpAttachment = document.createElement("a");
-          tmpAttachment.textContent = tmpAtchmntAttrs.filename;
-          tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAtchmntAttrs._id}/${tmpAtchmntAttrs.filename}`;
+          tmpAttachment.textContent = tmpAttchmntAttrs.filename;
+          tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
         }
+        tmpAttachment.type = tmpAttchmntAttrs.content_type
         attachments.appendChild(tmpAttachment);
       });
       messageDisplay.appendChild(attachments);
@@ -486,7 +535,7 @@ async function parseMessage(message) {
   deleteButton.onclick = (event) => {
     if (
       checkPermission(message.channel, "ManageMessages") ||
-      (message.author === userProfile._id && event.shiftKey)
+      (message.author === state.connection.userProfile._id && event.shiftKey)
     ) {
       fetch(
         `${settings.instance.delta}/channels/${message.channel}/messages/${message._id}`,
@@ -507,7 +556,7 @@ async function parseMessage(message) {
   deleteButton.classList.add("deleteButton");
 
   messageActions.appendChild(replyButton);
-  if (message.author === userProfile._id)
+  if (message.author === state.connection.userProfile._id)
     messageActions.appendChild(editButton);
   messageActions.appendChild(deleteButton);
 

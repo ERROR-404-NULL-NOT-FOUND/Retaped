@@ -2,51 +2,31 @@
 // Functions related to server caching and rendering
 //
 
-var settings = {
-  behaviour: {
-    dataSaver: false,
-    extremeDataSaver: false,
-    loadImages: true,
-    rememberMe: true,
-  },
-  visual: {
-    legacyStyleSheet: false,
-    compactMode: false,
-    revoltTheme: true,
-  },
-  instance: {
-    delta: "https://api.revolt.chat",
-    bonfire: "wss://ws.revolt.chat",
-    autumn: "https://autumn.revolt.chat",
-    january: "https://jan.revolt.chat",
-    assets: "https://app.revolt.chat",
-    legacyEmotes: "https://dl.insrt.uk",
-  }
-};
 
 // Renders servers from the cache
 async function getServers() {
   let serverContainer = document.getElementById("serversContainer");
   serverContainer.replaceChildren();
 
-  unreads.forEach((unread) => {
+  state.unreads.unreadList.forEach((unread) => {
     if (
       unread.last_id <
         cacheLookup("channels", unread._id.channel).lastMessage &&
-      mutedChannels.indexOf(unread._id.channel) === -1
+      state.unreads.muted.channels.indexOf(unread._id.channel) === -1
     ) {
-      unreadMessages.push(unread.last_id);
-      unreadChannels.push(unread._id.channel);
-      if (unread.mentions) unreadMentions.push(unread._id.channel);
+      state.unreads.unread.messages.push(unread.last_id);
+      state.unreads.unread.channels.push(unread._id.channel);
+      if (unread.mentions) state.unreads.mentions.channels.push(unread._id.channel);
+      if (unread.mentions) state.unreads.mentions.servers.push(cacheLookup("channels", unread._id.channel).server);
     }
   });
 
-  for (let i = 0; i < ordering.length; i++) {
+  for (let i = 0; i < state.ordering.length; i++) {
     let server = document.createElement("button");
-    let serverIndex = cacheIndexLookup("servers", ordering[i]);
+    let serverIndex = cacheIndexLookup("servers", state.ordering[i]);
 
     server.onclick = () => {
-      activeServer = cache.servers[serverIndex].id;
+      state.active.server = cache.servers[serverIndex].id;
       getChannels(cache.servers[serverIndex].id);
 
       //Loki TODO: styling
@@ -62,9 +42,9 @@ async function getServers() {
 
     if (cache.servers[serverIndex].channels) {
       cache.servers[serverIndex].channels.forEach((channel) => {
-        if (unreadChannels.indexOf(channel) !== -1) {
+        if (state.unreads.unread.channels.indexOf(channel) !== -1) {
           server.classList.add(
-            unreadMentions.indexOf(channel) !== -1
+            state.unreads.mentioned.channels.indexOf(channel) !== -1
               ? "mentionedServer"
               : "unreadServer",
           );
@@ -72,7 +52,7 @@ async function getServers() {
       });
     }
 
-    if (mutedServers.indexOf(cache.servers[serverIndex].id) !== -1) {
+    if (state.unreads.muted.servers.indexOf(cache.servers[serverIndex].id) !== -1) {
       server.classList.remove("mentionedServer");
       server.classList.remove("unreadServer");
     }

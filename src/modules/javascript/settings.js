@@ -56,20 +56,20 @@ async function loadSyncSettings() {
   })
     .then((response) => response.json())
     .then((data) => {
-      unreads = data;
+      state.unreads.unreadList = data;
     });
 
   let theme = JSON.parse(rawSettings.theme[1])["appearance:theme:overrides"];
   let notifications = JSON.parse(rawSettings.notifications[1]);
 
-  ordering = JSON.parse(rawSettings.ordering[1]).servers;
+  state.ordering = JSON.parse(rawSettings.ordering[1]).servers;
 
   Object.keys(notifications.channel).forEach((channel) => {
-    if (notifications.channel[channel] === "muted") mutedChannels.push(channel);
+    if (notifications.channel[channel] === "muted") state.unreads.muted.channels.push(channel);
   });
 
   Object.keys(notifications.server).forEach((server) => {
-    if (notifications.server[server] === "muted") mutedServers.push(server);
+    if (notifications.server[server] === "muted") state.unreads.muted.servers.push(server);
   });
 
   if (toggleTheme.checked == true) {
@@ -97,22 +97,6 @@ async function loadSyncSettings() {
     themeVars.style.setProperty("--mention", theme.mention);
 
     document.querySelector("#themeLabel").textContent = "Revolt theme";
-  }
-}
-
-async function uploadToAutumn() {
-  for (let i = 0; i < attachments.length; i++) {
-    const formData = new FormData();
-    formData.append("myFile", attachments[i]);
-
-    await fetch(`${settings.instance.autumn}/attachments`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        attachmentIDs.push(data.id);
-      });
   }
 }
 

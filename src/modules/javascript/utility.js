@@ -39,7 +39,7 @@ function checkPermission(channelID, permission) {
     channel.defaultPermissions["Denied"][permission] === "0"
   ) {
     if (
-      (roles = cacheLookup("members", userProfile._id, channel.server).roles) &&
+      (roles = cacheLookup("members", state.connection.userProfile._id, channel.server).roles) &&
       channel.rolePermissions
     ) {
       roles.forEach((role) => {
@@ -104,21 +104,21 @@ async function fetchResource(target) {
 
 async function updateUnreads(channelID, messageID, unread = true, mentioned = false) {
   if (unread) {
-    if (unreadChannels.indexOf(channelID) === -1) unreadChannels.push(channelID);
+    if (state.unreads.unread.channels.indexOf(channelID) === -1) state.unreads.unread.channels.push(channelID);
   }
-  else unreadChannels.splice(unreadChannels.indexOf(channelID), 1);
+  else state.unreads.unread.channels.splice(state.unreads.unread.channels.indexOf(channelID), 1);
 
-  if (unreadMentions.indexOf(channelID) !== -1) unreadMentions.splice(unreadChannels.indexOf(channelID), 1);
+  if (state.unreads.mentioned.channels.indexOf(channelID) !== -1) state.unreads.mentioned.channels.splice(state.unreads.mentioned.channels.indexOf(channelID), 1);
 
   if (mentioned) {
     if (unread) {
-      if (unreadMentions.indexOf(channelID) === -1) unreadMentions.push(channelID);
+      if (state.unreads.mentioned.channels.indexOf(channelID) === -1) state.unreads.mentioned.channels.push(channelID);
     }
   }
 
-  for (let i = 0; i < unreads.length; i++) {
-    if (unreads[i]._id.channel === channelID) {
-      unreads[i].last_id = messageID;
+  for (let i = 0; i < state.unreads.unreadList.length; i++) {
+    if (state.unreads.unreadList[i]._id.channel === channelID) {
+      state.unreads.unreadList[i].last_id = messageID;
       return 0;
     }
   }
@@ -143,8 +143,8 @@ function showError(error) {
 }
 
 function addFile(file) {
-  if (attachments.length >= 5) return;
-  if (!checkPermission(activeChannel, "UploadFiles")) return;
+  if (state.messageMods.attachments.length >= 5) return;
+  if (!checkPermission(state.active.channel, "UploadFiles")) return;
 
   const upload = file;
   const uploadsContainer = document.getElementById("uploadsBarContainer");
@@ -178,7 +178,7 @@ function addFile(file) {
 
   uploadsContainer.hidden = false;
 
-  attachments.push(upload);
+  state.messageMods.attachments.push(upload);
 }
 
 function getRolePermissions(roleObjects) {
@@ -188,4 +188,9 @@ function getRolePermissions(roleObjects) {
     permissions[role] = getPermissions(roleObjects[role]);
   });
   return permissions;
+}
+
+function scrollChatToBottom() {
+  const element = document.querySelector("#messagesContainer");
+  element.scrollTo(0, element.scrollHeight);
 }

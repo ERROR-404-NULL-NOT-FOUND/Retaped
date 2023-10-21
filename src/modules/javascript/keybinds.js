@@ -2,6 +2,9 @@
 // Keybinds
 //
 
+const replyingContainer = document.querySelector(".replying-container");
+const inputContainer = document.querySelector("#input");
+
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "Enter":
@@ -14,15 +17,12 @@ window.addEventListener("keydown", (event) => {
     case "Escape":
       if (activeReplies.length !== 0) {
         activeReplies.pop();
-        document.querySelector(".replying-container").lastChild.remove();
+        replyingContainer.lastChild.remove();
       } else {
         editingMessageID = "";
-        document.querySelector("#input").value = "";
+        inputContainer.value = "";
       }
       break;
-
-    default:
-      keysDown.push(event.key);
   }
   return;
 });
