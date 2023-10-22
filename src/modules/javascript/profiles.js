@@ -39,7 +39,7 @@ async function loadProfile(userID) {
   if (user.status) {
     if (user.status.text)
       status.textContent = user.status.text;
-    presenceIcon.src = `../assets/${user.status.presence}.svg`;
+    presenceIcon.src = `../assets/${user.status.presence ? user.status.presence : "Offline"}.svg`;
   }
 
   if (user.badges) {

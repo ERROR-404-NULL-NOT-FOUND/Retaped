@@ -334,7 +334,7 @@ async function parseMessage(message) {
         ? member.nickname
         : user.displayName;
 
-      if (user.status) presenceIcon.src = `../assets/${user.status.presence}.svg`;
+      if (user.status) presenceIcon.src = `../assets/${user.status.presence ? user.status.presence : "Offline"}.svg`;
 
       if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
 
