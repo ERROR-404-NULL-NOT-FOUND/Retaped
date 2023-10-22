@@ -1,6 +1,6 @@
 //
 // Settings handling
-// 
+//
 
 //Processes client-side settings
 async function processSettings() {
@@ -13,7 +13,7 @@ async function processSettings() {
     settings = JSON.parse(localStorage.getItem("settings"));
 
   if (instanceURL.value) {
-    await fetch(isntanceURL.value)
+    await fetch(instanceURL.value)
       .then((res) => res.json())
       .then((data) => {
         settings.instance.delta = instanceURL.value;
@@ -39,7 +39,7 @@ async function loadSyncSettings() {
     `${settings.instance.delta}/sync/settings/fetch`,
     {
       headers: {
-        "x-session-token": token,
+        "x-session-token": state.connection.token,
       },
       body: JSON.stringify({
         keys: ["theme", "notifications", "ordering"],
@@ -48,13 +48,7 @@ async function loadSyncSettings() {
     },
   ).then((response) => response.json());
 
-  fetch(`${settings.instance.delta}/sync/unreads`, {
-    headers: {
-      "x-session-token": token,
-    },
-    method: "GET",
-  })
-    .then((response) => response.json())
+  await fetchResource('/sync/unreads')
     .then((data) => {
       state.unreads.unreadList = data;
     });
@@ -100,28 +94,85 @@ async function loadSyncSettings() {
   }
 }
 
-function loadSetting(settingCategory) {
+async function loadSetting(settingCategory) {
   let mainSettings = document.querySelector("#mainSettings");
   let settingCatName = document.querySelector("#settingCatName");
   settingCatName.innerText = settingCategory;
-  Object.keys(settings[settingCategory]).forEach((setting) => {
-    let settingContainer = document.createElement("input");
-    let settingContainerLabel = document.createElement("label");
+  mainSettings.replaceChildren();
 
-    settingContainer.type = "checkbox";
-    settingContainer.checked = settings[settingCategory][setting];
-    settingContainer.id = setting;
-    settingContainer.onclick = () => {
-      settings[settingCategory][setting] = !settings[settingCategory][setting];
-      setSettings();
-    };
+  if (settingCategory !== "profile") {
+    Object.keys(settings[settingCategory]).forEach((setting) => {
+      let settingContainer = document.createElement("input");
+      let settingContainerLabel = document.createElement("label");
 
-    settingContainerLabel.textContent = setting;
-    settingContainerLabel.for = setting;
-    settingContainer.classList.add("settingContainer");
-    mainSettings.appendChild(settingContainer);
-    mainSettings.appendChild(settingContainerLabel);
-  });
+      settingContainer.type = "checkbox";
+      settingContainer.checked = settings[settingCategory][setting];
+      settingContainer.id = setting;
+      settingContainer.onclick = () => {
+        settings[settingCategory][setting] = !settings[settingCategory][setting];
+        setSettings();
+      };
+
+      settingContainerLabel.textContent = setting;
+      settingContainerLabel.for = setting;
+      settingContainer.classList.add("settingContainer");
+      mainSettings.appendChild(settingContainer);
+      mainSettings.appendChild(settingContainerLabel);
+    });
+  } else {
+    //Loki TODO: style
+    //Creates a div with text, profile preview, text, profile editor, save button
+    let user = await fetchResource(`users/${state.connection.userProfile._id}/profile`);
+
+    let profileEditor = document.createElement("div");
+    let profilePreviewContainer = document.createElement("div");
+    let profileInputContainer = document.createElement("div");
+    let profilePreview = document.createElement("p");
+    let profileInput = document.createElement("textarea");
+    let profilePreviewText = document.createElement("h4");
+    let profileInputText = document.createElement("h4");
+    let profileSaveButton = document.createElement("button");
+
+    profileEditor.classList.add("profile-editor")
+    profilePreviewContainer.classList.add("profile-preview");
+    profileInputContainer.classList.add("profile-input");
+    profileSaveButton.classList.add("profile-save-button");
+
+    profilePreview.innerHTML = converter.makeHtml(user.content);
+    profilePreviewText.innerText = "Profile preview";
+    profileInputText.innerText = "Profile editor";
+    profileSaveButton.innerText = "Save profile"
+
+    profileInput.value = user.content;
+
+    profileInput.onkeyup = () => {
+      profilePreview.innerHTML = converter.makeHtml(profileInput.value);
+    }
+
+    profileSaveButton.onclick = () => {
+      fetch(`${settings.instance.delta}/users/${state.connection.userProfile._id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          profile: {
+            content: profileInput.value,
+          }
+        }),
+        headers: {
+          "x-session-token": state.connection.token,
+        }
+      });
+    }
+
+    profileInputContainer.appendChild(profileInputText);
+    profileInputContainer.appendChild(profileInput);
+    profilePreviewContainer.appendChild(profilePreviewText);
+    profilePreviewContainer.appendChild(profilePreview);
+
+    profileEditor.appendChild(profilePreviewContainer);
+    profileEditor.appendChild(profileInputContainer);
+    profileEditor.appendChild(profileSaveButton);
+    mainSettings.appendChild(profileEditor);
+  }
 }
 
 function setSettings() {

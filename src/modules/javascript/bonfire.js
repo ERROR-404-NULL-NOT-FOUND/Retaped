@@ -4,13 +4,13 @@
 
 // Function to interface with Revolt's websocket service
 async function bonfire() {
-  socket = new WebSocket(settings.instance.bonfire);
+  state.connection.socket = new WebSocket(settings.instance.bonfire);
 
-  socket.addEventListener("open", async function (event) {
-    socket.send(`{"type": "Authenticate","token": "${token}"}`);
+  state.connection.socket.addEventListener("open", async function (event) {
+    state.connection.socket.send(`{"type": "Authenticate","token": "${state.connection.token}"}`);
   });
 
-  socket.addEventListener("message", async function (event) {
+  state.connection.socket.addEventListener("message", async function (event) {
     let data;
     const typingBar = document.getElementById("typingBar");
     data = JSON.parse(event.data);
@@ -33,7 +33,7 @@ async function bonfire() {
               `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
               {
                 headers: {
-                  "x-session-token": token,
+                  "x-session-token": state.connection.token,
                 },
                 method: "PUT",
               },
@@ -228,7 +228,7 @@ async function bonfire() {
     }
   });
 
-  socket.addEventListener("error", function (event) {
+  state.connection.socket.addEventListener("error", function (event) {
     showError(event);
   });
 }

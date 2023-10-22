@@ -10,6 +10,7 @@ const modalBackground = document.querySelectorAll(".modal-background");
 const loginButton = document.querySelector("#login-btn");
 const openSettingsButton = document.querySelector("#openSettingsBtn");
 const openDMsbutton = document.querySelector("#dms");
+const profileSetting = document.querySelector("#profileSetting");
 
 embedBotton.onclick = () => {
     let embed = document.querySelector("#embed");
@@ -43,6 +44,10 @@ closeSettingsButton.onclick = () => {
 
 behaviourSetting.onclick = () => {
     loadSetting('behaviour');
+}
+
+profileSetting.onclick = () => {
+    loadSetting('profile');
 }
 
 modalBackground.forEach((element) => {

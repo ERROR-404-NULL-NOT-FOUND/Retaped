@@ -90,7 +90,7 @@ async function fetchResource(target) {
   //Return of false means that it failed
   const res = await fetch(`${settings.instance.delta}/${target}`, {
     headers: {
-      "x-session-token": token,
+      "x-session-token": state.connection.token,
     },
     method: "GET",
   })
@@ -127,17 +127,18 @@ async function updateUnreads(channelID, messageID, unread = true, mentioned = fa
 
 function showError(error) {
   let errorContainer;
-  if (errorTimeout) clearTimeout(errorTimeout);
+  if (state.errorTimeout) clearTimeout(state.errorTimeout);
 
-  if (!token)
+  if (!state.connection.token)
     errorContainer = document.querySelector("#loginErrorContainer");
   else
     errorContainer = document.querySelector("#errorContainer");
+
   errorContainer.style.display = "block";
 
   errorContainer.querySelector("#loginErrorContent").innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
 
-  errorTimeout = setTimeout(() => {
+  state.errorTimeout = setTimeout(() => {
     errorContainer.style.display = "none";
   }, 30000); //30 seconds
 }

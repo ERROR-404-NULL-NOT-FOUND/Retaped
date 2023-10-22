@@ -52,7 +52,7 @@ window.onload = function () {
   });
 
   if (!localStorage.getItem("token")) return;
-  token = localStorage.getItem("token");
+  state.connection.token = localStorage.getItem("token");
   login();
 };
 

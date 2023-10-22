@@ -6,8 +6,8 @@
 async function login() {
   await processSettings();
 
-  if (loginData.token || token) {
-    if (!token) token = loginData.token;
+  if (loginData.token || state.connection.token) {
+    if (!state.connection.token) state.connection.token = loginData.token;
   } else if (
     loginData.email &&
     loginData.password
@@ -27,7 +27,7 @@ async function login() {
       .then((data) => data);
 
     if (tokenResponse.result === "Success") {
-      token = tokenResponse.token;
+      state.connection.token = tokenResponse.token;
     } else {
       if (tokenResponse.result === "Unauthorized") {
         localStorage.removeItem("token");
@@ -54,7 +54,7 @@ async function login() {
           .then((res) => res.json())
           .then((data) => data);
 
-        if (mfaTokenResponse.result === "Success") token = mfaTokenResponse.token;
+        if (mfaTokenResponse.result === "Success") state.connection.token = mfaTokenResponse.token;
         else {
           showError(mfaTokenResponse);
           return;
@@ -71,7 +71,7 @@ async function login() {
     return;
   }
 
-  if (!localStorage.getItem("token") && settings.behaviour.rememberMe) localStorage.setItem("token", token);
+  if (!localStorage.getItem("token") && settings.behaviour.rememberMe) localStorage.setItem("token", state.connection.token);
 
   loadSyncSettings();
   bonfire();

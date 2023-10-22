@@ -108,7 +108,7 @@ async function getMessages(id) {
     `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
     {
       headers: {
-        "x-session-token": token,
+        "x-session-token": state.connection.token,
       },
       method: "PUT",
     },
@@ -219,7 +219,7 @@ async function sendMessage() {
       : `${settings.instance.delta}/channels/${state.active.channel}/messages/${state.messageMods.editing}`,
     {
       headers: {
-        "x-session-token": token,
+        "x-session-token": state.connection.token,
       },
       method: state.messageMods.editing === "" ? "POST" : "PATCH",
       body: JSON.stringify(body),
@@ -237,7 +237,7 @@ async function sendMessage() {
       }
       fetch(
         `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
-        { method: "PUT", headers: { "x-session-token": token } },
+        { method: "PUT", headers: { "x-session-token": state.connection.token } },
       );
     });
 

@@ -176,7 +176,7 @@ function renderEmbed(embed) {
       let icon = document.createElement("img");
 
       icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
-      icon.classList.add("embedIcon");
+      icon.classList.add("embed-icon");
 
       embedContainer.appendChild(icon);
     }
