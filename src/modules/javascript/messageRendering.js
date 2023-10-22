@@ -345,21 +345,25 @@ async function parseMessage(message) {
         : `${settings.instance.delta}/users/${user.id}/default_avatar`;
 
       if (member.roles) {
-        for (let i = member.roles.length + 1; i >= 0; i--) {
-          let tmpColour;
-          if (
-            (tmpColour = cacheLookup("roles", member.roles[i], state.active.server)[
-              "colour"
-            ])
-          ) {
-            if (/^#[0-9A-F]{6}$/i.test(tmpColour)) {
-              // Testing if it's a valid hex code
-              username.style.backgroundColor = tmpColour;
-              break;
-            } else {
-              username.style.background = tmpColour;
-              username.style.backgroundClip = "border-box";
-            }
+        let highestRole;
+        let currentRoleRank = 2 ^ 64; //64-bit integer limit; no role can be ranked lower than this
+
+        for (let i = 0; i <= member.roles.length; i++) {
+          let tmpRole = cacheLookup("roles", member.roles[i], state.active.server);
+          if (tmpRole.colour &&
+            tmpRole.rank < currentRoleRank) { //Higher number = lower rank
+            highestRole = tmpRole;
+            currentRoleRank = tmpRole.rank;
+          }
+        }
+
+        if (highestRole !== undefined) {
+          if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
+            // Testing if it's a valid hex code
+            username.style.backgroundColor = highestRole.colour;
+          } else {
+            username.style.background = highestRole.colour;
+            username.style.backgroundClip = "border-box";
           }
         }
       }
