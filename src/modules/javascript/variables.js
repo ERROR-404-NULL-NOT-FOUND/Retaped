@@ -27,6 +27,7 @@ var settings = {
     legacyStyleSheet: false,
     compactMode: false,
     revoltTheme: true,
+    showPresenceIconsInChat: true,
   },
 
   instance: {

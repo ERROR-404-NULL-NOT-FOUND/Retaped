@@ -526,3 +526,9 @@ input[type="file"] {
   display: flex;
   flex-direction: row;
 }
+/*Intended: overlayed over pfp*/
+.presence-icon {
+  max-height: 1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}

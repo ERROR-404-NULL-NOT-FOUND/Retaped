@@ -16,8 +16,8 @@ async function getServers() {
     ) {
       state.unreads.unread.messages.push(unread.last_id);
       state.unreads.unread.channels.push(unread._id.channel);
-      if (unread.mentions) state.unreads.mentions.channels.push(unread._id.channel);
-      if (unread.mentions) state.unreads.mentions.servers.push(cacheLookup("channels", unread._id.channel).server);
+      if (unread.mentions) state.unreads.mentioned.channels.push(unread._id.channel);
+      if (unread.mentions) state.unreads.mentioned.servers.push(cacheLookup("channels", unread._id.channel).server);
     }
   });
 

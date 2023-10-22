@@ -11,6 +11,7 @@ const loginButton = document.querySelector("#login-btn");
 const openSettingsButton = document.querySelector("#openSettingsBtn");
 const openDMsbutton = document.querySelector("#dms");
 const profileSetting = document.querySelector("#profileSetting");
+const visualSetting = document.querySelector("#visualSetting");
 
 embedBotton.onclick = () => {
     let embed = document.querySelector("#embed");
@@ -44,6 +45,10 @@ closeSettingsButton.onclick = () => {
 
 behaviourSetting.onclick = () => {
     loadSetting('behaviour');
+}
+
+visualSetting.onclick = () => {
+    loadSetting('visual');
 }
 
 profileSetting.onclick = () => {

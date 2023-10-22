@@ -6,11 +6,11 @@ var converter = new showdown.Converter();
 //
 
 window.onload = function () {
-  fetch("./emojis.json")
+  fetch("../assets/emojis.json")
     .then((res) => res.json())
     .then((json) => (emojis = json));
 
-  fetch("./badges.json")
+  fetch("../assets/badges.json")
     .then((res) => res.json())
     .then((json) => (badges = json));
 
@@ -41,7 +41,7 @@ window.onload = function () {
         }, 500);
       } else {
         if (documentHeight.scrollHeight - documentHeight.offsetHeight === documentHeight.scrollTop &&
-          cache.messages[cache.messages.length - 1] in unreadMessages) {
+          cache.messages[cache.messages.length - 1] in state.unreads.unread.messages) {
             fetch(
                 `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
                 {

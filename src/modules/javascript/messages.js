@@ -55,22 +55,23 @@ async function getNewMessages(id, startingMessage = undefined) {
 }
 
 async function getMessages(id) {
-  cache.messages = [];
-  activeReplies = [];
+  cache.messages.length = 0;
+  state.messageMods.replies.length = 0;
   state.active.channel = id;
   const input = document.querySelector("#input");
 
-  input.value = "";
+  input.value.length = 0;
   input.readOnly = false;
 
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
+
   const uploadsBarContainer = document.querySelector("#uploadsBarContainer");
 
   uploadsBarContainer.replaceChildren();
   uploadsBarContainer.hidden = true;
-  attachments = [];
+  state.messageMods.attachments.length = 0;
 
   // fetchResource(`channels/${id}`).then((data) => {
   //   // document.getElementById("serverName").innerText =

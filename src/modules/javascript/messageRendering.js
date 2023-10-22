@@ -281,6 +281,7 @@ async function parseMessage(message) {
   let editButton = document.createElement("button");
   let deleteButton = document.createElement("button");
   let masqueradeBadge = document.createElement("span");
+  let presenceIcon = document.createElement("img");
   let messageDisplay = document.createElement("div");
   let reactionsContainer = document.createElement("div");
 
@@ -290,7 +291,8 @@ async function parseMessage(message) {
   userData.classList.add("userdata");
   username.classList.add("username");
   messageContent.classList.add("message-content");
-  reactionsContainer.classList.add("reactionsContainer");
+  reactionsContainer.classList.add("reactions-container");
+  presenceIcon.classList.add("presence-icon");
 
   reactionsContainer.id = `reactionsContainer${message._id}`;
 
@@ -331,9 +333,11 @@ async function parseMessage(message) {
       username.textContent = member.nickname
         ? member.nickname
         : user.displayName;
+
+      if (user.status) presenceIcon.src = `../assets/${user.status.presence}.svg`;
+
       if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
 
-      username.appendChild(masqueradeBadge);
       profilePicture.src = member.avatar
         ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
         : user.pfp
@@ -390,6 +394,8 @@ async function parseMessage(message) {
 
   userData.appendChild(profilePicture);
   userData.appendChild(username);
+  userData.appendChild(masqueradeBadge);
+  if (settings.visual.showPresenceIconsInChat) userData.appendChild(presenceIcon);
 
   if (user.relationship !== "Blocked") {
     messageContent = parseMessageContent(message);
@@ -514,8 +520,8 @@ async function parseMessage(message) {
   }
 
   replyButton.onclick = () => {
-    if (activeReplies.length >= 5) return;
-    activeReplies.push({
+    if (state.messageMods.replies.length >= 5) return;
+    state.messageMods.replies.push({
       id: message["_id"],
       mention: false,
     });

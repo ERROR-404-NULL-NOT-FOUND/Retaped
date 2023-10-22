@@ -25,11 +25,9 @@ async function bonfire() {
       case "Message":
         await updateUnreads(data.channel, data._id, true, data.mentions ? data.mentions.indexOf(state.connection.userProfile._id) !== -1 : false);
         if (data.channel === state.active.channel) {
-          document
-            .querySelector("#messagesContainer")
-            .appendChild(await parseMessage(data));
           const messageContainer = document.querySelector("#messagesContainer");
-          if (document.hasFocus && messageContainer.scrollHeight - messageContainer.offsetHeight === messageContainer.scrollTop) {
+          const shouldAck = document.hasFocus && messageContainer.scrollHeight - messageContainer.offsetHeight === messageContainer.scrollTop;
+          if (shouldAck) {
             fetch(
               `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
               {
@@ -39,8 +37,11 @@ async function bonfire() {
                 method: "PUT",
               },
             );
-            scrollChatToBottom();
           }
+          document
+            .querySelector("#messagesContainer")
+            .appendChild(await parseMessage(data));
+          if (shouldAck) scrollChatToBottom();
         } else {
           if (
             (channel = document.getElementById(data.channel)) &&

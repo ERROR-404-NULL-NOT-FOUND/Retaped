@@ -3,12 +3,12 @@
 //
 
 async function loadProfile(userID) {
-  
   let displayName = document.querySelector("#displayName");
   let username = document.querySelector("#username");
   let status = document.querySelector("#status");
   let profilePicture = document.querySelector("#profilePicture");
   let profileBackground = document.querySelector("#profileMedia");
+  let presenceIcon = document.querySelector("#presenceIcon");
   let badgesContainer = document.querySelector("#badgesContainer");
   let bio = document.querySelector("#bio");
   let roleContainer = document.querySelector("#roleContainer");
@@ -19,6 +19,7 @@ async function loadProfile(userID) {
   status.textContent = '';
   bio.textContent = '';
   profilePicture.src = '';
+  presenceIcon.src = '';
 
   const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, state.active.server);
@@ -35,8 +36,11 @@ async function loadProfile(userID) {
   }
 
   //Loki TODO: Style
-  if (user.status.text)
-    status.textContent = user.status.text;
+  if (user.status) {
+    if (user.status.text)
+      status.textContent = user.status.text;
+    presenceIcon.src = `../assets/${user.status.presence}.svg`;
+  }
 
   if (user.badges) {
     //Loki TODO: style badges
