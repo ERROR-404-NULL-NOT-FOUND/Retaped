@@ -181,9 +181,9 @@ async function sendMessage() {
   messageContainer.readOnly = true;
 
   let attachmentIDs;
-  if (attachments) attachmentIDs = await uploadToAutumn();
+  if (state.messageMods.attachments) attachmentIDs = await uploadToAutumn();
 
-  let body = sendRawJSON
+  let body = state.messageMods.sendRawJSON
     ? message
     : {
         content: message,

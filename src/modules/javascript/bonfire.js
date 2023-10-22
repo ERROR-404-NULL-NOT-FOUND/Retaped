@@ -28,7 +28,8 @@ async function bonfire() {
           document
             .querySelector("#messagesContainer")
             .appendChild(await parseMessage(data));
-          if (document.hasFocus) {
+          const messageContainer = document.querySelector("#messagesContainer");
+          if (document.hasFocus && messageContainer.scrollHeight - messageContainer.offsetHeight === messageContainer.scrollTop) {
             fetch(
               `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
               {

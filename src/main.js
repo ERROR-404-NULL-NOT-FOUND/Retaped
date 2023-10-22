@@ -39,6 +39,19 @@ window.onload = function () {
         setTimeout(() => {
           documentHeight.scrollTo(0, documentHeight.scrollHeight - initialHeight);
         }, 500);
+      } else {
+        if (documentHeight.scrollHeight - documentHeight.offsetHeight === documentHeight.scrollTop &&
+          cache.messages[cache.messages.length - 1] in unreadMessages) {
+            fetch(
+                `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
+                {
+                  headers: {
+                    "x-session-token": state.connection.token,
+                  },
+                  method: "PUT",
+                },
+              );
+          }
       }
     });
 
