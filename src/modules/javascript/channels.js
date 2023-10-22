@@ -3,7 +3,7 @@
 //
 
 async function loadDMs() {
-  let channelContainer = document.getElementById("channelsContainer");
+  let channelContainer = document.querySelector("#channelsContainer");
   let userCat = document.createElement("summary");
 
   state.active.channel = "";
@@ -12,8 +12,8 @@ async function loadDMs() {
 
   document.querySelector("#serverBG").src = '';
 
-  document.getElementById("serverName").innerText = "Direct Messages";
-  document.getElementById("channelName").innerText = "";
+  document.querySelector("#serverName").innerText = "Direct Messages";
+  document.querySelector("#channelName").innerText = "";
   channelContainer.replaceChildren();
   clearMessages();
 
@@ -53,7 +53,8 @@ async function loadDMs() {
 
     dmButton.onclick = () => {
       getMessages(cache.channels[i].id);
-      document.getElementById("channelName").innerText = dmButton.textContent;
+      document.querySelector("#channelName").innerText = dmButton.textContent;
+      document.querySelector("#channelDesc").innerText.length = 0;
     };
 
     dmButton.id = cache.channels[i].id;
@@ -64,7 +65,7 @@ async function loadDMs() {
 
 // Renders channels from the cache
 async function getChannels(id) {
-  let channelContainer = document.getElementById("channelsContainer");
+  let channelContainer = document.querySelector("#channelsContainer");
   const server = cacheLookup("servers", state.active.server);
   channelContainer.replaceChildren();
 
@@ -101,8 +102,13 @@ async function getChannels(id) {
 
           channel.onclick = () => {
             getMessages(currentChannel.id);
-            document.getElementById("channelName").innerText =
+            document.querySelector("#channelName").innerText =
               currentChannel.name;
+
+            //Channel description setting; the expression checks whether or not the channel has a desc
+            document.querySelector("#channelDesc").innerText = currentChannel.desc ?
+              currentChannel.desc :
+              "This channel doesn't have a description yet"
           };
 
           channel.id = currentChannel.id;

@@ -57,6 +57,7 @@ async function buildChannelCache(channels) {
           id: channels[i]._id,
           name: channels[i].name,
           type: channels[i].channel_type,
+          desc: channels[i].description,
           server: channels[i].server,
           lastMessage: channels[i].last_message_id,
           defaultPermissions: getPermissions(channels[i].default_permissions),
@@ -69,6 +70,7 @@ async function buildChannelCache(channels) {
           id: channels[i]._id,
           name: channels[i].name,
           type: channels[i].channel_type,
+          desc: channels[i].description,
         });
         break;
 
