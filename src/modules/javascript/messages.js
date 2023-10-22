@@ -12,21 +12,7 @@ async function getNewMessages(id, startingMessage = undefined) {
 
   const users = placeholder.users;
 
-  for (let i = 0; i < users.length; i++) {
-    if (cacheLookup("users", users[i]._id) === 1)
-      cache.users.push({
-        id: users[i]._id,
-        username: users[i].username,
-        pfp: users[i].avatar,
-        bot: users[i].bot,
-        discriminator: users[i].discriminator,
-        displayName: users[i].display_name
-          ? users[i].display_name
-          : users[i].username,
-        relationship: users[i].relationship,
-        badges: getBadges(users[i].badges),
-      });
-  }
+  buildUserCache(users);
 
   if (placeholder.members) {
     const members = placeholder.members;

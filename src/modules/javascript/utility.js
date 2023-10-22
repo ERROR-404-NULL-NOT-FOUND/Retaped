@@ -62,19 +62,8 @@ async function userLookup(ID) {
   if (cacheLookup("users", ID) !== 1) return cacheLookup("users", ID);
   user = await fetchResource(`users/${ID}`);
 
-  let fmtUser;
-  fmtUser = {
-    id: user._id,
-    username: user.username,
-    pfp: user.avatar,
-    bot: user.bot,
-    discriminator: user.discriminator,
-    displayName: user.display_name ? user.display_name : user.username,
-    relationship: user.relationship,
-    badges: getBadges(user.badges),
-  };
-  cache.users.push(fmtUser);
-  return fmtUser;
+  buildUserCache([user]);
+  return cacheLookup("users", ID);
 }
 
 // Looks up the given resource by id and returns the index

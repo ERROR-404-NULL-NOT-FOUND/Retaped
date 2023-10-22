@@ -3,17 +3,26 @@
 //
 
 async function loadProfile(userID) {
+  
+  let displayName = document.querySelector("#displayName");
+  let username = document.querySelector("#username");
+  let status = document.querySelector("#status");
+  let profilePicture = document.querySelector("#profilePicture");
+  let profileBackground = document.querySelector("#profileMedia");
+  let badgesContainer = document.querySelector("#badgesContainer");
+  let bio = document.querySelector("#bio");
+  let roleContainer = document.querySelector("#roleContainer");
+
+  username.textContent = '';
+  displayName.textContent = '';
+  badgesContainer.textContent = '';
+  status.textContent = '';
+  bio.textContent = '';
+  profilePicture.src = '';
+
   const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, state.active.server);
   const user = await userLookup(userID);
-
-  let displayName = document.getElementById("displayName");
-  let username = document.getElementById("username");
-  let profilePicture = document.getElementById("profilePicture");
-  let profileBackground = document.getElementById("profileMedia");
-  let badgesContainer = document.querySelector("#badgesContainer");
-  let bio = document.getElementById("bio");
-  let roleContainer = document.getElementById("roleContainer");
 
   username.textContent = `${user.username}#${user.discriminator}`;
   displayName.textContent = user.displayName;
@@ -24,6 +33,10 @@ async function loadProfile(userID) {
   } else {
     profilePicture.src = `${settings.instance.delta}/users/${user._id}/default_avatar`;
   }
+
+  //Loki TODO: Style
+  if (user.status.text)
+    status.textContent = user.status.text;
 
   if (user.badges) {
     //Loki TODO: style badges
