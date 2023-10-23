@@ -363,7 +363,7 @@ fieldset legend {
   padding-top: 0.3rem;
 }
 
-#typingBarContainer, 
+#typingBarContainer,
 #typingBarContainer div,
 #typingBarContainer > span {
   display: flex;
@@ -531,4 +531,10 @@ input[type="file"] {
   max-height: 1em;
   margin-top: 1em;
   margin-bottom: 1em;
+}
+.setting-container {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  flex-wrap: wrap;
 }

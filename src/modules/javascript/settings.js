@@ -104,22 +104,32 @@ async function loadSetting(settingCategory) {
 
   if (settingCategory !== "profile") {
     Object.keys(settings[settingCategory]).forEach((setting) => {
-      let settingContainer = document.createElement("input");
-      let settingContainerLabel = document.createElement("label");
+      let settingContainer = document.createElement("div");
+      let settingInput = document.createElement("input");
+      let settingInputLabel = document.createElement("label");
+      let settingDesc = document.createElement("span");
 
-      settingContainer.type = "checkbox";
-      settingContainer.checked = settings[settingCategory][setting];
-      settingContainer.id = setting;
-      settingContainer.onclick = () => {
-        settings[settingCategory][setting] = !settings[settingCategory][setting];
+      settingInput.type = "checkbox";
+      settingInput.checked = settings[settingCategory][setting].value;
+      settingInput.id = setting;
+      console.log(settings[settingCategory][setting])
+      settingInput.onclick = () => {
+        settings[settingCategory][setting] = !settings[settingCategory][setting].value;
         setSettings();
       };
 
-      settingContainerLabel.textContent = setting;
-      settingContainerLabel.for = setting;
-      settingContainer.classList.add("settingContainer");
+      //Loki TODO: style
+      settingDesc.innerHTML = "<br>" + settings[settingCategory][setting].description;
+      settingInputLabel.textContent = settings[settingCategory][setting].name;
+      settingInputLabel.for = setting;
+
+      settingContainer.classList.add("setting-container");
+
+      settingContainer.appendChild(settingInput);
+      settingContainer.appendChild(settingInputLabel);
+      settingContainer.appendChild(settingDesc);
+
       mainSettings.appendChild(settingContainer);
-      mainSettings.appendChild(settingContainerLabel);
     });
   } else {
     //Loki TODO: style

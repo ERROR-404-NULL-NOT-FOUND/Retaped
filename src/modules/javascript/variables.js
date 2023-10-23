@@ -17,30 +17,7 @@ const loginData = {
 }
 
 //Local settings; saved to localstorage
-var settings = {
-  behaviour: {
-    dataSaver: false,
-    extremeDataSaver: false,
-    loadImages: true,
-    rememberMe: true,
-  },
-
-  visual: {
-    legacyStyleSheet: false,
-    compactMode: false,
-    revoltTheme: true,
-    showPresenceIconsInChat: true,
-  },
-
-  instance: {
-    delta: "https://api.revolt.chat",
-    bonfire: "wss://ws.revolt.chat",
-    autumn: "https://autumn.revolt.chat",
-    january: "https://jan.revolt.chat",
-    assets: "https://app.revolt.chat",
-    legacyEmotes: "https://dl.insrt.uk",
-  }
-};
+var settings;
 
 //
 var state = {

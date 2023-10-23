@@ -5,7 +5,7 @@
 //
 
 // TODO: Move a lot of this code into modules/javascript/binds.js
-window.onload = function () {
+window.onload = async function () {
   fetch("../assets/emojis.json")
     .then((res) => res.json())
     .then((json) => (emojis = json));
@@ -64,6 +64,9 @@ window.onload = function () {
     }
   });
 
+  await fetch("../assets/defaultSettings.json")
+    .then((res) => res.json())
+    .then((json) => (settings = json));
   if (!localStorage.getItem("token")) return;
   state.connection.token = localStorage.getItem("token");
   login();
