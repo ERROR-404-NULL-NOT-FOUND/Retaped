@@ -36,20 +36,15 @@ function cacheLookup(resource, ID, serverID = null) {
 function checkPermission(channelID, permission) {
   const channel = cacheLookup("channels", channelID);
 
-  if (
-    channel.defaultPermissions &&
-    channel.defaultPermissions["Denied"][permission] === "0"
-  ) {
-    if (
-      (roles = cacheLookup("members", state.connection.userProfile._id, channel.server).roles) &&
-      channel.rolePermissions
-    ) {
-      roles.forEach((role) => {
-        if (
-          channel.rolePermissions[role] &&
-          (channel.rolePermissions[role]["Allowed"][permission] === "1" ||
-            channel.rolePermissions[role]["Denied"] === "0")
-        )
+  if (channel.defaultPermissions &&
+    channel.defaultPermissions.Denied[permission]) {
+    if ((roles = cacheLookup("members", state.connection.userProfile._id, channel.server).roles) &&
+      channel.rolePermissions) {
+
+      return roles.some((role) => { //Some returns a value, hence its use here
+        if (channel.rolePermissions[role] &&
+          (channel.rolePermissions[role].Allowed[permission] || //If it's allowed or not explicitly denied
+            !channel.rolePermissions[role].Denied[permission]))
           return true;
       });
     }
@@ -171,15 +166,6 @@ function addFile(file) {
   uploadsContainer.hidden = false;
 
   state.messageMods.attachments.push(upload);
-}
-
-function getRolePermissions(roleObjects) {
-  if (!roleObjects) return null;
-  let permissions = {};
-  Object.keys(roleObjects).forEach((role) => {
-    permissions[role] = getPermissions(roleObjects[role]);
-  });
-  return permissions;
 }
 
 function scrollChatToBottom() {

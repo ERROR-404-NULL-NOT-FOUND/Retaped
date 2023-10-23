@@ -128,31 +128,47 @@ function getBadges(badgesInt) {
   return badges;
 }
 
+//Iterates over a list of roles and calculates permissions for each one
+function getRolePermissions(roleObjects) {
+  if (!roleObjects) return null;
+  let permissions = {};
+  Object.keys(roleObjects).forEach((role) => {
+    permissions[role] = getPermissions(roleObjects[role]);
+  });
+  console.log(permissions)
+  return permissions;
+}
+
 function getPermissions(permissionsInt) {
   if (!permissionsInt) return null;
   let permissionsAllowedBit = permissionsInt["a"].toString(2);
   let permissionsDeniedBit = permissionsInt["d"].toString(2);
+
   let permissionsAllowed = {
-    ViewChannel: permissionsAllowedBit[20],
-    ReadMessageHistory: permissionsAllowedBit[21],
-    SendMessage: permissionsAllowedBit[22],
-    ManageMessages: permissionsAllowedBit[23],
-    SendEmbeds: permissionsAllowedBit[26],
-    UploadFiles: permissionsAllowedBit[27],
-    Masquerade: permissionsAllowedBit[28],
-    React: permissionsAllowedBit[29],
+    ViewChannel: Boolean(permissionsAllowedBit[20]),
+    ReadMessageHistory: Boolean(permissionsAllowedBit[21]),
+    SendMessage: Boolean(permissionsAllowedBit[22]),
+    ManageMessages: Boolean(permissionsAllowedBit[23]),
+    SendEmbeds: Boolean(permissionsAllowedBit[26]),
+    UploadFiles: Boolean(permissionsAllowedBit[27]),
+    Masquerade: Boolean(permissionsAllowedBit[28]),
+    React: Boolean(permissionsAllowedBit[29]),
   };
+
   let permissionsDenied = {
-    ViewChannel: permissionsDeniedBit[20],
-    ReadMessageHistory: permissionsDeniedBit[21],
-    SendMessage: permissionsDeniedBit[22],
-    ManageMessages: permissionsDeniedBit[23],
-    SendEmbeds: permissionsDeniedBit[26],
-    UploadFiles: permissionsDeniedBit[27],
-    Masquerade: permissionsDeniedBit[28],
-    React: permissionsDeniedBit[29],
+    ViewChannel: Boolean(permissionsDeniedBit[20]),
+    ReadMessageHistory: Boolean(permissionsDeniedBit[21]),
+    SendMessage: Boolean(permissionsDeniedBit[22]),
+    ManageMessages: Boolean(permissionsDeniedBit[23]),
+    SendEmbeds: Boolean(permissionsDeniedBit[26]),
+    UploadFiles: Boolean(permissionsDeniedBit[27]),
+    Masquerade: Boolean(permissionsDeniedBit[28]),
+    React: Boolean(permissionsDeniedBit[29]),
   };
-  return { Allowed: permissionsAllowed, Denied: permissionsDenied };
+  return {
+    Allowed: permissionsAllowed,
+    Denied: permissionsDenied
+  };
 }
 
 //@license-end

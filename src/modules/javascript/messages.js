@@ -75,14 +75,12 @@ async function getMessages(id) {
   uploadsBarContainer.hidden = true;
   state.messageMods.attachments.length = 0;
 
-  // fetchResource(`channels/${id}`).then((data) => {
-  //   // document.getElementById("serverName").innerText =
-  //   //   data.channel_type === "DirectMessage" ? data.recipients[0] : data.channel_type === "SavedMessages" ? "Saved Messages" : cacheLookup("servers", data.server)[1];
-  //   document.getElementById("serverName").innerText = cacheLookup("servers", data.server)[1];
-  // });
   if (!checkPermission(id, "SendMessage")) {
     input.value = "You don't have permission to send messages in this channel";
     input.readOnly = true;
+  } else {
+    input.value = '';
+    input.readOnly = false;
   }
 
   clearMessages();
@@ -91,7 +89,7 @@ async function getMessages(id) {
   //Wait for images to start loading
   setTimeout(() => {
     scrollChatToBottom();
-  }, 100);
+  }, 200);
 
   fetch(
     `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
@@ -125,59 +123,6 @@ async function sendMessage() {
     }
   }
   */
-
-  // let embeds = undefined;
-  // let masquerade = undefined;
-  //
-  // if (
-  //   document.querySelector("#embedTitle").value ||
-  //   document.querySelector("#embedDesc").value ||
-  //   document.querySelector("#embedColour").value ||
-  //   document.querySelector("#embedIconURL").value ||
-  //   document.querySelector("#embedMedia").value ||
-  //   document.querySelector("#embedURL").value
-  // ) {
-  //   embeds = [
-  //     {
-  //       title: document.querySelector("#embedTitle").value
-  //         ? document.querySelector("#embedTitle").value
-  //         : null,
-  //       description: document.querySelector("#embedDesc").value
-  //         ? document.querySelector("#embedDesc").value
-  //         : null,
-  //       colour: document.querySelector("#embedColour").value
-  //         ? document.querySelector("#embedColour").value
-  //         : null,
-  //       icon_url: document.querySelector("#embedIconURL").value
-  //         ? document.querySelector("#embedIconURL").value
-  //         : null,
-  //       url: document.querySelector("#embedURL").value
-  //         ? document.querySelector("#embedURL").value
-  //         : null,
-  //       media: document.querySelector("#embedMedia").value
-  //         ? document.querySelector("#embedMedia").value
-  //         : null,
-  //     },
-  //   ];
-  // }
-  //
-  // if (
-  //   document.querySelector("#masqName").value ||
-  //   document.querySelector("#masqPfp").value ||
-  //   document.querySelector("#masqColour").value
-  // ) {
-  //   masquerade = {
-  //     name: document.querySelector("#masqName").value
-  //       ? document.querySelector("#masqName").value
-  //       : null,
-  //     avatar: document.querySelector("#masqPfp").value
-  //       ? document.querySelector("#masqPfp").value
-  //       : null,
-  //     colour: document.querySelector("#masqColour").value
-  //       ? document.querySelector("#masqColour").value
-  //       : null,
-  //   };
-  // }
 
   state.messageSending = true;
   messageContainer.classList.add("messageSending");
