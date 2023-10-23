@@ -150,7 +150,7 @@ async function loadSetting(settingCategory) {
     profileInputContainer.classList.add("profile-input");
     profileSaveButton.classList.add("profile-save-button");
 
-    profilePreview.innerHTML = converter.makeHtml(user.content);
+    profilePreview.innerHTML = marked.parse(user.content);
     profilePreviewText.innerText = "Profile preview";
     profileInputText.innerText = "Profile editor";
     profileSaveButton.innerText = "Save profile"
@@ -158,7 +158,7 @@ async function loadSetting(settingCategory) {
     profileInput.value = user.content;
 
     profileInput.onkeyup = () => {
-      profilePreview.innerHTML = converter.makeHtml(profileInput.value);
+      profilePreview.innerHTML = marked.parse(profileInput.value);
     }
 
     profileSaveButton.onclick = () => {
