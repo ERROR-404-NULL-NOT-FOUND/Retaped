@@ -1,7 +1,7 @@
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-3.0
+
 // Handles login and init
 // TODO: replace all of the fucking if statements
-
-
 
 async function login() {
   await processSettings();
@@ -79,3 +79,5 @@ async function login() {
   screens.login.style.display = "none";
   screens.app.style.display = "grid";
 }
+
+//@license-end

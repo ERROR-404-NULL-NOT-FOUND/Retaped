@@ -1,3 +1,5 @@
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-3.0
+
 //
 // All of the message render functions
 //
@@ -159,9 +161,11 @@ function parseMessageContent(message) {
       messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
     }
   }
-  messageContent.innerHTML = converter
-    .makeHtml(messageContent.innerHTML)
-    .replace(/\n/g, "<br>");
+  messageContent.innerHTML = marked
+    .parse(messageContent.innerHTML)
+    .replace(/\n/g, "<br>"); //Replace newlines with something that HTML parses
+
+  messageContent.innerHTML = messageContent.innerHTML.substring(0, messageContent.innerHTML.length - 4); //Remove final <br> that gets added for some reason
 
   return messageContent;
 }
@@ -582,3 +586,4 @@ async function parseMessage(message) {
   return messageDisplay;
 }
 
+//@license-end
