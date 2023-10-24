@@ -45,6 +45,7 @@ async function getNewMessages(id, startingMessage = undefined) {
       );
     else messagesContainer.appendChild(await parseMessage(messages[i]));
 
+    //LOKI todo: styling
     if (state.unreads.unread.messages.indexOf(messages[i]._id) !== -1) {
       let unreadMarkerContainer = document.createElement("div");
       let unreadMarkerText = document.createElement("span");
@@ -68,14 +69,6 @@ async function getNewMessages(id, startingMessage = undefined) {
  * @returns {null} Doesn't return 
  */
 async function getMessages(id) {
-  cache.messages.length = 0;
-  state.messageMods.replies.length = 0;
-  state.active.channel = id;
-  const input = document.querySelector("#input");
-
-  input.value.length = 0;
-  input.readOnly = false;
-
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
@@ -94,7 +87,7 @@ async function getMessages(id) {
     input.readOnly = false;
   }
 
-  clearMessages();
+  clearMessages(id);
   let messages = await getNewMessages(id);
 
   //Wait for images to start loading
@@ -202,9 +195,10 @@ async function sendMessage() {
 
 /**
  * Macro to remove all messages and reset state
+ * @param id channelID
  * @returns {null} Doesn't return
  */
-function clearMessages() {
+function clearMessages(id) {
   const input = document.querySelector("#input");
   document.getElementById("messagesContainer").replaceChildren();
   

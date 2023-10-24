@@ -107,7 +107,7 @@ async function getChannels(id) {
         categoryContainer.classList.add("channel-category");
 
         categoryText.textContent = category.title;
-        categoryText.classList.add("categoryText");
+        categoryText.classList.add("category-text");
         categoryContainer.appendChild(categoryText);
 
         if (category.channels) {

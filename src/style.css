@@ -445,14 +445,14 @@ fieldset legend {
   box-shadow: var(--tertiary-background) 0px 0px 0px 3px;
 }
 
-.unreadChannel {
+.unread-channel {
   color: var(--foreground);
   background-color: var(--secondary-backgound);
   font-weight: bold;
   opacity: 1;
 }
 
-.mentionedChannel {
+.mentioned-channel {
   color: var(--mention); 
   background-color: var(--tertiary-backgound);
   font-weight: bold;
@@ -491,7 +491,7 @@ input[type="file"] {
   flex-direction: row;
 }
 
-.unreadMarkerContainer {
+.unread-marker-container {
   width: 100%;
   background-color: var(--mention);
   height: 0.5em;
@@ -501,7 +501,7 @@ input[type="file"] {
   flex-direction: column;
 }
 
-.unreadMarkerContainer > span {
+.unread-marker-container > span {
   padding: 5px;
   border-radius: var(--border-radius);
   background-color: inherit;
