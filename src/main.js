@@ -41,9 +41,9 @@ window.onload = async function () {
         }, 500);
       } else {
         if (documentHeight.scrollHeight - documentHeight.offsetHeight === documentHeight.scrollTop &&
-          cache.messages[cache.messages.length - 1] in state.unreads.unread.messages) {
+          cache.messages[cache.messages.length - 1].id in state.unreads.unread.messages) {
             fetch(
-                `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
+                `${settings.instance.delta}/channels/${state.active.channel}/ack/${cache.messages[cache.messages.length - 1].id}`,
                 {
                   headers: {
                     "x-session-token": state.connection.token,

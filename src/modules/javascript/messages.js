@@ -37,6 +37,8 @@ async function getNewMessages(id, startingMessage = undefined) {
   if (startingMessage) messages = placeholder.messages.reverse();
   else messages = placeholder.messages;
 
+  let unread = false;
+  
   for (let i = messages.length - 1; i >= 0; i--) {
     if (startingMessage)
       messagesContainer.insertBefore(
@@ -49,18 +51,18 @@ async function getNewMessages(id, startingMessage = undefined) {
     if (state.unreads.unread.messages.indexOf(messages[i]._id) !== -1) {
       let unreadMarkerContainer = document.createElement("div");
       let unreadMarkerText = document.createElement("span");
-
+      unread = true;
+    
       unreadMarkerText.innerText = "NEW";
       unreadMarkerContainer.classList.add("unreadMarkerContainer");
-
-      unreadMarkerContainer.appendChild(unreadMarkerText);
-      document
-        .querySelector("#messagesContainer")
-        .appendChild(unreadMarkerContainer);
+    
+      unreadMarkerContainer.appendChild(unreadMarkerText);  
+      messagesContainer.appendChild(unreadMarkerContainer);
     }
   }
+  if (unread) document.querySelector(".unreadMarkerContainer").scrollIntoView();
 
-  return placeholder.messages;
+  return [placeholder.messages, unread];
 }
 
 /**
@@ -88,10 +90,10 @@ async function getMessages(id) {
   }
 
   clearMessages(id);
-  let messages = await getNewMessages(id);
+  let [messages, unread] = await getNewMessages(id);
 
   //Wait for images to start loading
-  setTimeout(() => {
+  if (!unread) setTimeout(() => {
     scrollChatToBottom();
   }, 200);
 

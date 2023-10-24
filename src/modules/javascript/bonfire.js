@@ -43,8 +43,9 @@ async function bonfire() {
           const messageContainer = document.querySelector("#messagesContainer");
           const shouldAck =
             document.hasFocus &&
-            messageContainer.scrollHeight - messageContainer.offsetHeight ===
-              messageContainer.scrollTop;
+            messageContainer.scrollHeight - messageContainer.offsetHeight >=
+              messageContainer.scrollTop+10;
+
           if (shouldAck) {
             fetch(
               `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
@@ -59,6 +60,7 @@ async function bonfire() {
           document
             .querySelector("#messagesContainer")
             .appendChild(await parseMessage(data));
+
           if (shouldAck) scrollChatToBottom();
         } else {
           if (

@@ -128,17 +128,16 @@ function parseEmojis(messageContent) {
   //Searches for each standard emoji and replaces it with its unicode counterpart
   //TODO: use mutant remix
   Object.keys(emojis.standard).forEach((emoji) => {
-    if (messageContent.innerHTML.search(`:${emoji}:`) !== -1) {
-      messageContent.innerHTML = messageContent.innerHTML.replace(
-        new RegExp(`:${emoji}:`, "g"),
-        emojis.standard[emoji],
-      );
-    }
+    if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
+    messageContent.innerHTML = messageContent.innerHTML.replace(
+      new RegExp(`:${emoji}:`, "g"),
+      emojis.standard[emoji],
+    );
   });
   
   //Ditto, but replaces it with an image instead
   Object.keys(emojis.custom).forEach((emoji) => {
-    if (messageContent.innerHTML.search(`:${emoji}`) === -1) return;
+    if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
 
     let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
     let emojiImage = document.createElement("img");
@@ -186,24 +185,26 @@ function parseEmojis(messageContent) {
  */
 function parseMessageContent(message) {
   let messageContent = document.createElement("div");
-
+  
   messageContent.classList.add("messageContent");
   if (!message.content) return messageContent;
 
   //Message sanitation; replaces < and > with their HTML symbols
-  let sanitizedContent = message.content.replace(/</g, "&lt;");
-  sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
+  let sanitizedContent = message.content
+                          .replace(/</g, "&lt;")
+                          .replace(/>/g, "&gt;");
   messageContent.innerHTML = sanitizedContent;
 
-  messageContent = parseMentions(message, messageContent);
   messageContent = parseEmojis(messageContent);
+  messageContent = parseMentions(message, messageContent);
 
   //Markdown renderer
   messageContent.innerHTML = marked
     .parse(messageContent.innerHTML)
     .replace(/\n/g, "<br>"); //Replace newlines with something that HTML parses
 
-  messageContent.innerHTML = messageContent.innerHTML.substring(0, messageContent.innerHTML.length - 4); //Remove final <br> that gets added for some reason
+  //TODO: Make the following code work 100% of the time
+  // messageContent.innerHTML = messageContent.innerHTML.substring(0, messageContent.innerHTML.length - 4); //Remove final <br> that gets added for some reason
 
   return messageContent;
 }
@@ -362,7 +363,7 @@ function contextButtons(message) {
         {
           method: "DELETE",
           headers: {
-            "x-session-token": state.connection.token,
+            "x-session-token": token,
           },
         },
       );
