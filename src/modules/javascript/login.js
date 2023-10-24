@@ -1,17 +1,15 @@
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-3.0
 
-// Handles login and init
 // TODO: replace all of the fucking if statements
 
+/**
+ * Handles login
+ * @returns {null}
+ */
 async function login() {
-  await processSettings();
-
-  if (loginData.token || state.connection.token) {
-    if (!state.connection.token) state.connection.token = loginData.token;
-  } else if (
-    loginData.email &&
-    loginData.password
-  ) {
+  if (loginData.token.value || state.connection.token) {
+    if (!state.connection.token) state.connection.token = loginData.token.value;
+  } else if (loginData.email && loginData.password) {
     let tokenResponse = await fetch(
       `${settings.instance.delta}/auth/session/login`,
       {
@@ -21,7 +19,7 @@ async function login() {
           password: loginData.password,
           friendly_name: "Retaped",
         }),
-      },
+      }
     )
       .then((res) => res.json())
       .then((data) => data);
@@ -34,7 +32,10 @@ async function login() {
         showError(tokenResponse);
       } else {
         if (!loginData.mfa) {
-          showError({ name: "LoginError", message: "MFA token required but not provided" });
+          showError({
+            name: "LoginError",
+            message: "MFA token required but not provided",
+          });
           return;
         }
 
@@ -49,12 +50,13 @@ async function login() {
               },
               friendly_name: "Retaped",
             }),
-          },
+          }
         )
           .then((res) => res.json())
           .then((data) => data);
 
-        if (mfaTokenResponse.result === "Success") state.connection.token = mfaTokenResponse.token;
+        if (mfaTokenResponse.result === "Success")
+          state.connection.token = mfaTokenResponse.token;
         else {
           showError(mfaTokenResponse);
           return;
@@ -66,18 +68,12 @@ async function login() {
     return;
   }
 
-  if ((state.connection.userProfile = await fetchResource("users/@me")) === false) {
+  if (
+    (state.connection.userProfile = await fetchResource("users/@me")) === false
+  ) {
     showError({ name: "loginError", message: "generic" });
     return;
   }
-
-  if (!localStorage.getItem("token") && settings.behaviour.rememberMe) localStorage.setItem("token", state.connection.token);
-
-  loadSyncSettings();
-  bonfire();
-
-  screens.login.style.display = "none";
-  screens.app.style.display = "grid";
 }
 
 //@license-end

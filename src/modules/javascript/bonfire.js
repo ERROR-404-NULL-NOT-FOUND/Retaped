@@ -4,12 +4,18 @@
 // Bonfire message handler
 //
 
-// Function to interface with Revolt's websocket service
+/*
+ * Interface with Revolt's websocket service
+ * @param none
+ * @return none
+ * */
 async function bonfire() {
   state.connection.socket = new WebSocket(settings.instance.bonfire);
 
   state.connection.socket.addEventListener("open", async function (event) {
-    state.connection.socket.send(`{"type": "Authenticate","token": "${state.connection.token}"}`);
+    state.connection.socket.send(
+      `{"type": "Authenticate","token": "${state.connection.token}"}`
+    );
   });
 
   state.connection.socket.addEventListener("message", async function (event) {
@@ -25,10 +31,20 @@ async function bonfire() {
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":
-        await updateUnreads(data.channel, data._id, true, data.mentions ? data.mentions.indexOf(state.connection.userProfile._id) !== -1 : false);
+        await updateUnreads(
+          data.channel,
+          data._id,
+          true,
+          data.mentions
+            ? data.mentions.indexOf(state.connection.userProfile._id) !== -1
+            : false
+        );
         if (data.channel === state.active.channel) {
           const messageContainer = document.querySelector("#messagesContainer");
-          const shouldAck = document.hasFocus && messageContainer.scrollHeight - messageContainer.offsetHeight === messageContainer.scrollTop;
+          const shouldAck =
+            document.hasFocus &&
+            messageContainer.scrollHeight - messageContainer.offsetHeight ===
+              messageContainer.scrollTop;
           if (shouldAck) {
             fetch(
               `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
@@ -37,7 +53,7 @@ async function bonfire() {
                   "x-session-token": state.connection.token,
                 },
                 method: "PUT",
-              },
+              }
             );
           }
           document
@@ -50,26 +66,28 @@ async function bonfire() {
             state.unreads.muted.channels.indexOf(data.channel) === -1
           ) {
             channel.classList.add(
-              data.mentions && data.mentions.indexOf(state.connection.userProfile._id) !== -1
+              data.mentions &&
+                data.mentions.indexOf(state.connection.userProfile._id) !== -1
                 ? "mentionedChannel"
-                : "unreadChannel",
+                : "unreadChannel"
             );
           }
 
           if (
             state.unreads.muted.channels.indexOf(data.channel) === -1 &&
             state.unreads.muted.servers.indexOf(
-              cacheLookup("channels", data.channel).server,
+              cacheLookup("channels", data.channel).server
             ) === -1
           ) {
             document
               .getElementById(
-                `SERVER-${cacheLookup("channels", data.channel).server}`,
+                `SERVER-${cacheLookup("channels", data.channel).server}`
               )
               .classList.add(
-                data.mentions && data.mentions.indexOf(state.connection.userProfile._id) !== -1
+                data.mentions &&
+                  data.mentions.indexOf(state.connection.userProfile._id) !== -1
                   ? "mentionedServer"
-                  : "unreadServer",
+                  : "unreadServer"
               );
           }
         }
@@ -101,13 +119,18 @@ async function bonfire() {
 
         let stillUnread = false;
         let stillMentioned = false;
-        cacheLookup("servers", cacheLookup("channels", data.id).server).channels.forEach((channel) => {
-          if (state.unreads.unread.channels.indexOf(channel) !== -1) stillUnread = true;
-          if (state.unreads.mentioned.channels.indexOf(channel) !== -1) stillMentioned = true;
+        cacheLookup(
+          "servers",
+          cacheLookup("channels", data.id).server
+        ).channels.forEach((channel) => {
+          if (state.unreads.unread.channels.indexOf(channel) !== -1)
+            stillUnread = true;
+          if (state.unreads.mentioned.channels.indexOf(channel) !== -1)
+            stillMentioned = true;
         });
 
         let server = document.getElementById(
-          `SERVER-${cacheLookup("channels", data.id).server}`,
+          `SERVER-${cacheLookup("channels", data.id).server}`
         );
         if (!stillUnread) server.classList.remove("unreadServer");
         if (!stillMentioned) server.classList.remove("mentionedServer");
@@ -167,7 +190,10 @@ async function bonfire() {
         const typingUserContainer = document.getElementById(data.user);
         if (typingUserContainer) {
           typingUserContainer.remove();
-          state.currentlyTyping.splice(state.currentlyTyping.indexOf(data.user), 1);
+          state.currentlyTyping.splice(
+            state.currentlyTyping.indexOf(data.user),
+            1
+          );
         }
 
         if (typingBar.children.length === 0)
@@ -176,7 +202,7 @@ async function bonfire() {
 
       case "MessageReact": {
         let reactionsContainer = document.getElementById(
-          `reactionsContainer${data.id}`,
+          `reactionsContainer${data.id}`
         );
         if ((reactionContainer = undefined)) return;
         let message = cacheLookup("messages", data.id);
@@ -188,14 +214,19 @@ async function bonfire() {
             renderReactions(
               { [data.emoji_id]: [data.user_id] },
               data.channel_id,
-              data.id,
-            )[0],
+              data.id
+            )[0]
           );
         } else {
-          if (!(reactionContainer = reactionsContainer.querySelector(`#REACTION-${data.emoji_id}`))) break;
+          if (
+            !(reactionContainer = reactionsContainer.querySelector(
+              `#REACTION-${data.emoji_id}`
+            ))
+          )
+            break;
           reactionContainer.querySelector(".reactionCount").innerText =
             Number(
-              reactionsContainer.querySelector(".reactionCount").innerText,
+              reactionsContainer.querySelector(".reactionCount").innerText
             ) + 1;
         }
         if (message.reactions && message.reactions[data.emoji_id])
@@ -208,15 +239,15 @@ async function bonfire() {
 
       case "MessageUnreact": {
         let reactionsContainer = document.getElementById(
-          `reactionsContainer${data.id}`,
+          `reactionsContainer${data.id}`
         );
         let message = cacheLookup("messages", data.id);
         message.reactions[data.emoji_id].splice(
           message.reactions[data.emoji_id].indexOf(data.user_id),
-          1,
+          1
         );
         let reactionContainer = reactionsContainer.querySelector(
-          `#REACTION-${data.emoji_id}`,
+          `#REACTION-${data.emoji_id}`
         );
         if (!Object.keys(message.reactions).indexOf(data.emoji_id)) {
           message.reactions[data.emoji_id] = undefined;
@@ -224,7 +255,7 @@ async function bonfire() {
         } else {
           reactionContainer.querySelector(".reactionCount").innerText =
             Number(
-              reactionsContainer.querySelector(".reactionCount").innerText,
+              reactionsContainer.querySelector(".reactionCount").innerText
             ) - 1;
         }
         break;

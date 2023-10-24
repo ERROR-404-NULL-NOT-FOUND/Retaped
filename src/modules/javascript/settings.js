@@ -4,7 +4,10 @@
 // Settings handling
 //
 
-//Processes client-side settings
+/**
+ * Processes client-side settings
+ * @returns {null} Doesn't return
+ */
 async function processSettings() {
   const toggleToken = document.querySelector("#toggleToken");
   const instanceURL = document.querySelector("#customInstance");
@@ -35,7 +38,10 @@ async function processSettings() {
   setSettings();
 }
 
-// Loads settings from the user's Revolt account, mainly for colour loading
+/**
+ * Loads settings from the user's Revolt account, mainly for colour loading
+ * @returns {null} Doesn't return
+ */
 async function loadSyncSettings() {
   const rawSettings = await fetch(
     `${settings.instance.delta}/sync/settings/fetch`,
@@ -96,6 +102,11 @@ async function loadSyncSettings() {
   }
 }
 
+/**
+ * Loads the settings in a given setting category
+ * @param {String} settingCategory Any of: behaviour, visual, profile
+ * @returns {null} Doesn't return
+ */
 async function loadSetting(settingCategory) {
   let mainSettings = document.querySelector("#mainSettings");
   let settingCatName = document.querySelector("#settingCatName");
@@ -187,6 +198,10 @@ async function loadSetting(settingCategory) {
   }
 }
 
+/**
+ * Macro to save settings
+ * @returns {null} Doesn't return
+ */
 function setSettings() {
   localStorage.setItem("settings", JSON.stringify(settings));
 }

@@ -4,6 +4,8 @@
 // All global variables used in the app
 //
 
+// Note: var is used to differentiate between local and global variable definitions
+
 const screens = {
   login: document.querySelector(".login-screen"),
   app: document.querySelector("#app"),

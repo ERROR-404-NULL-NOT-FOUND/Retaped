@@ -4,8 +4,16 @@
 // All of the message render functions
 //
 
+/**
+ * Description
+ * @param {Object} reactions  An object containing reactions and who reacted to them
+ * @param {String} channelID  ID of channel that the message was sent in
+ * @param {String} messageID  ID of message containing the reactions
+ * @returns {any}
+ */
 function renderReactions(reactions, channelID, messageID) {
   let children = [];
+
   Object.keys(reactions).forEach((reaction) => {
     let reactionContainer = document.createElement("button");
     let customEmoteImage;
@@ -23,7 +31,7 @@ function renderReactions(reactions, channelID, messageID) {
       if (
         cacheLookup("messages", messageID).reactions[reaction].indexOf(
           state.connection.userProfile._id,
-        ) === -1
+        ) === -1 // If the reaction has been reacted by the user
       ) {
         fetch(
           `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
@@ -38,7 +46,8 @@ function renderReactions(reactions, channelID, messageID) {
     };
 
     if (Object.values(emojis.standard).indexOf(reaction) === -1)
-      customEmoteImage.src = `${settings.instance.autumn}/emojis/${reaction}`;
+      customEmoteImage.src = `${settings.instance.autumn}/emojis/${reaction}`; // Jen insists that these are called "emotes," not emojis
+
     reactionIndicator.innerText = reactions[reaction].length;
     reactionIndicator.classList.add("reactionCount");
     if (reactions[reaction].indexOf(state.connection.userProfile._id) !== -1)
@@ -48,26 +57,24 @@ function renderReactions(reactions, channelID, messageID) {
     reactionContainer.classList.add("reaction")
     reactionContainer.appendChild(customEmoteImage);
     reactionContainer.appendChild(reactionIndicator);
+
     children.push(reactionContainer);
   });
   return children;
 }
 
-function parseMessageContent(message) {
-  let messageContent = document.createElement("div");
-
-  messageContent.classList.add("messageContent");
-  if (!message.content) return messageContent;
-
-  let sanitizedContent = message.content.replace(/</g, "&lt;");
-  sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
-  messageContent.innerHTML = sanitizedContent;
-
-  //Mention parser
+/**
+ * Mention parser
+ * @param {Object} message  Message object
+ * @param {HTMLElement} messageContent  HTML element for the message
+ * @returns {HTMLElement}
+ */
+function parseMentions(message, messageContent) {
   if (message.mentions) {
     message.mentions.forEach((mention) => {
       let splitMessage;
-      if ((splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`)).length === 1) return;
+      // Due to sanitization, we have to check for the HTML eqiuvilents of the symbols < and >
+      if ((splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`)).length === 1) return; 
 
       let segConcat = document.createElement("div");
       let newSeg;
@@ -109,7 +116,17 @@ function parseMessageContent(message) {
     });
   }
 
-  // Emojis
+  return messageContent;
+}
+
+/**
+ * Parses the emojis in a message
+ * @param {HTMLElement} messageContent HTML element for the message
+ * @returns {HTMLElement} The element with emojis
+ */
+function parseEmojis(messageContent) {
+  //Searches for each standard emoji and replaces it with its unicode counterpart
+  //TODO: use mutant remix
   Object.keys(emojis.standard).forEach((emoji) => {
     if (messageContent.innerHTML.search(`:${emoji}:`) !== -1) {
       messageContent.innerHTML = messageContent.innerHTML.replace(
@@ -118,7 +135,8 @@ function parseMessageContent(message) {
       );
     }
   });
-
+  
+  //Ditto, but replaces it with an image instead
   Object.keys(emojis.custom).forEach((emoji) => {
     if (messageContent.innerHTML.search(`:${emoji}`) === -1) return;
 
@@ -126,7 +144,7 @@ function parseMessageContent(message) {
     let emojiImage = document.createElement("img");
 
     emojiImage.src = `${settings.instance.legacyEmotes}/projects/revolt/emotes/${emojis.custom[emoji]}`;
-    messageContent.replaceChildren();
+    messageContent.replaceChildren(); //Removes all elements in the message content
 
     for (let i = 0; i < tmpMsg.length; i++) {
       if (i !== tmpMsg.length - 1)
@@ -135,21 +153,18 @@ function parseMessageContent(message) {
     }
   });
 
-
+  //Matches custom emojis
   if (
-    messageContent.innerHTML.match(
+    (matches = messageContent.innerHTML.match(
       /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-    ) !== null
+    )) !== null
   ) {
-    let matches = messageContent.innerHTML.match(
-      /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
-    );
-
     for (let i = 0; i < matches.length; i++) {
       let emoji = matches[i].split(":")[1];
       let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
       let tmpImg = document.createElement("img");
       tmpImg.classList.add("emoji");
+
       //This is quite possibly the only bit of code in the entire client that I would classify as "spaghetti"
       let outputToGetAroundStupidDomManipulationShit = "";
 
@@ -161,6 +176,29 @@ function parseMessageContent(message) {
       messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
     }
   }
+  return messageContent;
+}
+
+/**
+ * Description
+ * @param {Object} message  Message object to render
+ * @returns {any}
+ */
+function parseMessageContent(message) {
+  let messageContent = document.createElement("div");
+
+  messageContent.classList.add("messageContent");
+  if (!message.content) return messageContent;
+
+  //Message sanitation; replaces < and > with their HTML symbols
+  let sanitizedContent = message.content.replace(/</g, "&lt;");
+  sanitizedContent = sanitizedContent.replace(/>/g, "&gt;");
+  messageContent.innerHTML = sanitizedContent;
+
+  messageContent = parseMentions(message, messageContent);
+  messageContent = parseEmojis(messageContent);
+
+  //Markdown renderer
   messageContent.innerHTML = marked
     .parse(messageContent.innerHTML)
     .replace(/\n/g, "<br>"); //Replace newlines with something that HTML parses
@@ -170,6 +208,11 @@ function parseMessageContent(message) {
   return messageContent;
 }
 
+/**
+ * Description
+ * @param {Object} embed Embed object to be rendered
+ * @returns {HTMLElement} HTML element containing the embed
+ */
 function renderEmbed(embed) {
   let embedContainer = document.createElement("div");
   if (embed.type === "Text" || embed.type === "Website") {
@@ -222,7 +265,7 @@ function renderEmbed(embed) {
     }
 
     //Loki TODO: cap image size
-    if (embed.image && !settings.behaviour.dataSaver) {
+    if (embed.image && embed.image.url && !settings.behaviour.dataSaver.value) {
       let media = document.createElement("img");
 
       media.classList.add("embedMedia");
@@ -231,7 +274,7 @@ function renderEmbed(embed) {
       embedContainer.appendChild(media);
     }
 
-    if (embed.video && !settings.behaviour.dataSaver) {
+    if (embed.video && embed.video.url && !settings.behaviour.dataSaver.value) {
       let media = document.createElement("video");
 
       media.classList.add("embedMedia");
@@ -240,7 +283,7 @@ function renderEmbed(embed) {
       embedContainer.appendChild(media);
     }
 
-    if (embed.media && !settings.behaviour.dataSaver) {
+    if (embed.media && embed.media._id && !settings.behaviour.dataSaver) {
       let media = document.createElement("img");
 
       media.classList.add("embedMedia");
@@ -249,7 +292,7 @@ function renderEmbed(embed) {
       embedContainer.appendChild(media);
     }
   } else {
-    if (embed.type === "Image" && !settings.behaviour.dataSaver) {
+    if (embed.type === "Image" && embed.url && !settings.behaviour.dataSaver) {
       let media = document.createElement("img");
 
       media.classList.add("embedMedia");
@@ -257,6 +300,7 @@ function renderEmbed(embed) {
 
       embedContainer.appendChild(media);
     } else {
+      if (!embed.url) return embedContainer;
       let media = document.createElement("video");
 
       media.classList.add("embedMedia");
@@ -268,6 +312,65 @@ function renderEmbed(embed) {
   return embedContainer;
 }
 
+/**
+ * Description
+ * @param {Object} message  Message object
+ * @returns {HTMLObject}  HTML object containing all of the message actions
+ */
+function contextButtons(message) {
+  const replyButton = document.createElement("button");
+  const editButton = document.createElement("button");
+  const deleteButton = document.createElement("button");
+  const messageActions = document.createElement("div");
+
+  messageActions.classList.add("message-actions");
+
+  replyButton.innerText = "Reply";
+  editButton.innerText = "Edit";
+  deleteButton.innerText = "Delete";
+
+  deleteButton.classList.add("deleteButton");
+
+  messageActions.appendChild(replyButton);
+  if (message.author === state.connection.userProfile._id)
+    messageActions.appendChild(editButton);
+  if(checkPermission(message.channel, "ManageMessages")) messageActions.appendChild(deleteButton);
+
+  replyButton.onclick = () => {
+    if (state.messageMods.replies.length >= 5) return;
+    state.messageMods.replies.push({
+      id: message["_id"],
+      mention: false,
+    });
+    const replyText = document.createElement("p");
+    replyText.textContent = message.content;
+
+    replyText.classList.add("replying-content");
+    document.querySelector(".replying-container").appendChild(replyText);
+    scrollChatToBottom();
+  };
+
+  editButton.onclick = () => {
+    editingMessageID = message._id;
+    document.querySelector("#input").value = message.content;
+  };
+
+  deleteButton.onclick = (event) => {
+    if (event.shiftKey) {
+      fetch(
+        `${settings.instance.delta}/channels/${message.channel}/messages/${message._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "x-session-token": state.connection.token,
+          },
+        },
+      );
+    }
+  };
+
+  return messageActions;
+}
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling
@@ -276,21 +379,16 @@ async function parseMessage(message) {
   const member = cacheLookup("members", message.author, state.active.server);
   const messageContainer = document.getElementById("messagesContainer");
 
-  let messageActions = document.createElement("div");
   let messageContent = document.createElement("div");
-  let userData = document.createElement("div");
-  let username = document.createElement("button");
-  let profilePicture = document.createElement("img");
-  let replyButton = document.createElement("button");
-  let editButton = document.createElement("button");
-  let deleteButton = document.createElement("button");
-  let masqueradeBadge = document.createElement("span");
-  let presenceIcon = document.createElement("img");
-  let messageDisplay = document.createElement("div");
-  let reactionsContainer = document.createElement("div");
+  const userData = document.createElement("div");
+  const username = document.createElement("button");
+  const profilePicture = document.createElement("img");
+  const masqueradeBadge = document.createElement("span");
+  const presenceIcon = document.createElement("img");
+  const messageDisplay = document.createElement("div");
+  const reactionsContainer = document.createElement("div");
 
   messageDisplay.classList.add("message-display");
-  messageActions.classList.add("message-actions");
   profilePicture.classList.add("chat-pfp");
   userData.classList.add("userdata");
   username.classList.add("username");
@@ -524,57 +622,11 @@ async function parseMessage(message) {
     messageDisplay.id = message._id;
     messageDisplay.class = "message";
     messageContent.innerText = "<Blocked user>";
-    messageDisplay.classList.add("blockedMessage");
+    messageDisplay.classList.add("blocked-message");
   }
+  
+  messageDisplay.appendChild(contextButtons(message));
 
-  replyButton.onclick = () => {
-    if (state.messageMods.replies.length >= 5) return;
-    state.messageMods.replies.push({
-      id: message["_id"],
-      mention: false,
-    });
-    const replyText = document.createElement("p");
-    replyText.textContent = message.content;
-
-    replyText.classList.add("replying-content");
-    document.querySelector(".replying-container").appendChild(replyText);
-    scrollChatToBottom();
-  };
-
-  editButton.onclick = () => {
-    editingMessageID = message._id;
-    document.querySelector("#input").value = message.content;
-  };
-
-  deleteButton.onclick = (event) => {
-    if (
-      checkPermission(message.channel, "ManageMessages") ||
-      (message.author === state.connection.userProfile._id && event.shiftKey)
-    ) {
-      fetch(
-        `${settings.instance.delta}/channels/${message.channel}/messages/${message._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "x-session-token": token,
-          },
-        },
-      );
-    }
-  };
-
-  replyButton.innerText = "Reply";
-  editButton.innerText = "Edit";
-  deleteButton.innerText = "Delete";
-
-  deleteButton.classList.add("deleteButton");
-
-  messageActions.appendChild(replyButton);
-  if (message.author === state.connection.userProfile._id)
-    messageActions.appendChild(editButton);
-  messageActions.appendChild(deleteButton);
-
-  messageDisplay.appendChild(messageActions);
   messageDisplay.appendChild(reactionsContainer);
   cache.messages.push({
     id: message._id,

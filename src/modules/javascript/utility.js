@@ -1,10 +1,16 @@
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-3.0
 
 //
-//Utility funcitons
+// Utility funcitons
 //
 
-// Looks up the given resource by id from the cache
+/**
+ * Looks up the given resource by id from the cache
+ * @param {String} resource The resource in the cache to look up
+ * @param {String} ID ID of the resource
+ * @param {String} serverID=null Only used for members and roles
+ * @returns {Object:Number} The object of the cached item; returns 1 if not found
+ */
 function cacheLookup(resource, ID, serverID = null) {
   if (resource === "members" || resource === "roles") {
     for (let i = 0; i < cache.servers.length; i++) {
@@ -33,6 +39,26 @@ function cacheLookup(resource, ID, serverID = null) {
   return 1;
 }
 
+
+/**
+ * Basically the same as the function above, but fetches the user and adds it to the cache if it isn't found
+ * @param {String} ID ID of the user
+ * @returns {Object:Number} Returns the object of that cache item, 1 if not found
+ */
+async function userLookup(ID) {
+  if (cacheLookup("users", ID) !== 1) return cacheLookup("users", ID);
+  user = await fetchResource(`users/${ID}`);
+
+  buildUserCache([user]);
+  return cacheLookup("users", ID);
+}
+
+/**
+ * Checks whether or not the user has a specific permission in a specific channel
+ * @param {String} channelID  ID if the channel to check for the permission in
+ * @param {String} permission Name of the permission
+ * @returns {Boolean} True if the user has the permission, false if not
+ */
 function checkPermission(channelID, permission) {
   const channel = cacheLookup("channels", channelID);
 
@@ -54,16 +80,12 @@ function checkPermission(channelID, permission) {
   }
 }
 
-// Basically the same as the function above, but fetches the user and adds it to the cache if it isn't found
-async function userLookup(ID) {
-  if (cacheLookup("users", ID) !== 1) return cacheLookup("users", ID);
-  user = await fetchResource(`users/${ID}`);
-
-  buildUserCache([user]);
-  return cacheLookup("users", ID);
-}
-
-// Looks up the given resource by id and returns the index
+/**
+ * Looks up the given resource by id and returns the index
+ * @param {any} resource Name of the resource
+ * @param {any} ID ID of the resource
+ * @returns {number} Returns the index of that specific resource, -1 if not found
+ */
 function cacheIndexLookup(resource, ID) {
   for (let i = 0; i < cache[resource].length; i++) {
     if (cache[resource][i].id === ID) return i;
@@ -71,7 +93,12 @@ function cacheIndexLookup(resource, ID) {
   return -1;
 }
 
-// Macro to fetch remote resources
+
+/**
+ * Macro to fetch remote resources
+ * @param {String} target The relative URL to fetch from
+ * @returns {Object} The Object of the returned data
+ */
 async function fetchResource(target) {
   //Return of false means that it failed
   const res = await fetch(`${settings.instance.delta}/${target}`, {
@@ -88,6 +115,14 @@ async function fetchResource(target) {
   return res;
 }
 
+/**
+ * Updates unreads from the parameters
+ * @param {String} channelID ID of the channel
+ * @param {String} messageID ID of the message
+ * @param {Boolean} unread=true Whether or not to mark the resource as unread
+ * @param {Boolean} mentioned=false Whether or not to mark the resource as having been mentioned
+ * @returns {Number} Returns -1 for some reason, TODO: investigate
+ */
 async function updateUnreads(channelID, messageID, unread = true, mentioned = false) {
   if (unread) {
     if (state.unreads.unread.channels.indexOf(channelID) === -1) state.unreads.unread.channels.push(channelID);
@@ -111,6 +146,11 @@ async function updateUnreads(channelID, messageID, unread = true, mentioned = fa
   return -1;
 }
 
+/**
+ * Macro for showing error codes
+ * @param {Object} error Object of the error to display
+ * @returns {none} Doesn't return
+ */
 function showError(error) {
   let errorContainer;
   if (state.errorTimeout) clearTimeout(state.errorTimeout);
@@ -129,6 +169,11 @@ function showError(error) {
   }, 30000); //30 seconds
 }
 
+/**
+ * Add a file to the attachment list
+ * @param {File} file The file to add
+ * @returns {null} Doesn't return
+ */
 function addFile(file) {
   if (state.messageMods.attachments.length >= 5) return;
   if (!checkPermission(state.active.channel, "UploadFiles")) return;
@@ -168,6 +213,10 @@ function addFile(file) {
   state.messageMods.attachments.push(upload);
 }
 
+/**
+ * Macro to scroll to the bottom of the chatbox
+ * @returns {none} Doesn't return
+ */
 function scrollChatToBottom() {
   const element = document.querySelector("#messagesContainer");
   element.scrollTo(0, element.scrollHeight);

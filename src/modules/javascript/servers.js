@@ -6,6 +6,10 @@
 
 
 // Renders servers from the cache
+/**
+ * Renders servers from the cache
+ * @returns {null} Doesn't return
+ */
 async function getServers() {
   let serverContainer = document.getElementById("serversContainer");
   serverContainer.replaceChildren();
@@ -33,9 +37,9 @@ async function getServers() {
 
       //Loki TODO: styling
       if (cache.servers[serverIndex].background)
-        document.querySelector(
-          "#serverBG",
-        ).src = `${settings.instance.autumn}/banners/${cache.servers[serverIndex].background._id}?width=480`;
+        document.querySelector("#serverBG").src =
+          `${settings.instance.autumn}/banners/${cache.servers[serverIndex].background._id}?width=480`;
+      else document.querySelector("#serverBG").src = '';
 
       document.getElementById("serverName").innerText =
         cache.servers[serverIndex].name;

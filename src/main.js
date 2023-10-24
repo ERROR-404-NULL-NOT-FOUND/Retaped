@@ -68,8 +68,26 @@ window.onload = async function () {
     .then((res) => res.json())
     .then((json) => (settings = json));
   if (!localStorage.getItem("token")) return;
-  state.connection.token = localStorage.getItem("token");
-  login();
+  start();
 };
+
+/**
+ * Main function to start all other functions
+ * @returns {null} Should not return
+ */
+async function start() {
+  state.connection.token = localStorage.getItem("token");
+  await processSettings();
+  await login();
+  
+  if (!localStorage.getItem("token") && settings.behaviour.rememberMe)
+    localStorage.setItem("token", state.connection.token);
+
+  loadSyncSettings();
+  bonfire();
+
+  screens.login.style.display = "none";
+  screens.app.style.display = "grid";
+}
 
 // @license-end

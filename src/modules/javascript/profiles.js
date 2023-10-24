@@ -4,6 +4,11 @@
 // Profile rendering
 //
 
+/**
+ * Description
+ * @param {String} userID ID of the user to fetch the profile of
+ * @returns {null} Doesn't return
+ */
 async function loadProfile(userID) {
   let displayName = document.querySelector("#displayName");
   let username = document.querySelector("#username");

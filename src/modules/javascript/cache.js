@@ -15,99 +15,141 @@ var cache = {
   messages: [],
 };
 
-//Populates the server cache from the given argument; only called from bonfire
+/*
+ * Populates the server cache; only called from bonfire
+ * @param {Array} servers A list of servers from the ready message
+ * @return {Number} Error code; should never be 1
+ * */
 async function buildServerCache(servers) {
-  for (let i = 0; i < servers.length; i++) {
-    cache.servers.push({
-      id: servers[i]["_id"],
-      name: servers[i]["name"],
-      icon: servers[i].icon,
-      background: servers[i].banner,
-      roles: servers[i].roles,
-      members: [],
-      categories: servers[i].categories,
-      channels: servers[i].channels,
-    });
-  }
-  getServers();
-}
-
-async function buildUserCache(users) {
-  for (let i = 0; i < users.length; i++) {
-    if (cacheLookup("users", users[i]._id) === 1)
-      cache.users.push({
-        id: users[i]._id,
-        username: users[i].username,
-        pfp: users[i].avatar,
-        bot: users[i].bot,
-        discriminator: users[i].discriminator,
-        displayName: users[i].display_name
-          ? users[i].display_name
-          : users[i].username,
-        relationship: users[i].relationship,
-        badges: getBadges(users[i].badges),
-        status: users[i].status,
+  cache.servers.length = 0; // Clear the cache
+  try {
+    for (let i = 0; i < servers.length; i++) {
+      cache.servers.push({
+        id: servers[i]["_id"],
+        name: servers[i]["name"],
+        icon: servers[i].icon,
+        background: servers[i].banner,
+        roles: servers[i].roles,
+        members: [], //Empty array to be populated later
+        categories: servers[i].categories,
+        channels: servers[i].channels,
       });
+    }
+    return 0;
+  } catch (error) {
+    showError(error);
+    return 1;
   }
 }
 
-async function buildChannelCache(channels) {
-  for (let i = 0; i < channels.length; i++) {
-    switch (channels[i].channel_type) {
-      case "TextChannel":
-        cache.channels.push({
-          id: channels[i]._id,
-          name: channels[i].name,
-          type: channels[i].channel_type,
-          desc: channels[i].description,
-          server: channels[i].server,
-          lastMessage: channels[i].last_message_id,
-          defaultPermissions: getPermissions(channels[i].default_permissions),
-          rolePermissions: getRolePermissions(channels[i].role_permissions),
-        });
-        break;
-
-      case "Group":
-        cache.channels.push({
-          id: channels[i]._id,
-          name: channels[i].name,
-          type: channels[i].channel_type,
-          desc: channels[i].description,
-        });
-        break;
-
-      case "DirectMessage":
-        cache.channels.push({
-          id: channels[i]._id,
-          recipients: channels[i].recipients,
-          type: channels[i].channel_type,
+/*
+ * Populates the user cache; doesn't clear it because there are many places that call it
+ * @param {Array} users
+ * @return {Number} Error code; should never be 1
+ * */
+async function buildUserCache(users) {
+  try {
+    for (let i = 0; i < users.length; i++) {
+      if (cacheLookup("users", users[i]._id) === 1)
+        cache.users.push({
+          id: users[i]._id,
+          username: users[i].username,
+          pfp: users[i].avatar,
+          bot: users[i].bot,
+          discriminator: users[i].discriminator,
+          displayName: users[i].display_name
+            ? users[i].display_name
+            : users[i].username,
+          relationship: users[i].relationship,
+          badges: getBadges(users[i].badges),
+          status: users[i].status,
         });
     }
-  }
-
-  for (const server in cache.servers) {
-    if (!cache.servers[server].categories) continue;
-
-    cache.servers[server].categories.forEach((category) => {
-      let tmpCategory = [];
-
-      category.channels.forEach((channel) => {
-        let anthTmpChannel;
-        for (const tmpChannel in channels) {
-          if (channels[tmpChannel].id === channel) {
-            anthTmpChannel = tmpChannel;
-            break;
-          }
-        }
-
-        tmpCategory.push(channels[anthTmpChannel]);
-      });
-
-      cache.servers[server].categories.push({ [category]: tmpCategory });
-    });
+    return 0;
+  } catch (error) {
+    showError(error);
+    return 1;
   }
 }
 
+/*
+ * Populates the channel cache; cleared on every run
+ * @param {Array} channels  Array of channels returned by the ready function
+ * @return {Number} Error code; should not ever be 1
+ * */
+async function buildChannelCache(channels) {
+  cache.channels.length = 0; //Clear the cache
+  try {
+    for (let i = 0; i < channels.length; i++) {
+      switch (channels[i].channel_type) {
+        case "TextChannel":
+          cache.channels.push({
+            id: channels[i]._id,
+            name: channels[i].name,
+            type: channels[i].channel_type,
+            desc: channels[i].description,
+            server: channels[i].server,
+            lastMessage: channels[i].last_message_id,
+            defaultPermissions: getPermissions(channels[i].default_permissions),
+            rolePermissions: getRolePermissions(channels[i].role_permissions),
+          });
+          break;
+
+        case "Group":
+          cache.channels.push({
+            id: channels[i]._id,
+            name: channels[i].name,
+            type: channels[i].channel_type,
+            desc: channels[i].description,
+          });
+          break;
+
+        case "DirectMessage":
+          cache.channels.push({
+            id: channels[i]._id,
+            recipients: channels[i].recipients,
+            type: channels[i].channel_type,
+          });
+      }
+    }
+  } catch (error) {
+    showError(error);
+    return 1;
+  }
+
+  try {
+    for (const server in cache.servers) {
+      if (!cache.servers[server].categories) continue;
+
+      cache.servers[server].categories.forEach((category) => {
+        let tmpCategory = [];
+
+        category.channels.forEach((channel) => {
+          let anthTmpChannel;
+          for (const tmpChannel in channels) {
+            if (channels[tmpChannel].id === channel) {
+              anthTmpChannel = tmpChannel;
+              break;
+            }
+          }
+
+          tmpCategory.push(channels[anthTmpChannel]);
+        });
+
+        cache.servers[server].categories.push({ [category]: tmpCategory });
+      });
+    }
+  } catch (error) {
+    showError(error);
+    return 1;
+  }
+}
+
+/*
+ * Badge processing function
+ * @param badgesInt {Number} An integer containing the bitfield of badges
+ * @return badges {Object} An object representing every badge that the user has
+ * */
 function getBadges(badgesInt) {
   if (!badgesInt) return null;
   let badgesBit = badgesInt.toString(2);
@@ -128,22 +170,34 @@ function getBadges(badgesInt) {
   return badges;
 }
 
-//Iterates over a list of roles and calculates permissions for each one
+/*
+ * Iterates over a list of roles and calculates permissions for each one
+ * @param roleObjects {Object} An object containing all of the roles
+ * @return permissions {Object} An object containing roleIDs as keys and permissions as values
+ * */
 function getRolePermissions(roleObjects) {
   if (!roleObjects) return null;
   let permissions = {};
   Object.keys(roleObjects).forEach((role) => {
     permissions[role] = getPermissions(roleObjects[role]);
   });
-  console.log(permissions)
+
   return permissions;
 }
 
+/*
+ * Calculate [relivant] permissions
+ * @param permissionsInt {Number} An integer representation of the bitfield
+ * @return permissions {Object} Allowed & Denied permissions
+ * */
 function getPermissions(permissionsInt) {
   if (!permissionsInt) return null;
+
+  // Split into the bitfield
   let permissionsAllowedBit = permissionsInt["a"].toString(2);
   let permissionsDeniedBit = permissionsInt["d"].toString(2);
 
+  // Assign values from the bitfield to an object
   let permissionsAllowed = {
     ViewChannel: Boolean(permissionsAllowedBit[20]),
     ReadMessageHistory: Boolean(permissionsAllowedBit[21]),
@@ -167,7 +221,7 @@ function getPermissions(permissionsInt) {
   };
   return {
     Allowed: permissionsAllowed,
-    Denied: permissionsDenied
+    Denied: permissionsDenied,
   };
 }
 

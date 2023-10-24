@@ -2,7 +2,7 @@
 //A bunch of .onclick functions
 
 const embedBotton = document.querySelector("#sendEmbedButton");
-const masqButton = document.querySelector("#sendMasqButton")
+const masqButton = document.querySelector("#sendMasqButton");
 const bonfireButton = document.querySelector("#bonfireButton");
 const refreshChatButton = document.querySelector("#refreshChatButton");
 const sendJSONbutton = document.querySelector("#sendJSONbutton");
@@ -15,65 +15,71 @@ const openSettingsButton = document.querySelector("#openSettingsBtn");
 const openDMsbutton = document.querySelector("#dms");
 const profileSetting = document.querySelector("#profileSetting");
 const visualSetting = document.querySelector("#visualSetting");
+const toolbar = document.querySelector(".toolbar");
+const toolbarBtn = document.querySelector(".toolbar-btn");
+
+toolbarBtn.onclick = () => {
+  toolbar.classList.toggle("show-toolbar");
+};
 
 embedBotton.onclick = () => {
-    let embed = document.querySelector("#embed");
-    embed.hidden = !embed.hidden;
+  let embed = document.querySelector("#embed");
+  embed.hidden = !embed.hidden;
 };
 
 masqButton.onclick = () => {
-    let masq = document.querySelector('#masquerade');
-    masq.hidden = !masq.hidden;
-}
+  let masq = document.querySelector("#masquerade");
+  masq.hidden = !masq.hidden;
+};
 
 bonfireButton.onclick = () => {
-    bonfire();
-}
+  bonfire();
+};
 
 refreshChatButton.onclick = () => {
-    getMessages(activeChannel);
-}
+  getMessages(activeChannel);
+};
 
 sendJSONbutton.onclick = () => {
-    sendRawJSON = !sendRawJSON;
-}
+  sendRawJSON = !sendRawJSON;
+};
 
 sendMessageButton.onclick = () => {
-    sendMessage();
-}
+  sendMessage();
+};
 
 closeSettingsButton.onclick = () => {
-    document.querySelector("#settings").style.display = "none";
-}
+  document.querySelector("#settings").style.display = "none";
+};
 
 behaviourSetting.onclick = () => {
-    loadSetting('behaviour');
-}
+  loadSetting("behaviour");
+};
 
 visualSetting.onclick = () => {
-    loadSetting('visual');
-}
+  loadSetting("visual");
+};
 
 profileSetting.onclick = () => {
-    loadSetting('profile');
-}
+  loadSetting("profile");
+};
 
 modalBackground.forEach((element) => {
-    element.onclick = () => {
-        element.parentElement.style.display = 'none';
-    }
+  element.onclick = () => {
+    element.parentElement.style.display = "none";
+  };
 });
 
 loginButton.onclick = () => {
-    login();
-}
+  start();
+};
 
 openSettingsButton.onclick = () => {
-    document.querySelector("#settings").style.display = "flex";
-}
+  document.querySelector("#settings").style.display = "flex";
+};
 
 openDMsbutton.onclick = () => {
-    loadDMs();
-}
+  loadDMs();
+};
 
 //@license-end

@@ -4,6 +4,12 @@
 // Message fetching and rendering
 //
 
+/**
+ * Description
+ * @param {String} id ID of channel to fetch data from
+ * @param {String} startingMessage=undefined  Message ID to start from
+ * @returns {Array} List the messages that are fetched
+ */
 async function getNewMessages(id, startingMessage = undefined) {
   let messagesContainer = document.querySelector("#messagesContainer");
   const placeholder = await fetchResource(
@@ -56,6 +62,11 @@ async function getNewMessages(id, startingMessage = undefined) {
   return placeholder.messages;
 }
 
+/**
+ * Fetches messages from a given channel and resets some stuff
+ * @param {String} id  Id of the channel to fetch messages from
+ * @returns {null} Doesn't return 
+ */
 async function getMessages(id) {
   cache.messages.length = 0;
   state.messageMods.replies.length = 0;
@@ -102,6 +113,10 @@ async function getMessages(id) {
   );
 }
 
+/**
+ * Sends the message
+ * @returns {null} Doesn't return
+ */
 async function sendMessage() {
   if (state.messageSending) return;
 
@@ -185,10 +200,26 @@ async function sendMessage() {
   scrollChatToBottom();
 }
 
+/**
+ * Macro to remove all messages and reset state
+ * @returns {null} Doesn't return
+ */
 function clearMessages() {
+  const input = document.querySelector("#input");
   document.getElementById("messagesContainer").replaceChildren();
+  
+  cache.messages.length = 0;
+  state.messageMods.replies.length = 0;
+  state.active.channel = id;
+
+  input.value.length = 0;
+  input.readOnly = false;
 }
 
+/**
+ * Uploads the files in state.messageMods.attachments to autumn
+ * @returns {null} Doesn't return
+ */
 async function uploadToAutumn() {
   let attachmentIDs = [];
   for (let i = 0; i < state.messageMods.attachments.length; i++) {
