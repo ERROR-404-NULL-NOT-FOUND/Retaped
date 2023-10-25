@@ -459,7 +459,6 @@ async function parseMessage(message) {
 
         for (let i = 0; i < member.roles.length; i++) {
           let tmpRole = cacheLookup("roles", member.roles[i], state.active.server);
-          console.log(currentRoleRank)
           if (tmpRole.colour &&
             tmpRole.rank < currentRoleRank) { //Higher number = lower rank
             highestRole = tmpRole;

@@ -123,7 +123,6 @@ async function loadSetting(settingCategory) {
       settingInput.type = "checkbox";
       settingInput.checked = settings[settingCategory][setting].value;
       settingInput.id = setting;
-      console.log(settings[settingCategory][setting])
       settingInput.onclick = () => {
         settings[settingCategory][setting] = !settings[settingCategory][setting].value;
         setSettings();
