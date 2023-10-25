@@ -71,7 +71,7 @@ async function getServers() {
 
     server.classList.add("server");
 
-    server.id = `SERVER-${serverInfo.id}}`;
+    server.id = `SERVER-${serverInfo.id}`;
 
     if (serverInfo.icon === undefined) {
       server.innerText = serverInfo.name.charAt(0);

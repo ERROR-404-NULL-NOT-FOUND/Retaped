@@ -123,6 +123,7 @@ async function bonfire() {
 
         let stillUnread = false;
         let stillMentioned = false;
+
         cacheLookup(
           "servers",
           cacheLookup("channels", data.id).server
