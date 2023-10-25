@@ -31,48 +31,56 @@ async function getServers() {
     const server = document.createElement("button");
     const serverIndex = cacheIndexLookup("servers", state.ordering[i]);
     const serverInfo = cacheLookup("servers", state.ordering[i]);
+    if (serverInfo === 1) {
+      showError({
+        name: "AttributeError",
+        message:
+          "A server in your server ordering <strong>Does not exist</strong>",
+      });
+      continue;
+    }
 
     server.onclick = () => {
       getChannels(cache.servers[serverIndex].id);
 
       //Loki TODO: styling
       if (cache.servers[serverIndex].background)
-        document.querySelector("#serverBG").src =
-          `${settings.instance.autumn}/banners/${serverInfo.background._id}?width=480`;
-      else document.querySelector("#serverBG").src = '';
+        document.querySelector(
+          "#serverBG"
+        ).src = `${settings.instance.autumn}/banners/${serverInfo.background._id}?width=480`;
+      else document.querySelector("#serverBG").src = "";
 
-      document.getElementById("serverName").innerText =
-        serverInfo.name;
+      document.getElementById("serverName").innerText = serverInfo.name;
     };
 
-    if (cache.servers[serverIndex].channels) {
-      cache.servers[serverIndex].channels.forEach((channel) => {
+    if (serverInfo.channels) {
+      serverInfo.channels.forEach((channel) => {
         if (state.unreads.unread.channels.indexOf(channel) !== -1) {
           server.classList.add(
             state.unreads.mentioned.channels.indexOf(channel) !== -1
               ? "mentioned-server"
-              : "unread-server",
+              : "unread-server"
           );
         }
       });
     }
 
-    if (state.unreads.muted.servers.indexOf(cache.servers[serverIndex].id) !== -1) {
+    if (state.unreads.muted.servers.indexOf(serverInfo.id) !== -1) {
       server.classList.remove("mentioned-server");
       server.classList.remove("unread-server");
     }
 
     server.classList.add("server");
 
-    server.id = `SERVER-${cache.servers[serverIndex].id}`;
+    server.id = `SERVER-${serverInfo.id}}`;
 
-    if (cache.servers[serverIndex].icon === undefined) {
-      server.innerText = cache.servers[serverIndex].name.charAt(0);
+    if (serverInfo.icon === undefined) {
+      server.innerText = serverInfo.name.charAt(0);
     } else {
       let serverIcon = document.createElement("img");
 
       serverIcon.classList.add("serverIcon");
-      serverIcon.src = `${settings.instance.autumn}/icons/${cache.servers[serverIndex].icon._id}?max_side=64`;
+      serverIcon.src = `${settings.instance.autumn}/icons/${serverInfo.icon._id}?max_side=64`;
       server.appendChild(serverIcon);
     }
 

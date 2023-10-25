@@ -151,18 +151,19 @@ async function updateUnreads(channelID, messageID, unread = true, mentioned = fa
  * @param {Object} error Object of the error to display
  * @returns {none} Doesn't return
  */
-function showError(error) {
+async function showError(error) {
   let errorContainer;
   if (state.errorTimeout) clearTimeout(state.errorTimeout);
 
   if (!state.connection.token)
     errorContainer = document.querySelector("#loginErrorContainer");
-  else
-    errorContainer = document.querySelector("#errorContainer");
+  else errorContainer = document.querySelector("#errorContainer");
 
   errorContainer.style.display = "block";
 
-  errorContainer.querySelector("#loginErrorContent").innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
+  errorContainer.querySelector(
+    "#loginErrorContent"
+  ).innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
 
   state.errorTimeout = setTimeout(() => {
     errorContainer.style.display = "none";

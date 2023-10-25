@@ -31,7 +31,7 @@ async function bonfire() {
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":
-        await updateUnreads(
+        updateUnreads(
           data.channel,
           data._id,
           true,

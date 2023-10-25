@@ -20,8 +20,8 @@ var cache = {
  * @param {Array} servers A list of servers from the ready message
  * @return {Number} Error code; should never be 1
  * */
-async function buildServerCache(servers) {
-  cache.servers.length = 0; // Clear the cache
+function buildServerCache(servers) {
+  cache.servers = []; // Clear the cache
   try {
     for (let i = 0; i < servers.length; i++) {
       cache.servers.push({
@@ -35,11 +35,11 @@ async function buildServerCache(servers) {
         channels: servers[i].channels,
       });
     }
-    return 0;
   } catch (error) {
     showError(error);
     return 1;
   }
+  return 0;
 }
 
 /*
@@ -47,7 +47,7 @@ async function buildServerCache(servers) {
  * @param {Array} users
  * @return {Number} Error code; should never be 1
  * */
-async function buildUserCache(users) {
+function buildUserCache(users) {
   try {
     for (let i = 0; i < users.length; i++) {
       if (cacheLookup("users", users[i]._id) === 1)
@@ -65,11 +65,11 @@ async function buildUserCache(users) {
           status: users[i].status,
         });
     }
-    return 0;
   } catch (error) {
     showError(error);
     return 1;
   }
+  return 0;
 }
 
 /*
@@ -77,7 +77,7 @@ async function buildUserCache(users) {
  * @param {Array} channels  Array of channels returned by the ready function
  * @return {Number} Error code; should not ever be 1
  * */
-async function buildChannelCache(channels) {
+function buildChannelCache(channels) {
   cache.channels.length = 0; //Clear the cache
   try {
     for (let i = 0; i < channels.length; i++) {
@@ -143,6 +143,7 @@ async function buildChannelCache(channels) {
     showError(error);
     return 1;
   }
+  return 0;
 }
 
 /*
