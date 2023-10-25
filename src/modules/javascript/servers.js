@@ -28,22 +28,21 @@ async function getServers() {
   });
 
   for (let i = 0; i < state.ordering.length; i++) {
-    let server = document.createElement("button");
-    let serverIndex = cacheIndexLookup("servers", state.ordering[i]);
+    const server = document.createElement("button");
+    const serverIndex = cacheIndexLookup("servers", state.ordering[i]);
+    const serverInfo = cacheLookup("servers", state.ordering[i]);
 
     server.onclick = () => {
-      state.active.server = cache.servers[serverIndex].id;
       getChannels(cache.servers[serverIndex].id);
 
       //Loki TODO: styling
       if (cache.servers[serverIndex].background)
         document.querySelector("#serverBG").src =
-          `${settings.instance.autumn}/banners/${cache.servers[serverIndex].background._id}?width=480`;
+          `${settings.instance.autumn}/banners/${serverInfo.background._id}?width=480`;
       else document.querySelector("#serverBG").src = '';
 
       document.getElementById("serverName").innerText =
-        cache.servers[serverIndex].name;
-      document.getElementById("channelName").innerText = "";
+        serverInfo.name;
     };
 
     if (cache.servers[serverIndex].channels) {

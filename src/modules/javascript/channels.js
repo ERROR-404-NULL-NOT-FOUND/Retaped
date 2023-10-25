@@ -85,17 +85,8 @@ async function loadDMs() {
 async function getChannels(id) {
   try {
     const channelContainer = document.querySelector("#channelsContainer");
-    const server = cacheLookup("servers", state.active.server);
+    const server = cacheLookup("servers", id);
     channelContainer.replaceChildren();
-
-    fetchResource(
-      `servers/${id}/members/${state.connection.userProfile._id}`
-    ).then((member) => {
-      if (cacheLookup("members", member._id.user, state.active.server) === 1)
-        cache.servers[
-          cacheIndexLookup("servers", state.active.server)
-        ].members.push(member);
-    });
 
     let addedChannels = [];
     if (server.categories) {
@@ -126,6 +117,19 @@ async function getChannels(id) {
             channel.classList.add("channel");
 
             channel.onclick = () => {
+              if (state.active.server !== id) {
+                fetchResource(
+                  `servers/${id}/members/${state.connection.userProfile._id}`
+                ).then((member) => {
+                  if (cacheLookup("members", member._id.user, id) === 1)
+                    cache.servers[cacheIndexLookup("servers", id)].members.push(
+                      member
+                    );
+                });
+              }
+
+              state.active.server = id;
+              state.active.channel = currentChannel.id;
               getMessages(currentChannel.id);
               document.querySelector("#channelName").innerText =
                 currentChannel.name;

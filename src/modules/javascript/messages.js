@@ -38,7 +38,7 @@ async function getNewMessages(id, startingMessage = undefined) {
   else messages = placeholder.messages;
 
   let unread = false;
-  
+
   for (let i = messages.length - 1; i >= 0; i--) {
     if (startingMessage)
       messagesContainer.insertBefore(
@@ -52,11 +52,11 @@ async function getNewMessages(id, startingMessage = undefined) {
       let unreadMarkerContainer = document.createElement("div");
       let unreadMarkerText = document.createElement("span");
       unread = true;
-    
+
       unreadMarkerText.innerText = "NEW";
       unreadMarkerContainer.classList.add("unreadMarkerContainer");
-    
-      unreadMarkerContainer.appendChild(unreadMarkerText);  
+
+      unreadMarkerContainer.appendChild(unreadMarkerText);
       messagesContainer.appendChild(unreadMarkerContainer);
     }
   }
@@ -68,7 +68,7 @@ async function getNewMessages(id, startingMessage = undefined) {
 /**
  * Fetches messages from a given channel and resets some stuff
  * @param {String} id  Id of the channel to fetch messages from
- * @returns {null} Doesn't return 
+ * @returns {null} Doesn't return
  */
 async function getMessages(id) {
   document.querySelector(".replying-container").replaceChildren();
@@ -203,7 +203,7 @@ async function sendMessage() {
 function clearMessages(id) {
   const input = document.querySelector("#input");
   document.getElementById("messagesContainer").replaceChildren();
-  
+
   cache.messages.length = 0;
   state.messageMods.replies.length = 0;
   state.active.channel = id;
