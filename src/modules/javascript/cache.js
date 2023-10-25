@@ -152,21 +152,12 @@ async function buildChannelCache(channels) {
  * */
 function getBadges(badgesInt) {
   if (!badgesInt) return null;
-  let badgesBit = badgesInt.toString(2);
+  let badges = {};
 
-  let badges = {
-    Supporter: badgesBit[0],
-    Translator: badgesBit[1],
-    Developer: badgesBit[2],
-    ResponsibleDisclosure: badgesBit[3],
-    Founder: badgesBit[4],
-    Paw: badgesBit[5],
-    ActiveSupporter: badgesBit[6],
-    PlatformModeration: badgesBit[7],
-    EarlyAdopter: badgesBit[8],
-    ReservedRelevantJokeBadge1: badgesBit[9],
-    ReservedRelevantJokeBadge2: badgesBit[10],
-  };
+  Object.keys(storage.badges).forEach((key) => {
+    badges[key] = Boolean(storage.badges[key].value & badgesInt);
+  });
+
   return badges;
 }
 
@@ -193,32 +184,21 @@ function getRolePermissions(roleObjects) {
 function getPermissions(permissionsInt) {
   if (!permissionsInt) return null;
 
-  // Split into the bitfield
-  let permissionsAllowedBit = permissionsInt["a"].toString(2);
-  let permissionsDeniedBit = permissionsInt["d"].toString(2);
+  // Split into the bitfield; padStart is to ensure that it's the correct length
+  let permissionsAllowedBit = permissionsInt["a"].toString(2).padStart(32, "0");
+  let permissionsDeniedBit = permissionsInt["d"].toString(2).padStart(32, "0");
 
   // Assign values from the bitfield to an object
-  let permissionsAllowed = {
-    ViewChannel: Boolean(permissionsAllowedBit[20]),
-    ReadMessageHistory: Boolean(permissionsAllowedBit[21]),
-    SendMessage: Boolean(permissionsAllowedBit[22]),
-    ManageMessages: Boolean(permissionsAllowedBit[23]),
-    SendEmbeds: Boolean(permissionsAllowedBit[26]),
-    UploadFiles: Boolean(permissionsAllowedBit[27]),
-    Masquerade: Boolean(permissionsAllowedBit[28]),
-    React: Boolean(permissionsAllowedBit[29]),
-  };
+  let permissionsAllowed = {};
+  Object.keys(storage.permissions).forEach((permission) => {
+    permissionsAllowed[permission] = (storage.permissions[permission] & permissionsAllowedBit);
+  })
 
-  let permissionsDenied = {
-    ViewChannel: Boolean(permissionsDeniedBit[20]),
-    ReadMessageHistory: Boolean(permissionsDeniedBit[21]),
-    SendMessage: Boolean(permissionsDeniedBit[22]),
-    ManageMessages: Boolean(permissionsDeniedBit[23]),
-    SendEmbeds: Boolean(permissionsDeniedBit[26]),
-    UploadFiles: Boolean(permissionsDeniedBit[27]),
-    Masquerade: Boolean(permissionsDeniedBit[28]),
-    React: Boolean(permissionsDeniedBit[29]),
-  };
+  let permissionsDenied = {};
+  Object.keys(storage.permissions).forEach((permission) => {
+    permissionsDenied[permission] = (storage.permissions[permission] & permissionsDeniedBit);
+  })
+
   return {
     Allowed: permissionsAllowed,
     Denied: permissionsDenied,

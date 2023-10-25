@@ -1,0 +1,27 @@
+{
+  "ManageChannel": 1,
+  "ManageServer": 2,
+  "ManagePermissions": 4,
+  "ManageRole": 8,
+  "ManageCustomization": 16,
+
+  "KickMembers": 64,
+  "BanMembers": 128,
+  "TimeoutMembers": 256,
+  "AssignRoles": 512,
+  "ChangeNickname": 1024,
+  "ManageNicknames": 2048,
+  "ChangeAvatar": 4096,
+  "RemoveAvatars": 8192,
+
+  "ViewChannel": 1048576,
+  "ReadMessageHistory": 2097152,
+  "SendMessage": 4194304,
+  "ManageMessages": 8388608,
+  "ManageWebooks": 16777216,
+  "InviteOthers": 33554432,
+  "SendEmbeds": 67108864,
+  "UploadFiles": 134217728,
+  "Masquerade": 268435456,
+  "React": 536870912
+}

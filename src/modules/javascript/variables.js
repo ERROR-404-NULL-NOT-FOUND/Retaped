@@ -21,6 +21,11 @@ const loginData = {
 //Local settings; saved to localstorage
 var settings;
 
+var storage = {
+  badges: {},
+  emojis: {},
+  permissions: {},
+}
 //
 var state = {
   errorTimeout: [],

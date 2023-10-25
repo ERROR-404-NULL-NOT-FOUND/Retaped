@@ -51,16 +51,16 @@ async function getServers() {
         if (state.unreads.unread.channels.indexOf(channel) !== -1) {
           server.classList.add(
             state.unreads.mentioned.channels.indexOf(channel) !== -1
-              ? "mentionedServer"
-              : "unreadServer",
+              ? "mentioned-server"
+              : "unread-server",
           );
         }
       });
     }
 
     if (state.unreads.muted.servers.indexOf(cache.servers[serverIndex].id) !== -1) {
-      server.classList.remove("mentionedServer");
-      server.classList.remove("unreadServer");
+      server.classList.remove("mentioned-server");
+      server.classList.remove("unread-server");
     }
 
     server.classList.add("server");

@@ -18,7 +18,7 @@ function renderReactions(reactions, channelID, messageID) {
     let reactionContainer = document.createElement("button");
     let customEmoteImage;
 
-    if (Object.values(emojis.standard).indexOf(reaction) === -1)
+    if (Object.values(storage.emojis.standard).indexOf(reaction) === -1)
       customEmoteImage = document.createElement("img");
     else {
       customEmoteImage = document.createElement("span");
@@ -45,7 +45,7 @@ function renderReactions(reactions, channelID, messageID) {
       }
     };
 
-    if (Object.values(emojis.standard).indexOf(reaction) === -1)
+    if (Object.values(storage.emojis.standard).indexOf(reaction) === -1)
       customEmoteImage.src = `${settings.instance.autumn}/emojis/${reaction}`; // Jen insists that these are called "emotes," not emojis
 
     reactionIndicator.innerText = reactions[reaction].length;
@@ -60,6 +60,7 @@ function renderReactions(reactions, channelID, messageID) {
 
     children.push(reactionContainer);
   });
+
   return children;
 }
 
@@ -127,22 +128,22 @@ function parseMentions(message, messageContent) {
 function parseEmojis(messageContent) {
   //Searches for each standard emoji and replaces it with its unicode counterpart
   //TODO: use mutant remix
-  Object.keys(emojis.standard).forEach((emoji) => {
+  Object.keys(storage.emojis.standard).forEach((emoji) => {
     if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
     messageContent.innerHTML = messageContent.innerHTML.replace(
       new RegExp(`:${emoji}:`, "g"),
-      emojis.standard[emoji],
+      storage.emojis.standard[emoji],
     );
   });
-  
+
   //Ditto, but replaces it with an image instead
-  Object.keys(emojis.custom).forEach((emoji) => {
+  Object.keys(storage.emojis.custom).forEach((emoji) => {
     if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
 
     let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
     let emojiImage = document.createElement("img");
 
-    emojiImage.src = `${settings.instance.legacyEmotes}/projects/revolt/emotes/${emojis.custom[emoji]}`;
+    emojiImage.src = `${settings.instance.legacyEmotes}/projects/revolt/emotes/${storage.emojis.custom[emoji]}`;
     messageContent.replaceChildren(); //Removes all elements in the message content
 
     for (let i = 0; i < tmpMsg.length; i++) {
@@ -185,7 +186,7 @@ function parseEmojis(messageContent) {
  */
 function parseMessageContent(message) {
   let messageContent = document.createElement("div");
-  
+
   messageContent.classList.add("messageContent");
   if (!message.content) return messageContent;
 
@@ -376,6 +377,11 @@ function contextButtons(message) {
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling
 // Loki TODO: add some flair for messages sent by friends
+/**
+ * Description
+ * @param {Object} message Message object
+ * @returns {HTMLElement} Message element
+ */
 async function parseMessage(message) {
   const member = cacheLookup("members", message.author, state.active.server);
   const messageContainer = document.getElementById("messagesContainer");
@@ -449,10 +455,11 @@ async function parseMessage(message) {
 
       if (member.roles) {
         let highestRole;
-        let currentRoleRank = 2 ^ 64; //64-bit integer limit; no role can be ranked lower than this
+        let currentRoleRank = 2 ** 64; //64-bit integer limit; no role can be ranked lower than this
 
-        for (let i = 0; i <= member.roles.length; i++) {
+        for (let i = 0; i < member.roles.length; i++) {
           let tmpRole = cacheLookup("roles", member.roles[i], state.active.server);
+          console.log(currentRoleRank)
           if (tmpRole.colour &&
             tmpRole.rank < currentRoleRank) { //Higher number = lower rank
             highestRole = tmpRole;
@@ -461,10 +468,11 @@ async function parseMessage(message) {
         }
 
         if (highestRole !== undefined) {
+          // Testing if it's a valid hex code
           if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
-            // Testing if it's a valid hex code
             username.style.backgroundColor = highestRole.colour;
           } else {
+            //For the funky CSS like role gradients
             username.style.background = highestRole.colour;
             username.style.backgroundClip = "border-box";
           }
@@ -556,6 +564,7 @@ async function parseMessage(message) {
           let subAttachment = document.createElement("source");
 
           tmpAttachment = document.createElement("video");
+          //Loki TODO: move to CSS
           tmpAttachment.controls = true;
           tmpAttachment.style.maxWidth = "30%";
           tmpAttachment.style.maxHeight = "30%";
@@ -625,7 +634,7 @@ async function parseMessage(message) {
     messageContent.innerText = "<Blocked user>";
     messageDisplay.classList.add("blocked-message");
   }
-  
+
   messageDisplay.appendChild(contextButtons(message));
 
   messageDisplay.appendChild(reactionsContainer);
@@ -636,6 +645,7 @@ async function parseMessage(message) {
     masquerade: message.masquerade,
     reactions: message.reactions,
   });
+
   return messageDisplay;
 }
 

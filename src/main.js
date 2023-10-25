@@ -8,11 +8,15 @@
 window.onload = async function () {
   fetch("../assets/emojis.json")
     .then((res) => res.json())
-    .then((json) => (emojis = json));
+    .then((json) => (storage.emojis = json));
 
   fetch("../assets/badges.json")
     .then((res) => res.json())
-    .then((json) => (badges = json));
+    .then((json) => (storage.badges = json));
+
+  fetch("../assets/permissions.json")
+    .then((res) => res.json())
+    .then((json) => (storage.permissions = json));
 
   let toolbar = document.querySelector(".toolbar");
   let toolbarBtn = document.querySelector(".toolbar-btn");

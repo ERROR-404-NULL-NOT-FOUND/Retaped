@@ -39,6 +39,7 @@ async function bonfire() {
             ? data.mentions.indexOf(state.connection.userProfile._id) !== -1
             : false
         );
+
         if (data.channel === state.active.channel) {
           const messageContainer = document.querySelector("#messagesContainer");
           const shouldAck =
@@ -57,6 +58,7 @@ async function bonfire() {
               }
             );
           }
+
           document
             .querySelector("#messagesContainer")
             .appendChild(await parseMessage(data));
@@ -70,8 +72,8 @@ async function bonfire() {
             channel.classList.add(
               data.mentions &&
                 data.mentions.indexOf(state.connection.userProfile._id) !== -1
-                ? "mentionedChannel"
-                : "unreadChannel"
+                ? "mentioned-channel"
+                : "unread-channel"
             );
           }
 
@@ -88,8 +90,8 @@ async function bonfire() {
               .classList.add(
                 data.mentions &&
                   data.mentions.indexOf(state.connection.userProfile._id) !== -1
-                  ? "mentionedServer"
-                  : "unreadServer"
+                  ? "mentioned-server"
+                  : "unread-server"
               );
           }
         }
@@ -115,8 +117,8 @@ async function bonfire() {
         await updateUnreads(data.id, data.message_id, false);
 
         if ((channel = document.getElementById(data.id))) {
-          channel.classList.remove("unreadChannel");
-          channel.classList.remove("mentionedChannel");
+          channel.classList.remove("unread-channel");
+          channel.classList.remove("mentioned-channel");
         }
 
         let stillUnread = false;
@@ -134,8 +136,8 @@ async function bonfire() {
         let server = document.getElementById(
           `SERVER-${cacheLookup("channels", data.id).server}`
         );
-        if (!stillUnread) server.classList.remove("unreadServer");
-        if (!stillMentioned) server.classList.remove("mentionedServer");
+        if (!stillUnread) server.classList.remove("unread-server");
+        if (!stillMentioned) server.classList.remove("mentioned-server");
         break;
 
       // Uh oh
@@ -189,8 +191,7 @@ async function bonfire() {
       case "ChannelStopTyping": {
         if (data.id !== state.active.channel) break;
 
-        const typingUserContainer = document.getElementById(data.user);
-        if (typingUserContainer) {
+        if (typingUserContainer = document.getElementById(data.user)) {
           typingUserContainer.remove();
           state.currentlyTyping.splice(
             state.currentlyTyping.indexOf(data.user),
@@ -203,11 +204,14 @@ async function bonfire() {
       }
 
       case "MessageReact": {
+        if (data.channel_id !== state.active.channel) break;
+
         let reactionsContainer = document.getElementById(
           `reactionsContainer${data.id}`
         );
-        if ((reactionContainer = undefined)) return;
-        let message = cacheLookup("messages", data.id);
+
+        const message = cacheLookup("messages", data.id);
+
         if (
           message.reactions &&
           Object.keys(message.reactions).indexOf(data.emoji_id) === -1
@@ -240,6 +244,8 @@ async function bonfire() {
       }
 
       case "MessageUnreact": {
+        if (data.channel_id !== state.active.channel) break;
+
         let reactionsContainer = document.getElementById(
           `reactionsContainer${data.id}`
         );

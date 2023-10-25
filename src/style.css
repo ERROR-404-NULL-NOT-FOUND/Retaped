@@ -433,11 +433,11 @@ fieldset legend {
   padding: .4rem;
 }
 
-.unreadServer {
+.unread-server {
   box-shadow: var(--foreground) 0px 0px 0px 3px !important;
 }
 
-.mentionedServer {
+.mentioned-server {
   box-shadow: var(--mention) 0px 0px 0px 3px !important;
 }
 

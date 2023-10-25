@@ -52,11 +52,11 @@ async function loadProfile(userID) {
   if (user.badges) {
     //Loki TODO: style badges
     Object.keys(user.badges).forEach((badge) => {
-      if (user.badges[badge] === "1") {
+      if (user.badges[badge]) {
         let badgeContainer = document.createElement("div");
         let badgeImg = document.createElement("img");
 
-        badgeImg.src = `${settings.instance.assets}${badges[badge]}`;
+        badgeImg.src = `${settings.instance.assets}${storage.badges[badge]}`;
         badgeContainer.classList.add("badge", badge);
 
         badgeContainer.appendChild(badgeImg);
