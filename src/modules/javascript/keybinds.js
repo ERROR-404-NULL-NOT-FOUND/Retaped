@@ -17,11 +17,11 @@ window.addEventListener("keydown", (event) => {
       break;
 
     case "Escape":
-      if (activeReplies.length !== 0) {
-        activeReplies.pop();
+      if (state.messageMods.replies.length !== 0) {
+        state.messageMods.replies.pop();
         replyingContainer.lastChild.remove();
       } else {
-        editingMessageID = "";
+        state.messageMods.editing = "";
         inputContainer.value = "";
       }
       break;
