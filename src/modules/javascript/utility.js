@@ -161,13 +161,11 @@ async function showError(error) {
 
   errorContainer.style.display = "block";
 
-  errorContainer.querySelector(
-    "#loginErrorContent"
-  ).innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
+  errorContainer.innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
 
   state.errorTimeout = setTimeout(() => {
     errorContainer.style.display = "none";
-  }, 30000); //30 seconds
+  }, 10000); //10 seconds
 }
 
 /**

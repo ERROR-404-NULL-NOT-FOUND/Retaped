@@ -34,8 +34,7 @@ async function getServers() {
     if (serverInfo === 1) {
       showError({
         name: "AttributeError",
-        message:
-          "A server in your server ordering <strong>Does not exist</strong>",
+        message: "A server in your server ordering does not exist",
       });
       continue;
     }
