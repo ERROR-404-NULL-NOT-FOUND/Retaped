@@ -10,14 +10,22 @@ The revolt.chat client re-taped from the one held together by duct tape and bad 
 - Websocket connection, for updating the chat without refreshing
 - Replies, for, well, replying
 - Markdown (NOTE: not 1:1 RFM compatible)
-- Unreads
+- Unreads and mentions
 - Emoji loading (including deprecated ones; you can use :trol: and :1984: to your heart's desire!)
 - Theme loading (no need to set a new theme when you switch clients!)
 - Image loading through [Autumn](https://github.com/revoltchat/autumn)
-- Masquerade loading (including proxying masqueraded avatars through [January](https://github.com/revoltchat/january))
-- Profile loading
+- Masquerade loading (including proxying masqueraded avatars through [January](https://github.com/revoltchat/january)), as well as sending
+- Profile loading (including markdown, roles, badges, and status)
 - Written in nothing but vanilla HTML5, JS ES6, and CSS, making it quick to load and light to run
 - Actually looks decent (looking at you, [Reduct](https://github.com/dorudolasu/reductv3)...)
+- Custom instance support (NOTE: needs testing!)
+- Embed sending/loading
+- Permission checking
+- Reaction loading/sending (NOTE: cannot react with new reactions **yet**)
+- Role colours, including gradients
+- Modular: you need only clone the repo and change files from assets to change the default instance, for example
+- Settings page with profile setting
+- Colourblind-friendly presence indicators, which are also displayed in chat (you can disable this in settings)
 
 ## Preview
 

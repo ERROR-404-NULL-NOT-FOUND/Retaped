@@ -15,8 +15,8 @@ async function login() {
       {
         method: "POST",
         body: JSON.stringify({
-          email: loginData.email,
-          password: loginData.password,
+          email: loginData.email.value,
+          password: loginData.password.value,
           friendly_name: "Retaped",
         }),
       }
@@ -46,7 +46,7 @@ async function login() {
             body: JSON.stringify({
               mfa_ticket: tokenResponse.ticket,
               mfa_response: {
-                totp_code: loginData.mfa,
+                totp_code: loginData.mfa.value,
               },
               friendly_name: "Retaped",
             }),

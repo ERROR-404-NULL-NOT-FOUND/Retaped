@@ -20,9 +20,9 @@ window.onload = async function () {
 
   let toolbar = document.querySelector(".toolbar");
   let toolbarBtn = document.querySelector(".toolbar-btn");
-  toolbarBtn.addEventListener("click", () => {
+  toolbarBtn.onclick = () => {
     toolbar.classList.toggle("show-toolbar");
-  });
+  };
 
   document.querySelector("#upload").addEventListener("input", (event) => {
     addFile(document.querySelector("#upload").files[0]);
