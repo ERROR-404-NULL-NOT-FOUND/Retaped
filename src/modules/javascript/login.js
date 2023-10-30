@@ -71,7 +71,8 @@ async function login() {
   if (
     (state.connection.userProfile = await fetchResource("users/@me")) === false
   ) {
-    showError({ name: "loginError", message: "generic" });
+    showError({ name: "loginError", message: "failed validation" });
+    localStorage.removeItem("token");
     return;
   }
 }
