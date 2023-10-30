@@ -17,6 +17,21 @@ const profileSetting = document.querySelector("#profileSetting");
 const visualSetting = document.querySelector("#visualSetting");
 const toolbar = document.querySelector(".toolbar");
 const toolbarBtn = document.querySelector(".toolbar-btn");
+const uploadContainer = document.querySelector("#upload");
+const input = document.querySelector("#input");
+
+input.addEventListener("paste", (event) => {
+  let item = event.clipboardData.items[0];
+
+  if (item.type.indexOf("image") === 0) {
+    let blob = item.getAsFile();
+    addFile(blob);
+  }
+});
+
+uploadContainer.addEventListener("input", (event) => {
+  addFile(document.querySelector("#upload").files[0]);
+});
 
 toolbarBtn.onclick = () => {
   toolbar.classList.toggle("show-toolbar");

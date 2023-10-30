@@ -3,77 +3,64 @@
 //
 // Run on page load
 //
+fetch("../assets/emojis.json")
+  .then((res) => res.json())
+  .then((json) => (storage.emojis = json));
 
-// TODO: Move a lot of this code into modules/javascript/binds.js
-window.onload = async function () {
-  fetch("../assets/emojis.json")
-    .then((res) => res.json())
-    .then((json) => (storage.emojis = json));
+fetch("../assets/badges.json")
+  .then((res) => res.json())
+  .then((json) => (storage.badges = json));
 
-  fetch("../assets/badges.json")
-    .then((res) => res.json())
-    .then((json) => (storage.badges = json));
+fetch("../assets/permissions.json")
+  .then((res) => res.json())
+  .then((json) => (storage.permissions = json));
 
-  fetch("../assets/permissions.json")
-    .then((res) => res.json())
-    .then((json) => (storage.permissions = json));
-
-  let toolbar = document.querySelector(".toolbar");
-  let toolbarBtn = document.querySelector(".toolbar-btn");
-  toolbarBtn.onclick = () => {
-    toolbar.classList.toggle("show-toolbar");
-  };
-
-  document.querySelector("#upload").addEventListener("input", (event) => {
-    addFile(document.querySelector("#upload").files[0]);
-  });
-
-  document
-    .querySelector("#messagesContainer")
-    .addEventListener("scroll", async function (e) {
-      let documentHeight = document.querySelector("#messagesContainer");
-      if (documentHeight.scrollTop === 0) {
-        initialHeight = documentHeight.scrollHeight;
-        await getNewMessages(
-          state.active.channel,
-          document
-            .querySelector("#messagesContainer")
-            .firstChild.id.replace("MSG-", ""),
-        );
-        setTimeout(() => {
-          documentHeight.scrollTo(0, documentHeight.scrollHeight - initialHeight);
-        }, 500);
-      } else {
-        if (documentHeight.scrollHeight - documentHeight.offsetHeight === documentHeight.scrollTop &&
-          cache.messages[cache.messages.length - 1].id in state.unreads.unread.messages) {
-            fetch(
-                `${settings.instance.delta}/channels/${state.active.channel}/ack/${cache.messages[cache.messages.length - 1].id}`,
-                {
-                  headers: {
-                    "x-session-token": state.connection.token,
-                  },
-                  method: "PUT",
-                },
-              );
+//Handles messageBox trickery, specifically loading more messages when scrolled to top
+//and sending ack messages when scrolled to bottom
+//Not in modules/javascript/binds.js because it's huge
+document
+  .querySelector("#messagesContainer")
+  .addEventListener("scroll", async function (e) {
+    let documentHeight = document.querySelector("#messagesContainer");
+    if (documentHeight.scrollTop === 0) {
+      initialHeight = documentHeight.scrollHeight;
+      await getNewMessages(
+        state.active.channel,
+        document
+          .querySelector("#messagesContainer")
+          .firstChild.id.replace("MSG-", "")
+      );
+      setTimeout(() => {
+        documentHeight.scrollTo(0, documentHeight.scrollHeight - initialHeight);
+      }, 500);
+    } else {
+      if (
+        documentHeight.scrollHeight - documentHeight.offsetHeight ===
+          documentHeight.scrollTop &&
+        cache.messages[cache.messages.length - 1].id in
+          state.unreads.unread.messages
+      ) {
+        fetch(
+          `${settings.instance.delta}/channels/${state.active.channel}/ack/${
+            cache.messages[cache.messages.length - 1].id
+          }`,
+          {
+            headers: {
+              "x-session-token": state.connection.token,
+            },
+            method: "PUT",
           }
+        );
       }
-    });
-
-  document.querySelector("#input").addEventListener("paste", (event) => {
-    let item = event.clipboardData.items[0];
-
-    if (item.type.indexOf("image") === 0) {
-      let blob = item.getAsFile();
-      addFile(blob);
     }
   });
 
-  await fetch("../assets/defaultSettings.json")
-    .then((res) => res.json())
-    .then((json) => (settings = json));
-  if (!localStorage.getItem("token")) return;
-  start();
-};
+await fetch("../assets/defaultSettings.json")
+  .then((res) => res.json())
+  .then((json) => (settings = json));
+
+if (!localStorage.getItem("token")) return;
+start();
 
 /**
  * Main function to start all other functions
@@ -83,7 +70,7 @@ async function start() {
   state.connection.token = localStorage.getItem("token");
   await processSettings();
   await login();
-  
+
   if (!localStorage.getItem("token") && settings.behaviour.rememberMe)
     localStorage.setItem("token", state.connection.token);
 
