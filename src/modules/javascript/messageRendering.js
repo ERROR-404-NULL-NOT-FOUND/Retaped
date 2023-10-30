@@ -285,7 +285,7 @@ function renderEmbed(embed) {
       embedContainer.appendChild(media);
     }
 
-    if (embed.media && embed.media._id && !settings.behaviour.dataSaver) {
+    if (embed.media && embed.media._id && !settings.behaviour.dataSaver.value) {
       let media = document.createElement("img");
 
       media.classList.add("embedMedia");
@@ -294,7 +294,11 @@ function renderEmbed(embed) {
       embedContainer.appendChild(media);
     }
   } else {
-    if (embed.type === "Image" && embed.url && !settings.behaviour.dataSaver) {
+    if (
+      embed.type === "Image" &&
+      embed.url &&
+      !settings.behaviour.dataSaver.value
+    ) {
       let media = document.createElement("img");
 
       media.classList.add("embedMedia");
@@ -548,14 +552,14 @@ async function parseMessage(message) {
       messageDisplay.appendChild(embeds);
     }
 
-    if (message.attachments && !settings.behaviour.dataSaver) {
+    if (message.attachments && !settings.behaviour.dataSaver.value) {
       let attachments = document.createElement("div");
       attachments.classList.add("message-attachments");
 
       message.attachments.forEach((tmpAttchmntAttrs) => {
-        let tmpAttachment
+        let tmpAttachment;
         //TODO: edit this to only alter what type of element is created, to follow DRY
-
+        console.log(tmpAttchmntAttrs.content_type);
         if (tmpAttchmntAttrs.content_type.startsWith("image")) {
           tmpAttachment = document.createElement("img");
           tmpAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
@@ -593,7 +597,7 @@ async function parseMessage(message) {
           tmpAttachment.textContent = tmpAttchmntAttrs.filename;
           tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
         }
-        tmpAttachment.type = tmpAttchmntAttrs.content_type
+        tmpAttachment.type = tmpAttchmntAttrs.content_type;
         attachments.appendChild(tmpAttachment);
       });
       messageDisplay.appendChild(attachments);
