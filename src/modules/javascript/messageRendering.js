@@ -202,7 +202,6 @@ function parseInvites(messageContent) {
       inviteMemberCount.classList.add("invite-server-members");
 
       const inviteData = await fetchResource(`invites/${matched[0]}`);
-      console.log(inviteData);
 
       inviteText.textContent = inviteData.server_name;
 
@@ -431,6 +430,9 @@ function renderUsername(message, user, member) {
   userData.classList.add("userdata");
   username.classList.add("username");
   presenceIcon.classList.add("presence-icon");
+
+  userData.id = `USRNM-${user.id}`;
+
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user.displayName;
 
@@ -508,6 +510,7 @@ function renderUsername(message, user, member) {
   userData.appendChild(masqueradeBadge);
   if (settings.visual.showPresenceIconsInChat)
     userData.appendChild(presenceIcon);
+
   return userData;
 }
 

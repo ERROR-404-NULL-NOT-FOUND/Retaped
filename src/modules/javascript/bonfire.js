@@ -45,7 +45,7 @@ async function bonfire() {
           const shouldAck =
             document.hasFocus &&
             messageContainer.scrollHeight - messageContainer.offsetHeight >=
-              messageContainer.scrollTop+10;
+              messageContainer.scrollTop + 10;
 
           if (shouldAck) {
             fetch(
@@ -192,7 +192,7 @@ async function bonfire() {
       case "ChannelStopTyping": {
         if (data.id !== state.active.channel) break;
 
-        if (typingUserContainer = document.getElementById(data.user)) {
+        if ((typingUserContainer = document.getElementById(data.user))) {
           typingUserContainer.remove();
           state.currentlyTyping.splice(
             state.currentlyTyping.indexOf(data.user),
@@ -267,6 +267,15 @@ async function bonfire() {
               reactionsContainer.querySelector(".reactionCount").innerText
             ) - 1;
         }
+        break;
+      }
+      case "UserUpdate": {
+        updateUser(data);
+        break;
+      }
+
+      case "ServerMemberUpdate": {
+        updateUser(data);
         break;
       }
     }

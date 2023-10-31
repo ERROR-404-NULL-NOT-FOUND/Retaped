@@ -39,7 +39,6 @@ function cacheLookup(resource, ID, serverID = null) {
   return 1;
 }
 
-
 /**
  * Basically the same as the function above, but fetches the user and adds it to the cache if it isn't found
  * @param {String} ID ID of the user
@@ -62,15 +61,25 @@ async function userLookup(ID) {
 function checkPermission(channelID, permission) {
   const channel = cacheLookup("channels", channelID);
 
-  if (channel.defaultPermissions &&
-    channel.defaultPermissions.Denied[permission]) {
-    if ((roles = cacheLookup("members", state.connection.userProfile._id, channel.server).roles) &&
-      channel.rolePermissions) {
-
-      return roles.some((role) => { //Some returns a value, hence its use here
-        if (channel.rolePermissions[role] &&
+  if (
+    channel.defaultPermissions &&
+    channel.defaultPermissions.Denied[permission]
+  ) {
+    if (
+      (roles = cacheLookup(
+        "members",
+        state.connection.userProfile._id,
+        channel.server
+      ).roles) &&
+      channel.rolePermissions
+    ) {
+      return roles.some((role) => {
+        //Some returns a value, hence its use here
+        if (
+          channel.rolePermissions[role] &&
           (channel.rolePermissions[role].Allowed[permission] || //If it's allowed or not explicitly denied
-            !channel.rolePermissions[role].Denied[permission]))
+            !channel.rolePermissions[role].Denied[permission])
+        )
           return true;
       });
     }
@@ -86,13 +95,19 @@ function checkPermission(channelID, permission) {
  * @param {any} ID ID of the resource
  * @returns {number} Returns the index of that specific resource, -1 if not found
  */
-function cacheIndexLookup(resource, ID) {
-  for (let i = 0; i < cache[resource].length; i++) {
-    if (cache[resource][i].id === ID) return i;
+function cacheIndexLookup(resource, ID, serverID = undefined) {
+  if (resource === "members") {
+    const server = cacheLookup("servers", serverID);
+    for (let i = 0; i < server.members.length; i++) {
+      if (server.members[i].id === ID) return i;
+    }
+  } else {
+    for (let i = 0; i < cache[resource].length; i++) {
+      if (cache[resource][i].id === ID) return i;
+    }
   }
   return -1;
 }
-
 
 /**
  * Macro to fetch remote resources
@@ -123,17 +138,31 @@ async function fetchResource(target) {
  * @param {Boolean} mentioned=false Whether or not to mark the resource as having been mentioned
  * @returns {Number} Returns -1 for some reason, TODO: investigate
  */
-async function updateUnreads(channelID, messageID, unread = true, mentioned = false) {
+async function updateUnreads(
+  channelID,
+  messageID,
+  unread = true,
+  mentioned = false
+) {
   if (unread) {
-    if (state.unreads.unread.channels.indexOf(channelID) === -1) state.unreads.unread.channels.push(channelID);
-  }
-  else state.unreads.unread.channels.splice(state.unreads.unread.channels.indexOf(channelID), 1);
+    if (state.unreads.unread.channels.indexOf(channelID) === -1)
+      state.unreads.unread.channels.push(channelID);
+  } else
+    state.unreads.unread.channels.splice(
+      state.unreads.unread.channels.indexOf(channelID),
+      1
+    );
 
-  if (state.unreads.mentioned.channels.indexOf(channelID) !== -1) state.unreads.mentioned.channels.splice(state.unreads.mentioned.channels.indexOf(channelID), 1);
+  if (state.unreads.mentioned.channels.indexOf(channelID) !== -1)
+    state.unreads.mentioned.channels.splice(
+      state.unreads.mentioned.channels.indexOf(channelID),
+      1
+    );
 
   if (mentioned) {
     if (unread) {
-      if (state.unreads.mentioned.channels.indexOf(channelID) === -1) state.unreads.mentioned.channels.push(channelID);
+      if (state.unreads.mentioned.channels.indexOf(channelID) === -1)
+        state.unreads.mentioned.channels.push(channelID);
     }
   }
 
@@ -219,6 +248,168 @@ function addFile(file) {
 function scrollChatToBottom() {
   const element = document.querySelector("#messagesContainer");
   element.scrollTo(0, element.scrollHeight);
+}
+
+function updateUser(dataObject) {
+  const userID =
+    Object.keys(dataObject.id).indexOf("user") !== -1
+      ? dataObject.id.user
+      : dataObject.id;
+
+  if ((user = cacheLookup("users", userID)) === 1) return; //Don't bother if the user isn't in the cache
+
+  let memberIndex;
+  let serverIndex;
+  let member;
+  const userIndex = cacheIndexLookup("users", userID);
+
+  if (dataObject.type === "ServerMemberUpdate") {
+    memberIndex = cacheIndexLookup(
+      "members",
+      dataObject.id.user,
+      dataObject.id.server
+    );
+    serverIndex = cacheIndexLookup("servers", dataObject.id.server);
+    member = cacheLookup("members", dataObject.id.user, dataObject.id.server);
+  } else member = cacheLookup("members", userID, state.active.server);
+
+  Object.keys(dataObject.data).forEach((field) => {
+    switch (field) {
+      case "status": {
+        cache.users[userIndex].status = dataObject.data.status;
+        document
+          .querySelectorAll(`#USRNM-${userID} > .presence-icon`)
+          .forEach((element) => {
+            element.src = `../assets/${dataObject.data.status.presence}.svg`;
+          });
+        break;
+      }
+
+      case "display_name": {
+        if (member.nickname) break;
+        cache.users[userIndex].display_name = dataObject.data.display_name;
+        document
+          .querySelectorAll(`#USRNM-${userID} > .username`)
+          .forEach((element) => {
+            element.textContent = dataObject.data.display_name;
+          });
+        break;
+      }
+
+      case "avatar": {
+        if (dataObject.type === "ServerMemberUpdate") {
+          if (memberIndex !== -1)
+            cache.servers[serverIndex].members[memberIndex].avatar =
+              dataObject.data.avatar._id;
+          else
+            cache.servers[serverIndex].members.push({
+              _id: { user: userID, server: dataObject.id.server },
+              avatar: dataObject.data.avatar._id,
+            });
+        } else cache.users[userIndex].pfp = dataObject.data.avatar._id;
+
+        if (
+          dataObject.type === "ServerMemberUpdate" &&
+          dataObject.id.server !== state.active.server
+        )
+          break;
+
+        if (
+          dataObject.type === "ServerMemberUpdate" ||
+          !(member && member.avatar)
+        ) {
+          document
+            .querySelectorAll(`#USRNM-${userID} > .chat-pfp`)
+            .forEach((element) => {
+              console.log(element);
+              element.src = `${settings.instance.autumn}/avatars/${dataObject.data.avatar._id}`;
+            });
+        }
+        break;
+      }
+
+      case "nickname": {
+        if (memberIndex !== -1)
+          cache.servers[serverIndex].members[memberIndex].nickname =
+            dataObject.data.nickname;
+        else
+          cache.servers[serverIndex].members.push({
+            _id: { user: userID, server: dataObject.id.server },
+            nickname: dataObject.data.nickname,
+          });
+        document
+          .querySelectorAll(`#USRNM-${userID} > .username`)
+          .forEach((element) => {
+            element.textContent = dataObject.data.nickname;
+          });
+      }
+    }
+  });
+
+  if (dataObject.clear) {
+    dataObject.clear.forEach((field) => {
+      switch (field) {
+        case "ProfileContent": {
+          break;
+        }
+
+        case "ProfileBackground": {
+          break;
+        }
+
+        case "StatusText": {
+          cache.users[userIndex].status.text = undefined;
+          break;
+        }
+
+        case "Avatar": {
+          if (dataObject.type === "ServerMemberUpdate") {
+            if (memberIndex !== -1)
+              cache.servers[serverIndex].members[memberIndex] = undefined;
+            document
+              .querySelectorAll(`#USRNM-${userID} > .chat-pfp`)
+              .forEach((element) => {
+                element.src = `${settings.instance.autumn}/avatars/${user.pfp._id}`;
+              });
+          } else {
+            cache.users[userIndex].avatar = undefined;
+            if (!member || (member && !member.avatar))
+              document
+                .querySelectorAll(`#USRNM-${userID} > .chat-pfp`)
+                .forEach((element) => {
+                  element.src = `${settings.instance.delta}/users/${userID}/default_avatar`;
+                });
+          }
+          break;
+        }
+
+        case "Nickname": {
+          if (memberIndex !== -1)
+            cache.servers[serverIndex].members[memberIndex].nickname =
+              undefined;
+          document
+            .querySelectorAll(`#USRNM-${userID} > .username`)
+            .forEach((element) => {
+              element.textContent = user.displayName;
+            });
+          break;
+        }
+
+        case "Avatar": {
+          cache.servers[serverIndex].members[memberIndex].avatar = undefined;
+          document
+            .querySelectorAll(`#USRNM-${userID} > .chat-pfp`)
+            .forEach((element) => {
+              if (user.pfp)
+                element.src = `${settings.instance.autumn}/avatars/${user.pfp._id}`;
+              else
+                element.src = `${settings.instance.delta}/users/${user.id}/default_avatar`;
+            });
+          break;
+        }
+      }
+    });
+  }
 }
 
 //@license-end
