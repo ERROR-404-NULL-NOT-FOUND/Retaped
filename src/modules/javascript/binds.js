@@ -19,6 +19,12 @@ const toolbar = document.querySelector(".toolbar");
 const toolbarBtn = document.querySelector(".toolbar-btn");
 const uploadContainer = document.querySelector("#upload");
 const input = document.querySelector("#input");
+const langSelect = document.querySelector("#langSelect");
+
+langSelect.onchange = (element) => {
+  settings.visual.language = langSelect.options[langSelect.selectedIndex].text; //Set language to selection
+  updateLanguage();
+};
 
 input.addEventListener("paste", (event) => {
   let item = event.clipboardData.items[0];

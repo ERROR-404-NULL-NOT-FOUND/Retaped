@@ -62,6 +62,22 @@ window.onload = async () => {
   await fetch("../assets/defaultSettings.json")
     .then((res) => res.json())
     .then((json) => (settings = json));
+  await fetch("../assets/languages.json")
+    .then((res) => res.json())
+    .then((json) => (storage.languages = json));
+
+  let languageSelect = document.querySelector(".language-selection");
+  let languages = languageSelect.querySelector("#langSelect");
+
+  Object.keys(storage.languages).forEach((language) => {
+    const languageOpt = document.createElement("option");
+    languageOpt.value = language;
+    languageOpt.text = language;
+    languages.appendChild(languageOpt);
+  });
+  languageSelect.querySelector(
+    "#langSelectIcon"
+  ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
 
   if (!localStorage.getItem("token")) return;
   start();

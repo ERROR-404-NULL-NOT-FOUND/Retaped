@@ -25,8 +25,9 @@ var storage = {
   badges: {},
   emojis: {},
   permissions: {},
-}
-//
+  languages: {},
+};
+
 var state = {
   errorTimeout: [],
   messageMods: {

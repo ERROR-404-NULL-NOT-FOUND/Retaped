@@ -1,0 +1,63 @@
+{
+  "english": {
+    "login": {
+      "loginMethodPrompt": "Login method",
+      "emailPasswdPrompt": "Use your Revolt email and password",
+      "emailPlaceholder": "Email address",
+      "passwdPlaceholder": "Password",
+      "mfaPlaceholder": "TOTP key",
+      "tokenPrompt": "Or use your token",
+      "tokenPlaceholder": "Token",
+      "advancedOptsPrompt": "Advanced options",
+      "preferencesPrompt": "Preferences",
+      "loginBtn": "Login"
+    },
+    "settings": {
+      "settings": "Settings",
+      "names": {
+        "dataSaver": "Data saver",
+        "extremeDataSaver": "Extreme data saver",
+        "rememberMe": "Remember me",
+        "legacyStyleSheet": "Legacy style sheet",
+        "compactMode": "Compact mode",
+        "revoltTheme": "Use Revolt theme",
+        "showPresenceIconsInChat": "Show presence icons in chat",
+        "delta": "Revolt API endpoint",
+        "assets": "Webserver hosting badge assets",
+        "legacyEmotes": "Webserver hosting custom emote assets",
+        "emotes": "Webserver hosting emote assets"
+      },
+      "descriptions": {
+        "dataSaver": "Disables attachment & embed image loading",
+        "extremeDataSaver": "UNIMPLEMENTED Tries to minimize the amount of network traffic",
+        "rememberMe": "Save token (settings are still saved)",
+        "legacyStyleSheet": "UNIMPLEMENTED Brings back the old Retaped v1.2 UI",
+        "compactMode": "UNIMPLEMENTED Similar to Discord's compact mode",
+        "revoltTheme": "Loads the colour scheme data set by Revite",
+        "showPresenceIconsInChat": "Shows a user's presence next to their username in channels"
+      }
+    },
+    "messages": {
+      "invite": {
+        "memberCountText": "member(s)"
+      },
+      "contextButtons": {
+        "edit": "Edit",
+        "reply": "Reply",
+        "del": "Delete"
+      },
+      "masqueradeBadge": "Masq",
+      "blockedUser": "<Blocked User>",
+      "markerText": "NEW"
+    },
+    "dms": {
+      "description": "Direct messages",
+      "buttonContent": "DMs",
+      "savedMessages": "Saved messages"
+    },
+    "connection": {
+      "active": "Connected",
+      "inactive": "Disconnected"
+    }
+  }
+}

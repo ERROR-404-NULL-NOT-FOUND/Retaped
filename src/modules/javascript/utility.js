@@ -412,4 +412,29 @@ function updateUser(dataObject) {
   }
 }
 
+function updateLanguage() {
+  console.log("test");
+  let language = storage.languages[settings.visual.language];
+
+  let fieldsets = screens.login.querySelectorAll("fieldset");
+  let loginFieldset = fieldsets[0];
+  let preferencesFieldset = fieldsets[1];
+  let loginMethodPrompt = loginFieldset.querySelector("legend");
+  let emailAndPasswd = loginFieldset.querySelector("label");
+  let tokenPrompt = loginFieldset
+    .querySelectorAll("details")[0]
+    .querySelector("summary");
+  let advancedOptions = loginFieldset.querySelectorAll("details")[1];
+  let advancedOptionsSummary = advancedOptions.querySelector("summary");
+
+  loginMethodPrompt.innerText = language.login.loginMethodPrompt;
+  emailAndPasswd.innerText = language.login.emailPasswdPrompt;
+  tokenPrompt.innerText = language.login.tokenPrompt;
+  advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
+  loginData.email.placeholder = language.login.emailPlaceholder;
+  loginData.password.placeholder = language.login.passwordPlaceholder;
+  loginData.mfa.placeholder = language.login.mfaPlaceholder;
+  loginData.token.placeholder = language.login.tokenPlaceholder;
+}
+
 //@license-end
