@@ -124,7 +124,8 @@ async function loadSetting(settingCategory) {
       settingInput.checked = settings[settingCategory][setting].value;
       settingInput.id = setting;
       settingInput.onclick = () => {
-        settings[settingCategory][setting] = !settings[settingCategory][setting].value;
+        settings[settingCategory][setting].value =
+          !settings[settingCategory][setting].value;
         setSettings();
       };
 
