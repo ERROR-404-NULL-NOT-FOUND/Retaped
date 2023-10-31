@@ -30,17 +30,17 @@ function renderReactions(reactions, channelID, messageID) {
     reactionContainer.onclick = () => {
       if (
         cacheLookup("messages", messageID).reactions[reaction].indexOf(
-          state.connection.userProfile._id,
+          state.connection.userProfile._id
         ) === -1 // If the reaction has been reacted by the user
       ) {
         fetch(
           `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
-          { method: "PUT", headers: { "x-session-token": token } },
+          { method: "PUT", headers: { "x-session-token": token } }
         );
       } else {
         fetch(
           `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
-          { method: "DELETE", headers: { "x-session-token": token } },
+          { method: "DELETE", headers: { "x-session-token": token } }
         );
       }
     };
@@ -54,7 +54,7 @@ function renderReactions(reactions, channelID, messageID) {
       reactionContainer.classList.add("selfReacted");
 
     reactionContainer.id = `REACTION-${reaction}`;
-    reactionContainer.classList.add("reaction")
+    reactionContainer.classList.add("reaction");
     reactionContainer.appendChild(customEmoteImage);
     reactionContainer.appendChild(reactionIndicator);
 
@@ -75,7 +75,11 @@ function parseMentions(message, messageContent) {
     message.mentions.forEach((mention) => {
       let splitMessage;
       // Due to sanitization, we have to check for the HTML eqiuvilents of the symbols < and >
-      if ((splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`)).length === 1) return; 
+      if (
+        (splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`))
+          .length === 1
+      )
+        return;
 
       let segConcat = document.createElement("div");
       let newSeg;
@@ -132,7 +136,7 @@ function parseEmojis(messageContent) {
     if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
     messageContent.innerHTML = messageContent.innerHTML.replace(
       new RegExp(`:${emoji}:`, "g"),
-      storage.emojis.standard[emoji],
+      storage.emojis.standard[emoji]
     );
   });
 
@@ -156,7 +160,7 @@ function parseEmojis(messageContent) {
   //Matches custom emojis
   if (
     (matches = messageContent.innerHTML.match(
-      /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g,
+      /:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}:/g
     )) !== null
   ) {
     for (let i = 0; i < matches.length; i++) {
@@ -192,8 +196,8 @@ function parseMessageContent(message) {
 
   //Message sanitation; replaces < and > with their HTML symbols
   let sanitizedContent = message.content
-                          .replace(/</g, "&lt;")
-                          .replace(/>/g, "&gt;");
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
   messageContent.innerHTML = sanitizedContent;
 
   messageContent = parseEmojis(messageContent);
@@ -340,7 +344,8 @@ function contextButtons(message) {
   messageActions.appendChild(replyButton);
   if (message.author === state.connection.userProfile._id)
     messageActions.appendChild(editButton);
-  if(checkPermission(message.channel, "ManageMessages")) messageActions.appendChild(deleteButton);
+  if (checkPermission(message.channel, "ManageMessages"))
+    messageActions.appendChild(deleteButton);
 
   replyButton.onclick = () => {
     if (state.messageMods.replies.length >= 5) return;
@@ -370,12 +375,153 @@ function contextButtons(message) {
           headers: {
             "x-session-token": token,
           },
-        },
+        }
       );
     }
   };
 
   return messageActions;
+}
+
+function renderUsername(message, user, member) {
+  const masqueradeBadge = document.createElement("span");
+  const profilePicture = document.createElement("img");
+  const presenceIcon = document.createElement("img");
+  const userData = document.createElement("div");
+  const username = document.createElement("button");
+
+  profilePicture.classList.add("chat-pfp");
+  userData.classList.add("userdata");
+  username.classList.add("username");
+  presenceIcon.classList.add("presence-icon");
+  if (!message.masquerade) {
+    username.textContent = member.nickname ? member.nickname : user.displayName;
+
+    if (user.status)
+      presenceIcon.src = `../assets/${
+        user.status.presence ? user.status.presence : "Offline"
+      }.svg`;
+
+    if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
+
+    profilePicture.src = member.avatar
+      ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
+      : user.pfp
+      ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
+      : `${settings.instance.delta}/users/${user.id}/default_avatar`;
+
+    if (member.roles) {
+      let highestRole;
+      let currentRoleRank = 2 ** 64; //64-bit integer limit; no role can be ranked lower than this
+
+      for (let i = 0; i < member.roles.length; i++) {
+        let tmpRole = cacheLookup(
+          "roles",
+          member.roles[i],
+          state.active.server
+        );
+        if (tmpRole.colour && tmpRole.rank < currentRoleRank) {
+          //Higher number = lower rank
+          highestRole = tmpRole;
+          currentRoleRank = tmpRole.rank;
+        }
+      }
+
+      if (highestRole !== undefined) {
+        // Testing if it's a valid hex code
+        if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
+          username.style.backgroundColor = highestRole.colour;
+        } else {
+          //For the funky CSS like role gradients
+          username.style.background = highestRole.colour;
+          username.style.backgroundClip = "border-box";
+        }
+      }
+    }
+  } else {
+    masqueradeBadge.textContent = "Masq";
+    if (message.masquerade.name) username.textContent = message.masquerade.name;
+    else
+      username.textContent = member.nickname
+        ? member.nickname
+        : user.displayName;
+
+    username.appendChild(masqueradeBadge);
+
+    if (message.masquerade.avatar) {
+      profilePicture.src = `${settings.instance.january}/proxy?url=${message.masquerade.avatar}`;
+    } else {
+      profilePicture.src = user.pfp
+        ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
+        : `${settings.instance.delta}/users/${user.pfp._id}/default_avatar`;
+      username.style.color = message.masquerade.colour;
+    }
+  }
+
+  username.onclick = () => {
+    loadProfile(user.id);
+  };
+
+  profilePicture.onclick = () => {
+    loadProfile(user.id);
+  };
+
+  userData.appendChild(profilePicture);
+  userData.appendChild(username);
+  userData.appendChild(masqueradeBadge);
+  if (settings.visual.showPresenceIconsInChat)
+    userData.appendChild(presenceIcon);
+  return userData;
+}
+
+function renderAttachments(message) {
+  let attachments = document.createElement("div");
+  attachments.classList.add("message-attachments");
+
+  message.attachments.forEach((tmpAttchmntAttrs) => {
+    let tmpAttachment;
+    //TODO: edit this to only alter what type of element is created, to follow DRY
+    if (tmpAttchmntAttrs.content_type.startsWith("image")) {
+      tmpAttachment = document.createElement("img");
+      tmpAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+    } else if (tmpAttchmntAttrs.content_type.startsWith("video")) {
+      let subAttachment = document.createElement("source");
+
+      tmpAttachment = document.createElement("video");
+      //Loki TODO: move to CSS
+      tmpAttachment.controls = true;
+      tmpAttachment.style.maxWidth = "30%";
+      tmpAttachment.style.maxHeight = "30%";
+
+      subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+      subAttachment.type = tmpAttchmntAttrs.content_type;
+      tmpAttachment.appendChild(subAttachment);
+    } else if (tmpAttchmntAttrs.content_type.startsWith("audio")) {
+      let tmpContainer = document.createElement("audio");
+      let subAttachment = document.createElement("source");
+      let name = document.createElement("span");
+
+      tmpAttachment = document.createElement("div");
+      tmpContainer.controls = true;
+      tmpContainer.textContent = tmpAttchmntAttrs.filename;
+
+      subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+      subAttachment.type = tmpAttchmntAttrs.content_type;
+
+      tmpContainer.appendChild(subAttachment);
+      name.textContent = tmpAttchmntAttrs.filename + "\n";
+
+      tmpAttachment.appendChild(name);
+      tmpAttachment.appendChild(tmpContainer);
+    } else {
+      tmpAttachment = document.createElement("a");
+      tmpAttachment.textContent = tmpAttchmntAttrs.filename;
+      tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+    }
+    tmpAttachment.type = tmpAttchmntAttrs.content_type;
+    attachments.appendChild(tmpAttachment);
+  });
+  return attachments;
 }
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
@@ -391,265 +537,128 @@ async function parseMessage(message) {
   const messageContainer = document.getElementById("messagesContainer");
 
   let messageContent = document.createElement("div");
-  const userData = document.createElement("div");
-  const username = document.createElement("button");
-  const profilePicture = document.createElement("img");
-  const masqueradeBadge = document.createElement("span");
-  const presenceIcon = document.createElement("img");
   const messageDisplay = document.createElement("div");
   const reactionsContainer = document.createElement("div");
 
   messageDisplay.classList.add("message-display");
-  profilePicture.classList.add("chat-pfp");
-  userData.classList.add("userdata");
-  username.classList.add("username");
   messageContent.classList.add("message-content");
   reactionsContainer.classList.add("reactions-container");
-  presenceIcon.classList.add("presence-icon");
 
   reactionsContainer.id = `reactionsContainer${message._id}`;
 
   let user;
   if (message.system) {
     user = await userLookup(
-      message.system.id ? message.system.id : message.system.by,
+      message.system.id ? message.system.id : message.system.by
     );
   } else {
     user = await userLookup(message.author);
   }
 
   if (message.system) {
-    username.textContent = user.username;
-
-    profilePicture.src = user.pfp
-      ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-      : `${settings.instance.delta}/users/${user.id}/default_avatar`;
-
     messageContent.textContent = message.system.type;
 
-    username.onclick = () => {
-      loadProfile(user.id);
-    };
-    profilePicture.onclick = () => {
-      loadProfile(user.id);
-    };
-
-    userData.appendChild(profilePicture);
-    userData.appendChild(username);
-    messageContainer.appendChild(userData);
+    messageContainer.appendChild(renderUsername(message));
     messageContainer.appendChild(messageContent);
     return messageDisplay;
   } else {
-    if (message.mentions && message.mentions.indexOf(state.connection.userProfile._id) !== -1) messageDisplay.classList.add("selfMentioned");
+    if (
+      message.mentions &&
+      message.mentions.indexOf(state.connection.userProfile._id) !== -1
+    )
+      messageDisplay.classList.add("selfMentioned");
 
-    if (!message.masquerade) {
-      username.textContent = member.nickname
-        ? member.nickname
-        : user.displayName;
+    if (user.relationship !== "Blocked") {
+      messageContent = parseMessageContent(message);
 
-      if (user.status) presenceIcon.src = `../assets/${user.status.presence ? user.status.presence : "Offline"}.svg`;
+      if (message.replies) {
+        let reply = document.createElement("div");
+        reply.classList.add("reply-content");
 
-      if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
-
-      profilePicture.src = member.avatar
-        ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
-        : user.pfp
-        ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-        : `${settings.instance.delta}/users/${user.id}/default_avatar`;
-
-      if (member.roles) {
-        let highestRole;
-        let currentRoleRank = 2 ** 64; //64-bit integer limit; no role can be ranked lower than this
-
-        for (let i = 0; i < member.roles.length; i++) {
-          let tmpRole = cacheLookup("roles", member.roles[i], state.active.server);
-          if (tmpRole.colour &&
-            tmpRole.rank < currentRoleRank) { //Higher number = lower rank
-            highestRole = tmpRole;
-            currentRoleRank = tmpRole.rank;
-          }
+        for (let j = 0; j < message.replies.length; j++) {
+          let replyContent = document.createElement("span");
+          replyContent.textContent =
+            "> " + cacheLookup("messages", message.replies[j]).content + "\n";
+          reply.appendChild(replyContent);
         }
 
-        if (highestRole !== undefined) {
-          // Testing if it's a valid hex code
-          if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
-            username.style.backgroundColor = highestRole.colour;
-          } else {
-            //For the funky CSS like role gradients
-            username.style.background = highestRole.colour;
-            username.style.backgroundClip = "border-box";
-          }
-        }
+        messageDisplay.appendChild(reply);
+      }
+
+      if (
+        cache.messages.length === 0 ||
+        cache.messages[cache.messages.length - 1].author !== message.author ||
+        cache.messages[cache.messages.length - 1].masquerade !== undefined
+      )
+        messageDisplay.appendChild(renderUsername(message, user, member));
+      messageDisplay.appendChild(messageContent);
+
+      messageDisplay.id = `MSG-${message._id}`;
+      messageDisplay.class = "message";
+
+      if (message.embeds) {
+        let embeds = document.createElement("div");
+        embeds.classList.add("embedsContainer");
+        message.embeds.forEach((embed) => {
+          embeds.appendChild(renderEmbed(embed));
+        });
+        messageDisplay.appendChild(embeds);
+      }
+
+      if (message.attachments && !settings.behaviour.dataSaver.value) {
+        messageDisplay.appendChild(renderAttachments(message));
+      }
+
+      if (message.reactions) {
+        renderReactions(
+          message.reactions,
+          message.channel,
+          message._id
+        ).forEach((reactionContainer) => {
+          reactionsContainer.appendChild(reactionContainer);
+        });
       }
     } else {
-      masqueradeBadge.textContent = "Masq";
-      if (message.masquerade.name)
-        username.textContent = message.masquerade.name;
-      else
-        username.textContent = member.nickname
-          ? member.nickname
-          : user.displayName;
+      if (message.replies) {
+        let reply = document.createElement("div");
+        reply.classList.add("reply-content");
 
-      username.appendChild(masqueradeBadge);
-
-      if (message.masquerade.avatar) {
-        profilePicture.src = `${settings.instance.january}/proxy?url=${message.masquerade.avatar}`;
-      } else {
-        profilePicture.src = user.pfp
-          ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-          : `${settings.instance.delta}/users/${user.pfp._id}/default_avatar`;
-        username.style.color = message.masquerade.colour;
-      }
-    }
-  }
-  username.onclick = () => {
-    loadProfile(user.id);
-  };
-
-  profilePicture.onclick = () => {
-    loadProfile(user.id);
-  };
-
-  userData.appendChild(profilePicture);
-  userData.appendChild(username);
-  userData.appendChild(masqueradeBadge);
-  if (settings.visual.showPresenceIconsInChat) userData.appendChild(presenceIcon);
-
-  if (user.relationship !== "Blocked") {
-    messageContent = parseMessageContent(message);
-
-    if (message.replies) {
-      let reply = document.createElement("div");
-      reply.classList.add("reply-content");
-
-      for (let j = 0; j < message.replies.length; j++) {
-        let replyContent = document.createElement("span");
-        replyContent.textContent =
-          "> " + cacheLookup("messages", message.replies[j]).content + "\n";
-        reply.appendChild(replyContent);
-      }
-
-      messageDisplay.appendChild(reply);
-    }
-
-    if (
-      cache.messages.length === 0 ||
-      cache.messages[cache.messages.length - 1].author !== message.author ||
-      cache.messages[cache.messages.length - 1].masquerade !== undefined
-    )
-      messageDisplay.appendChild(userData);
-    messageDisplay.appendChild(messageContent);
-
-    messageDisplay.id = `MSG-${message._id}`;
-    messageDisplay.class = "message";
-
-    if (message.embeds) {
-      let embeds = document.createElement("div");
-      embeds.classList.add("embedsContainer");
-      message.embeds.forEach((embed) => {
-        embeds.appendChild(renderEmbed(embed));
-      });
-      messageDisplay.appendChild(embeds);
-    }
-
-    if (message.attachments && !settings.behaviour.dataSaver.value) {
-      let attachments = document.createElement("div");
-      attachments.classList.add("message-attachments");
-
-      message.attachments.forEach((tmpAttchmntAttrs) => {
-        let tmpAttachment;
-        //TODO: edit this to only alter what type of element is created, to follow DRY
-        console.log(tmpAttchmntAttrs.content_type);
-        if (tmpAttchmntAttrs.content_type.startsWith("image")) {
-          tmpAttachment = document.createElement("img");
-          tmpAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
-        } else if (tmpAttchmntAttrs.content_type.startsWith("video")) {
-          let subAttachment = document.createElement("source");
-
-          tmpAttachment = document.createElement("video");
-          //Loki TODO: move to CSS
-          tmpAttachment.controls = true;
-          tmpAttachment.style.maxWidth = "30%";
-          tmpAttachment.style.maxHeight = "30%";
-
-          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
-          subAttachment.type = tmpAttchmntAttrs.content_type;
-          tmpAttachment.appendChild(subAttachment);
-        } else if (tmpAttchmntAttrs.content_type.startsWith("audio")) {
-          let tmpContainer = document.createElement("audio");
-          let subAttachment = document.createElement("source");
-          let name = document.createElement("span");
-
-          tmpAttachment = document.createElement("div");
-          tmpContainer.controls = true;
-          tmpContainer.textContent = tmpAttchmntAttrs.filename;
-
-          subAttachment.src = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
-          subAttachment.type = tmpAttchmntAttrs.content_type;
-
-          tmpContainer.appendChild(subAttachment);
-          name.textContent = tmpAttchmntAttrs.filename + "\n";
-
-          tmpAttachment.appendChild(name);
-          tmpAttachment.appendChild(tmpContainer);
-        } else {
-          tmpAttachment = document.createElement("a");
-          tmpAttachment.textContent = tmpAttchmntAttrs.filename;
-          tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
+        for (let j = 0; j < message.replies.length; j++) {
+          let replyContent = document.createElement("span");
+          replyContent.textContent =
+            "> " + cacheLookup("messages", message.replies[j]).content + "\n";
+          reply.appendChild(replyContent);
         }
-        tmpAttachment.type = tmpAttchmntAttrs.content_type;
-        attachments.appendChild(tmpAttachment);
-      });
-      messageDisplay.appendChild(attachments);
-    }
-
-    if (message.reactions) {
-      renderReactions(message.reactions, message.channel, message._id).forEach(
-        (reactionContainer) => {
-          reactionsContainer.appendChild(reactionContainer);
-        },
-      );
-    }
-  } else {
-    if (message.replies) {
-      let reply = document.createElement("div");
-      reply.classList.add("reply-content");
-
-      for (let j = 0; j < message.replies.length; j++) {
-        let replyContent = document.createElement("span");
-        replyContent.textContent =
-          "> " + cacheLookup("messages", message.replies[j]).content + "\n";
-        reply.appendChild(replyContent);
+        messageDisplay.appendChild(reply);
       }
-      messageDisplay.appendChild(reply);
+
+      if (
+        cache.messages.length === 0 ||
+        cache.messages[cache.messages.length - 1].author !== message.author ||
+        cache.messages[cache.messages.length - 1].masquerade !== undefined
+      )
+        messageDisplay.appendChild(userData);
+      messageDisplay.appendChild(messageContent);
+
+      messageDisplay.id = message._id;
+      messageDisplay.class = "message";
+      messageContent.innerText = "<Blocked user>";
+      messageDisplay.classList.add("blocked-message");
     }
 
-    if (
-      cache.messages.length === 0 ||
-      cache.messages[cache.messages.length - 1].author !== message.author ||
-      cache.messages[cache.messages.length - 1].masquerade !== undefined
-    )
-      messageDisplay.appendChild(userData);
-    messageDisplay.appendChild(messageContent);
+    messageDisplay.appendChild(contextButtons(message));
 
-    messageDisplay.id = message._id;
-    messageDisplay.class = "message";
-    messageContent.innerText = "<Blocked user>";
-    messageDisplay.classList.add("blocked-message");
+    messageDisplay.appendChild(reactionsContainer);
+    cache.messages.push({
+      id: message._id,
+      author: message.author,
+      content: message.content,
+      masquerade: message.masquerade,
+      reactions: message.reactions,
+    });
+
+    return messageDisplay;
   }
-
-  messageDisplay.appendChild(contextButtons(message));
-
-  messageDisplay.appendChild(reactionsContainer);
-  cache.messages.push({
-    id: message._id,
-    author: message.author,
-    content: message.content,
-    masquerade: message.masquerade,
-    reactions: message.reactions,
-  });
-
-  return messageDisplay;
 }
 
 //@license-end
