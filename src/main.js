@@ -69,12 +69,13 @@ window.onload = async () => {
   let languageSelect = document.querySelector(".language-selection");
   let languages = languageSelect.querySelector("#langSelect");
 
-  Object.keys(storage.languages).forEach((language) => {
+  storage.languages.forEach((language) => {
     const languageOpt = document.createElement("option");
     languageOpt.value = language;
     languageOpt.text = language;
     languages.appendChild(languageOpt);
   });
+
   languageSelect.querySelector(
     "#langSelectIcon"
   ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
@@ -82,6 +83,7 @@ window.onload = async () => {
   if (!localStorage.getItem("token")) return;
   start();
 };
+
 /**
  * Main function to start all other functions
  * @returns {null} Should not return

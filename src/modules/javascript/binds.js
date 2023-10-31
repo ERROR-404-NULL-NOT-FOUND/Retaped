@@ -21,8 +21,8 @@ const uploadContainer = document.querySelector("#upload");
 const input = document.querySelector("#input");
 const langSelect = document.querySelector("#langSelect");
 
-langSelect.onchange = (element) => {
-  settings.visual.language = langSelect.options[langSelect.selectedIndex].text; //Set language to selection
+langSelect.onchange = () => {
+  settings.visual.language = langSelect.options[langSelect.selectedIndex].value; //Set language to selection
   updateLanguage();
 };
 

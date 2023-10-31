@@ -25,7 +25,7 @@ var storage = {
   badges: {},
   emojis: {},
   permissions: {},
-  languages: {},
+  language: {},
 };
 
 var state = {

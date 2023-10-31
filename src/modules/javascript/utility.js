@@ -412,10 +412,11 @@ function updateUser(dataObject) {
   }
 }
 
-function updateLanguage() {
-  console.log("test");
-  let language = storage.languages[settings.visual.language];
-
+async function updateLanguage() {
+  await fetch(`../assets/languages/${settings.visual.language}.json`)
+    .then((res) => res.json())
+    .then((res) => (storage.language = res));
+  let language = storage.language;
   let fieldsets = screens.login.querySelectorAll("fieldset");
   let loginFieldset = fieldsets[0];
   let preferencesFieldset = fieldsets[1];
