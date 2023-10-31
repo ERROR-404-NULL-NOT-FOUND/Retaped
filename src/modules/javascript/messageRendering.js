@@ -183,6 +183,43 @@ function parseEmojis(messageContent) {
   return messageContent;
 }
 
+function parseInvites(messageContent) {
+  if (
+    messageContent.innerHTML &&
+    (matches = messageContent.innerText.match(/[^wiki\.]rvlt.gg\/[^ \/]*/))
+  ) {
+    matches.forEach(async (match) => {
+      //Loki TODO: style
+      const matched = match.match(/(?<=rvlt.gg\/).*/);
+      const inviteContainer = document.createElement("div");
+      const inviteText = document.createElement("span");
+      const inviteIcon = document.createElement("img");
+      const inviteMemberCount = document.createElement("span");
+
+      inviteContainer.classList.add("invite-container");
+      inviteText.classList.add("invite-server-name");
+      inviteIcon.classList.add("invite-server-icon");
+      inviteMemberCount.classList.add("invite-server-members");
+
+      const inviteData = await fetchResource(`invites/${matched[0]}`);
+      console.log(inviteData);
+
+      inviteText.textContent = inviteData.server_name;
+
+      if (inviteData.server_icon && !settings.behaviour.extremeDataSaver.value)
+        inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
+      else inviteIcon.innerText = inviteData.server_name.charAt(0);
+
+      inviteMemberCount.textContent = `${inviteData.member_count} member(s)`;
+
+      inviteContainer.appendChild(inviteIcon);
+      inviteContainer.appendChild(inviteText);
+      inviteContainer.appendChild(inviteMemberCount);
+      messageContent.appendChild(inviteContainer);
+    });
+  }
+  return messageContent;
+}
 /**
  * Description
  * @param {Object} message  Message object to render
@@ -596,6 +633,7 @@ async function parseMessage(message) {
       messageDisplay.id = `MSG-${message._id}`;
       messageDisplay.class = "message";
 
+      messageContent = parseInvites(messageContent);
       if (message.embeds) {
         let embeds = document.createElement("div");
         embeds.classList.add("embedsContainer");
