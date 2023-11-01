@@ -446,14 +446,18 @@ async function updateLanguage() {
   let visualSetting = document.querySelector("#visualSetting");
   let profileSetting = document.querySelector("#profileSetting");
   let closeSettingsBtn = document.querySelector("#closeSettingsBtn");
+  let rememberMe = document.querySelector("#toggleRememberLabel");
+  let toggleThemeLabel = document.querySelector("#toggleThemeLabel");
 
-  closeSettingsBtn.innerText = storage.language.settings.closeBtn;
-  visualSetting.innerText = storage.language.settings.categories.visual;
-  behaviourSetting.innerText = storage.language.settings.categories.behaviour;
-  profileSetting.innerText = storage.language.settings.categories.profile;
+  rememberMe.innerText = language.settings.names.rememberMe;
+  toggleThemeLabel.innerText = language.settings.names.revoltTheme;
+  closeSettingsBtn.innerText = language.settings.closeBtn;
+  visualSetting.innerText = language.settings.categories.visual;
+  behaviourSetting.innerText = language.settings.categories.behaviour;
+  profileSetting.innerText = language.settings.categories.profile;
   emailAndPasswd.innerText = language.login.emailPasswdPrompt;
   tokenPrompt.innerText = language.login.tokenPrompt;
-  loginMethodPrompt.innerText = storage.language.login.loginMethodPrompt;
+  loginMethodPrompt.innerText = language.login.loginMethodPrompt;
   advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
   loginData.email.placeholder = language.login.emailPlaceholder;
   loginData.password.placeholder = language.login.passwdPlaceholder;
