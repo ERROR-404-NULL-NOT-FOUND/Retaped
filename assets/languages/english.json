@@ -13,6 +13,12 @@
   },
   "settings": {
     "settings": "Settings",
+    "closeBtn": "Close settings",
+    "categories": {
+      "behaviour": "Behaviour",
+      "visual": "Visuals",
+      "profile": "Profile"
+    },
     "names": {
       "dataSaver": "Data saver",
       "extremeDataSaver": "Extreme data saver",
@@ -33,7 +39,12 @@
       "legacyStyleSheet": "UNIMPLEMENTED Brings back the old Retaped v1.2 UI",
       "compactMode": "UNIMPLEMENTED Similar to Discord's compact mode",
       "revoltTheme": "Loads the colour scheme data set by Revite",
-      "showPresenceIconsInChat": "Shows a user's presence next to their username in channels"
+      "showPresenceIconsInChat": "Shows a user's presence next to their username in channels",
+      "profile": {
+        "previewLabel": "Profile preview",
+        "editorLabel": "Profile editor",
+        "saveBtn": "Save profile"
+      }
     }
   },
   "messages": {

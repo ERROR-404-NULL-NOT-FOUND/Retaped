@@ -97,6 +97,13 @@ loginButton.onclick = () => {
 
 openSettingsButton.onclick = () => {
   document.querySelector("#settings").style.display = "flex";
+
+  document.querySelector("#behaviourSetting").innerText =
+    storage.language.settings.categories.behaviour;
+  document.querySelector("#visualSetting").innerText =
+    storage.language.settings.categories.visual;
+  document.querySelector("#closeSettingsBtn").innerText =
+    storage.language.settings.closeBtn;
 };
 
 openDMsbutton.onclick = () => {

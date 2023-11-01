@@ -31,7 +31,8 @@ async function processSettings() {
       });
   }
 
-  if (legacyEmoteServer.value) settings.instance.legacyEmotes = legacyEmoteServer.value;
+  if (legacyEmoteServer.value)
+    settings.instance.legacyEmotes = legacyEmoteServer.value;
   if (assetsURL.value) settings.instance.assets = assetsURL.value;
 
   if (!toggleToken) settings.behaviour.rememberMe = false;
@@ -53,13 +54,12 @@ async function loadSyncSettings() {
         keys: ["theme", "notifications", "ordering"],
       }),
       method: "POST",
-    },
+    }
   ).then((response) => response.json());
 
-  await fetchResource('/sync/unreads')
-    .then((data) => {
-      state.unreads.unreadList = data;
-    });
+  await fetchResource("/sync/unreads").then((data) => {
+    state.unreads.unreadList = data;
+  });
 
   let theme = JSON.parse(rawSettings.theme[1])["appearance:theme:overrides"];
   let notifications = JSON.parse(rawSettings.notifications[1]);
@@ -67,11 +67,13 @@ async function loadSyncSettings() {
   state.ordering = JSON.parse(rawSettings.ordering[1]).servers;
 
   Object.keys(notifications.channel).forEach((channel) => {
-    if (notifications.channel[channel] === "muted") state.unreads.muted.channels.push(channel);
+    if (notifications.channel[channel] === "muted")
+      state.unreads.muted.channels.push(channel);
   });
 
   Object.keys(notifications.server).forEach((server) => {
-    if (notifications.server[server] === "muted") state.unreads.muted.servers.push(server);
+    if (notifications.server[server] === "muted")
+      state.unreads.muted.servers.push(server);
   });
 
   if (toggleTheme.checked == true) {
@@ -83,17 +85,17 @@ async function loadSyncSettings() {
     themeVars.style.setProperty("--secondary-background", theme["message-box"]);
     themeVars.style.setProperty(
       "--tertiary-background",
-      theme["tertiary-background"],
+      theme["tertiary-background"]
     );
     themeVars.style.setProperty(
       "--tertiary-foreground",
-      theme["tertiary-foreground"],
+      theme["tertiary-foreground"]
     );
     themeVars.style.setProperty("--background", theme["primary-background"]);
     themeVars.style.setProperty("--foreground", theme["foreground"]);
     themeVars.style.setProperty(
       "--secondary-foreground",
-      theme["secondary-foreground"],
+      theme["secondary-foreground"]
     );
     themeVars.style.setProperty("--hover", theme.hover);
     themeVars.style.setProperty("--mention", theme.mention);
@@ -146,7 +148,9 @@ async function loadSetting(settingCategory) {
   } else {
     //Loki TODO: style
     //Creates a div with text, profile preview, text, profile editor, save button
-    let user = await fetchResource(`users/${state.connection.userProfile._id}/profile`);
+    let user = await fetchResource(
+      `users/${state.connection.userProfile._id}/profile`
+    );
 
     let profileEditor = document.createElement("div");
     let profilePreviewContainer = document.createElement("div");
@@ -157,35 +161,41 @@ async function loadSetting(settingCategory) {
     let profileInputText = document.createElement("h4");
     let profileSaveButton = document.createElement("button");
 
-    profileEditor.classList.add("profile-editor")
+    profileEditor.classList.add("profile-editor");
     profilePreviewContainer.classList.add("profile-preview");
     profileInputContainer.classList.add("profile-input");
     profileSaveButton.classList.add("profile-save-button");
 
     profilePreview.innerHTML = marked.parse(user.content);
-    profilePreviewText.innerText = "Profile preview";
-    profileInputText.innerText = "Profile editor";
-    profileSaveButton.innerText = "Save profile"
+    profilePreviewText.innerText =
+      storage.language.settings.descriptions.profile.previewLabel;
+    profileInputText.innerText =
+      storage.language.settings.descriptions.profile.editorLabel;
+    profileSaveButton.innerText =
+      storage.language.settings.descriptions.profile.saveBtn;
 
     profileInput.value = user.content;
 
     profileInput.onkeyup = () => {
       profilePreview.innerHTML = marked.parse(profileInput.value);
-    }
+    };
 
     profileSaveButton.onclick = () => {
-      fetch(`${settings.instance.delta}/users/${state.connection.userProfile._id}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          profile: {
-            content: profileInput.value,
-          }
-        }),
-        headers: {
-          "x-session-token": state.connection.token,
+      fetch(
+        `${settings.instance.delta}/users/${state.connection.userProfile._id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            profile: {
+              content: profileInput.value,
+            },
+          }),
+          headers: {
+            "x-session-token": state.connection.token,
+          },
         }
-      });
-    }
+      );
+    };
 
     profileInputContainer.appendChild(profileInputText);
     profileInputContainer.appendChild(profileInput);
