@@ -371,9 +371,9 @@ function contextButtons(message) {
 
   messageActions.classList.add("message-actions");
 
-  replyButton.innerText = "Reply";
-  editButton.innerText = "Edit";
-  deleteButton.innerText = "Delete";
+  replyButton.innerText = storage.language.messages.contextButtons.reply;
+  editButton.innerText = storage.language.messages.contextButtons.edit;
+  deleteButton.innerText = storage.language.messages.contextButtons.del;
 
   deleteButton.classList.add("deleteButton");
 
@@ -441,7 +441,8 @@ function renderUsername(message, user, member) {
         user.status.presence ? user.status.presence : "Offline"
       }.svg`;
 
-    if (user.bot !== undefined) masqueradeBadge.textContent = "Bot";
+    if (user.bot !== undefined)
+      masqueradeBadge.textContent = storage.language.messages.botBadge;
 
     profilePicture.src = member.avatar
       ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
@@ -478,7 +479,7 @@ function renderUsername(message, user, member) {
       }
     }
   } else {
-    masqueradeBadge.textContent = "Masq";
+    masqueradeBadge.textContent = storage.language.messages.botBadge;
     if (message.masquerade.name) username.textContent = message.masquerade.name;
     else
       username.textContent = member.nickname
@@ -683,7 +684,7 @@ async function parseMessage(message) {
 
       messageDisplay.id = message._id;
       messageDisplay.class = "message";
-      messageContent.innerText = "<Blocked user>";
+      messageContent.innerText = storage.language.messages.blockedUser;
       messageDisplay.classList.add("blocked-message");
     }
 

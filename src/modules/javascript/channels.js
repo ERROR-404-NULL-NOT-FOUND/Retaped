@@ -18,7 +18,8 @@ async function loadDMs() {
 
     document.querySelector("#serverBG").src = "";
 
-    document.querySelector("#serverName").innerText = "Direct Messages";
+    document.querySelector("#serverName").innerText =
+      storage.language.dms.description;
     document.querySelector("#channelName").innerText = "";
     channelContainer.replaceChildren();
     clearMessages();
@@ -27,7 +28,7 @@ async function loadDMs() {
       (response) => {
         const dmButton = document.createElement("button");
 
-        dmButton.textContent = "Saved messages";
+        dmButton.textContent = storage.language.dms.savedMessages;
         dmButton.classList.add("channel");
         dmButton.onclick = () => {
           getMessages(response._id);

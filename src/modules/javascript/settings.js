@@ -130,8 +130,9 @@ async function loadSetting(settingCategory) {
       };
 
       //Loki TODO: style
-      settingDesc.innerHTML = "<br>" + settings[settingCategory][setting].description;
-      settingInputLabel.textContent = settings[settingCategory][setting].name;
+      settingDesc.innerHTML =
+        "<br>" + storage.language.settings.descriptions[setting];
+      settingInputLabel.textContent = storage.language.settings.names[setting];
       settingInputLabel.for = setting;
 
       settingContainer.classList.add("setting-container");

@@ -16,6 +16,10 @@ window.onload = async () => {
     .then((res) => res.json())
     .then((json) => (storage.permissions = json));
 
+  fetch(`../assets/languages/english.json`)
+    .then((res) => res.json())
+    .then((res) => (storage.language = res));
+
   //Handles messageBox trickery, specifically loading more messages when scrolled to top
   //and sending ack messages when scrolled to bottom
   //Not in modules/javascript/binds.js because it's huge
