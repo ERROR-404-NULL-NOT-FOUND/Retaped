@@ -462,7 +462,7 @@ async function updateLanguage() {
   dmButton.innerText = language.dms.buttonContent;
   embedTitle.placeholder = language.toolbar.embedInput.title;
   embedDescription.placeholder = language.toolbar.embedInput.desc;
-  embedIconURL.placeholder = language.toolbar.embedInput.embedIconURL;
+  embedIconURL.placeholder = language.toolbar.embedInput.embedIconUrl;
   embedMedia.placeholder = language.toolbar.embedInput.media;
   embedColour.placeholder = language.toolbar.embedInput.colour;
   embedUrl.placeholder = language.toolbar.embedInput.url;
