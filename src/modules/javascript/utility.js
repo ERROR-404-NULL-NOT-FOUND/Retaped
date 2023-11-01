@@ -448,7 +448,13 @@ async function updateLanguage() {
   let closeSettingsBtn = document.querySelector("#closeSettingsBtn");
   let rememberMe = document.querySelector("#toggleRememberLabel");
   let toggleThemeLabel = document.querySelector("#toggleThemeLabel");
+  let customInstance = document.querySelector("#customInstance");
+  let customLegacyEmotes = document.querySelector("#customLegacyEmotes");
+  let customAssetsHost = document.querySelector("#customAssets");
 
+  customInstance.placeholder = language.settings.names.delta;
+  customLegacyEmotes.placeholder = language.settings.names.legacyEmotes;
+  customAssetsHost.placeholder = language.settings.names.assets;
   rememberMe.innerText = language.settings.names.rememberMe;
   toggleThemeLabel.innerText = language.settings.names.revoltTheme;
   closeSettingsBtn.innerText = language.settings.closeBtn;
