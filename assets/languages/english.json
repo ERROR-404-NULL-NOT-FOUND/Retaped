@@ -56,34 +56,35 @@
       "reply": "Reply",
       "del": "Delete"
     },
-    "toolbar": {
-      "masqueradeInput": {
-        "buttonContent": "Masquerade",
-        "name": "Name",
-        "pfp": "Profile Picture",
-        "colour": "Colour (must have ManageRole permission)"
-      },
-      "embedInput": {
-        "buttonContent": "Send embed",
-        "title": "Title",
-        "icon": "Icon URL",
-        "desc": "Description",
-        "colour": "Colour",
-        "url": "URL",
-        "media": "Media ID (upload to Autumn)"
-      },
-      "websocket": "Re-establish websocket",
-      "refresh": "Refresh chat",
-      "json": "JSON"
-    },
     "masqueradeBadge": "Masq",
     "botBadge": "Bot",
     "blockedUser": "<Blocked User>",
     "markerText": "NEW"
   },
+  "toolbar": {
+    "masqueradeInput": {
+      "buttonContent": "Masquerade",
+      "name": "Name",
+      "avatar": "Profile Picture",
+      "colour": "Colour (must have ManageRole permission)"
+    },
+    "embedInput": {
+      "buttonContent": "Send embed",
+      "title": "Title",
+      "icon": "Icon URL",
+      "desc": "Description",
+      "colour": "Colour",
+      "url": "URL",
+      "embedIconUrl": "Icon URL",
+      "media": "Media ID (upload to Autumn)"
+    },
+    "websocket": "Re-establish websocket",
+    "refresh": "Refresh chat",
+    "json": "JSON"
+  },
   "dms": {
     "description": "Direct messages",
-    "buttonContent": "DMs",
+    "buttonContent": "DMS",
     "savedMessages": "Saved messages"
   },
   "connection": {

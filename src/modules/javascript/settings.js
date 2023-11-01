@@ -112,7 +112,8 @@ async function loadSyncSettings() {
 async function loadSetting(settingCategory) {
   let mainSettings = document.querySelector("#mainSettings");
   let settingCatName = document.querySelector("#settingCatName");
-  settingCatName.innerText = settingCategory;
+  settingCatName.innerText =
+    storage.language.settings.categories[settingCategory];
   mainSettings.replaceChildren();
 
   if (settingCategory !== "profile") {

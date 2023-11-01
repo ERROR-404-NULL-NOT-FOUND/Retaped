@@ -209,7 +209,7 @@ function parseInvites(messageContent) {
         inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
       else inviteIcon.innerText = inviteData.server_name.charAt(0);
 
-      inviteMemberCount.textContent = `${inviteData.member_count} member(s)`;
+      inviteMemberCount.textContent = `${inviteData.member_count} ${storage.language.messages.invite.memberCountText}`;
 
       inviteContainer.appendChild(inviteIcon);
       inviteContainer.appendChild(inviteText);

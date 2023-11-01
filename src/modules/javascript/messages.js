@@ -15,7 +15,7 @@ async function getNewMessages(id, startingMessage = undefined) {
   const placeholder = await fetchResource(
     `channels/${id}/messages?include_users=true&${
       startingMessage ? `sort=latest&before=${startingMessage}` : "sort=latest"
-    }`,
+    }`
   );
 
   const users = placeholder.users;
@@ -26,10 +26,12 @@ async function getNewMessages(id, startingMessage = undefined) {
     const members = placeholder.members;
 
     for (let i = 0; i < members.length; i++) {
-      if (cacheLookup("members", members[i]._id.user, state.active.server) === 1)
-        cache.servers[cacheIndexLookup("servers", state.active.server)].members.push(
-          members[i],
-        );
+      if (
+        cacheLookup("members", members[i]._id.user, state.active.server) === 1
+      )
+        cache.servers[
+          cacheIndexLookup("servers", state.active.server)
+        ].members.push(members[i]);
     }
   }
 
@@ -43,7 +45,7 @@ async function getNewMessages(id, startingMessage = undefined) {
     if (startingMessage)
       messagesContainer.insertBefore(
         await parseMessage(messages[i]),
-        messagesContainer.firstChild,
+        messagesContainer.firstChild
       );
     else messagesContainer.appendChild(await parseMessage(messages[i]));
 
@@ -53,7 +55,7 @@ async function getNewMessages(id, startingMessage = undefined) {
       let unreadMarkerText = document.createElement("span");
       unread = true;
 
-      unreadMarkerText.innerText = "NEW";
+      unreadMarkerText.innerText = storage.language.messages.markerText;
       unreadMarkerContainer.classList.add("unreadMarkerContainer");
 
       unreadMarkerContainer.appendChild(unreadMarkerText);
@@ -85,7 +87,7 @@ async function getMessages(id) {
     input.value = "You don't have permission to send messages in this channel";
     input.readOnly = true;
   } else {
-    input.value = '';
+    input.value = "";
     input.readOnly = false;
   }
 
@@ -93,9 +95,10 @@ async function getMessages(id) {
   let [messages, unread] = await getNewMessages(id);
 
   //Wait for images to start loading
-  if (!unread) setTimeout(() => {
-    scrollChatToBottom();
-  }, 200);
+  if (!unread)
+    setTimeout(() => {
+      scrollChatToBottom();
+    }, 200);
 
   fetch(
     `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
@@ -104,7 +107,7 @@ async function getMessages(id) {
         "x-session-token": state.connection.token,
       },
       method: "PUT",
-    },
+    }
   );
 }
 
@@ -151,10 +154,12 @@ async function sendMessage() {
         attachments: attachmentIDs,
       };
 
-  if (!state.messageMods.masquerade.name)
-    body.masquerade = null;
+  if (!state.messageMods.masquerade.name) body.masquerade = null;
 
-  if (!state.messageMods.embed.title || !state.messageMods.embed.title)
+  if (
+    !state.messageMods.embed.title.value ||
+    !state.messageMods.embed.title.value
+  )
     body.embed = null;
 
   await fetch(
@@ -167,7 +172,7 @@ async function sendMessage() {
       },
       method: state.messageMods.editing === "" ? "POST" : "PATCH",
       body: JSON.stringify(body),
-    },
+    }
   )
     .then((response) => response.json())
     .then((data) => {
@@ -181,7 +186,10 @@ async function sendMessage() {
       }
       fetch(
         `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
-        { method: "PUT", headers: { "x-session-token": state.connection.token } },
+        {
+          method: "PUT",
+          headers: { "x-session-token": state.connection.token },
+        }
       );
     });
 

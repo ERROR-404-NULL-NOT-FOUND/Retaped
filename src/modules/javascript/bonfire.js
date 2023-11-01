@@ -25,9 +25,12 @@ async function bonfire() {
 
     switch (data.type) {
       // User provided correct credentials
-      case "Authenticated":
-        document.getElementById("status").innerText = "Connected";
+      case "Authenticated": {
+        console.log("test");
+        document.querySelector("#connectionStatus").textContent =
+          storage.language.connection.active;
         break;
+      }
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":

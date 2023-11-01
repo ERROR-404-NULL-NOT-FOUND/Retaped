@@ -427,15 +427,53 @@ async function updateLanguage() {
     .querySelector("summary");
   let advancedOptions = loginFieldset.querySelectorAll("details")[1];
   let advancedOptionsSummary = advancedOptions.querySelector("summary");
+  let dmButton = document.querySelector("#dms");
+  let embedTitle = document.querySelector("#embedTitle");
+  let embedDescription = document.querySelector("#embedDesc");
+  let embedMedia = document.querySelector("#embedMedia");
+  let embedColour = document.querySelector("#embedColour");
+  let embedUrl = document.querySelector("#embedURL");
+  let embedIconURL = document.querySelector("#embedIconURL");
+  let masqName = document.querySelector("#masqName");
+  let masqColour = document.querySelector("#masqColour");
+  let masqAvatar = document.querySelector("#masqPfp");
+  let bonfireBtn = document.querySelector("#bonfireButton");
+  let refChatBtn = document.querySelector("#refreshChatButton");
+  let embedBtn = document.querySelector("#sendEmbedButton");
+  let sendJSONBtn = document.querySelector("#sendJSONbutton");
+  let masqBtn = document.querySelector("#sendMasqButton");
+  let behaviourSetting = document.querySelector("#behaviourSetting");
+  let visualSetting = document.querySelector("#visualSetting");
+  let profileSetting = document.querySelector("#profileSetting");
+  let closeSettingsBtn = document.querySelector("#closeSettingsBtn");
 
-  loginMethodPrompt.innerText = language.login.loginMethodPrompt;
+  closeSettingsBtn.innerText = storage.language.settings.closeBtn;
+  visualSetting.innerText = storage.language.settings.categories.visual;
+  behaviourSetting.innerText = storage.language.settings.categories.behaviour;
+  profileSetting.innerText = storage.language.settings.categories.profile;
   emailAndPasswd.innerText = language.login.emailPasswdPrompt;
   tokenPrompt.innerText = language.login.tokenPrompt;
+  loginMethodPrompt.innerText = storage.language.login.loginMethodPrompt;
   advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
   loginData.email.placeholder = language.login.emailPlaceholder;
   loginData.password.placeholder = language.login.passwordPlaceholder;
   loginData.mfa.placeholder = language.login.mfaPlaceholder;
   loginData.token.placeholder = language.login.tokenPlaceholder;
+  dmButton.innerText = language.dms.buttonContent;
+  embedTitle.placeholder = language.toolbar.embedInput.title;
+  embedDescription.placeholder = language.toolbar.embedInput.desc;
+  embedIconURL.placeholder = language.toolbar.embedInput.embedIconURL;
+  embedMedia.placeholder = language.toolbar.embedInput.media;
+  embedColour.placeholder = language.toolbar.embedInput.colour;
+  embedUrl.placeholder = language.toolbar.embedInput.url;
+  masqName.placeholder = language.toolbar.masqueradeInput.name;
+  masqColour.placeholder = language.toolbar.masqueradeInput.colour; //TODO: use a colour picker for this
+  masqAvatar.placeholder = language.toolbar.masqueradeInput.avatar;
+  bonfireBtn.innerText = language.toolbar.websocket;
+  refChatBtn.innerText = language.toolbar.refresh;
+  embedBtn.innerText = language.toolbar.embedInput.buttonContent;
+  masqBtn.innerText = language.toolbar.masqueradeInput.buttonContent;
+  sendJSONBtn.innerText = language.toolbar.json;
 }
 
 //@license-end
