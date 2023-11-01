@@ -1,8 +1,8 @@
 {
   "login": {
     "loginMethodPrompt": "Metodo de inicio de sesión",
-    "emailPasswdPrompt": "Usa tu correo electronico y contraseña de Revolt",
-    "emailPlaceholder": "Correo electronico",
+    "emailPasswdPrompt": "Usa tu correo electrónico y contraseña de Revolt",
+    "emailPlaceholder": "Correo electrónico",
     "passwdPlaceholder": "Contraseña",
     "mfaPlaceholder": "Llave TOTP",
     "tokenPrompt": "O utiliza tu token",
@@ -33,9 +33,9 @@
       "emotes": "Servidor proporciona emotes personalizados"
     },
     "descriptions": {
-      "dataSaver": "Previene que archivos adjuntos a mensajes e/o imagenes encrustadas cargen",
+      "dataSaver": "Previene que archivos adjuntos a mensajes e/o imágenes incrustadas carguen",
       "extremeDataSaver": "NO IMPLEMENTADO Intenta minimizar el trafico de internet",
-      "rememberMe": "Guardar token (Configuracion va a seguir siendo guardada)",
+      "rememberMe": "Guardar token (Configuración va a seguir siendo guardada)",
       "legacyStyleSheet": "NO IMPLEMENTADO Trae de vuelta la interfaz de Retaped 1.2",
       "compactMode": "NO IMPLEMENTADO Similar al modo compacto de Discord",
       "revoltTheme": "Carga los colores de tu tema de Revite",
