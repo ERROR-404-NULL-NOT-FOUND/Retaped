@@ -456,7 +456,7 @@ async function updateLanguage() {
   loginMethodPrompt.innerText = storage.language.login.loginMethodPrompt;
   advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
   loginData.email.placeholder = language.login.emailPlaceholder;
-  loginData.password.placeholder = language.login.passwordPlaceholder;
+  loginData.password.placeholder = language.login.passwdPlaceholder;
   loginData.mfa.placeholder = language.login.mfaPlaceholder;
   loginData.token.placeholder = language.login.tokenPlaceholder;
   dmButton.innerText = language.dms.buttonContent;
