@@ -427,7 +427,6 @@ async function updateLanguage() {
     .querySelector("summary");
   let advancedOptions = loginFieldset.querySelectorAll("details")[1];
   let advancedOptionsSummary = advancedOptions.querySelector("summary");
-  let dmButton = document.querySelector("#dms");
   let embedTitle = document.querySelector("#embedTitle");
   let embedDescription = document.querySelector("#embedDesc");
   let embedMedia = document.querySelector("#embedMedia");
@@ -437,14 +436,6 @@ async function updateLanguage() {
   let masqName = document.querySelector("#masqName");
   let masqColour = document.querySelector("#masqColour");
   let masqAvatar = document.querySelector("#masqPfp");
-  let bonfireBtn = document.querySelector("#bonfireButton");
-  let refChatBtn = document.querySelector("#refreshChatButton");
-  let embedBtn = document.querySelector("#sendEmbedButton");
-  let sendJSONBtn = document.querySelector("#sendJSONbutton");
-  let masqBtn = document.querySelector("#sendMasqButton");
-  let behaviourSetting = document.querySelector("#behaviourSetting");
-  let visualSetting = document.querySelector("#visualSetting");
-  let profileSetting = document.querySelector("#profileSetting");
   let closeSettingsBtn = document.querySelector("#closeSettingsBtn");
   let rememberMe = document.querySelector("#toggleRememberLabel");
   let toggleThemeLabel = document.querySelector("#toggleThemeLabel");
@@ -452,38 +443,63 @@ async function updateLanguage() {
   let customLegacyEmotes = document.querySelector("#customLegacyEmotes");
   let customAssetsHost = document.querySelector("#customAssets");
 
-  customInstance.placeholder = language.settings.names.delta;
-  customLegacyEmotes.placeholder = language.settings.names.legacyEmotes;
-  customAssetsHost.placeholder = language.settings.names.assets;
-  rememberMe.innerText = language.settings.names.rememberMe;
-  toggleThemeLabel.innerText = language.settings.names.revoltTheme;
-  closeSettingsBtn.innerText = language.settings.closeBtn;
-  visualSetting.innerText = language.settings.categories.visual;
-  behaviourSetting.innerText = language.settings.categories.behaviour;
-  profileSetting.innerText = language.settings.categories.profile;
-  emailAndPasswd.innerText = language.login.emailPasswdPrompt;
-  tokenPrompt.innerText = language.login.tokenPrompt;
-  loginMethodPrompt.innerText = language.login.loginMethodPrompt;
-  advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
+  /*
+  Input fields
+  */
+
+  //Login field
+  // Login creds
   loginData.email.placeholder = language.login.emailPlaceholder;
   loginData.password.placeholder = language.login.passwdPlaceholder;
   loginData.mfa.placeholder = language.login.mfaPlaceholder;
   loginData.token.placeholder = language.login.tokenPlaceholder;
-  dmButton.innerText = language.dms.buttonContent;
-  embedTitle.placeholder = language.toolbar.embedInput.title;
-  embedDescription.placeholder = language.toolbar.embedInput.desc;
-  embedIconURL.placeholder = language.toolbar.embedInput.embedIconUrl;
-  embedMedia.placeholder = language.toolbar.embedInput.media;
-  embedColour.placeholder = language.toolbar.embedInput.colour;
+
+  // Advanced options
+  customInstance.placeholder = language.settings.names.delta;
+  customLegacyEmotes.placeholder = language.settings.names.legacyEmotes;
+  customAssetsHost.placeholder = language.settings.names.assets;
+
+  //Toolbar inputs
+  // Embeds
   embedUrl.placeholder = language.toolbar.embedInput.url;
+  embedDescription.placeholder = language.toolbar.embedInput.desc;
+  embedMedia.placeholder = language.toolbar.embedInput.media;
+  embedIconURL.placeholder = language.toolbar.embedInput.embedIconUrl;
+  embedColour.placeholder = language.toolbar.embedInput.colour;
+  embedTitle.placeholder = language.toolbar.embedInput.title;
+
+  //Masquerades
   masqName.placeholder = language.toolbar.masqueradeInput.name;
   masqColour.placeholder = language.toolbar.masqueradeInput.colour; //TODO: use a colour picker for this
   masqAvatar.placeholder = language.toolbar.masqueradeInput.avatar;
-  bonfireBtn.innerText = language.toolbar.websocket;
-  refChatBtn.innerText = language.toolbar.refresh;
-  embedBtn.innerText = language.toolbar.embedInput.buttonContent;
-  masqBtn.innerText = language.toolbar.masqueradeInput.buttonContent;
-  sendJSONBtn.innerText = language.toolbar.json;
+
+  /*
+  Buttons and/or static UI
+  */
+  //Login
+  emailAndPasswd.innerText = language.login.emailPasswdPrompt;
+  rememberMe.innerText = language.settings.names.rememberMe;
+  toggleThemeLabel.innerText = language.settings.names.revoltTheme;
+  tokenPrompt.innerText = language.login.tokenPrompt;
+  loginMethodPrompt.innerText = language.login.loginMethodPrompt;
+  advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
+  loginButton.innerText = language.login.loginBtn;
+
+  //Settings
+  closeSettingsBtn.innerText = language.settings.closeBtn;
+  visualSetting.innerText = language.settings.categories.visual;
+  behaviourSetting.innerText = language.settings.categories.behaviour;
+  profileSetting.innerText = language.settings.categories.profile;
+
+  //Toolbar
+  bonfireButton.innerText = language.toolbar.websocket;
+  refreshChatButton.innerText = language.toolbar.refresh;
+  embedButton.innerText = language.toolbar.embedInput.buttonContent;
+  masqButton.innerText = language.toolbar.masqueradeInput.buttonContent;
+  sendJSONbutton.innerText = language.toolbar.json;
+
+  //Misc
+  openDMsbutton.innerText = language.dms.buttonContent;
 }
 
 //@license-end
