@@ -1,0 +1,94 @@
+{
+  "login": {
+    "loginMethodPrompt": "Método de inicio de sesión",
+    "emailPasswdPrompt": "Usa tu correo electrónico y contraseña de Revolt",
+    "emailPlaceholder": "Correo electrónico",
+    "passwdPlaceholder": "Contraseña",
+    "mfaPlaceholder": "Llave TOTP",
+    "tokenPrompt": "O utiliza tu token",
+    "tokenPlaceholder": "Token",
+    "advancedOptsPrompt": "Opciones avanzadas",
+    "preferencesPrompt": "Preferencias",
+    "loginBtn": "Iniciar sesión"
+  },
+  "settings": {
+    "settings": "Configuración",
+    "closeBtn": "Cerrar configuración",
+    "categories": {
+      "behaviour": "Comportamiento",
+      "visual": "Visuales",
+      "profile": "Perfil"
+    },
+    "names": {
+      "dataSaver": "Ahorro de datos",
+      "extremeDataSaver": "Ahorro de datos extremo",
+      "rememberMe": "Recordar sessión",
+      "legacyStyleSheet": "Interfaz anterior",
+      "compactMode": "Modo compacto",
+      "revoltTheme": "Usar tema de Revolt",
+      "showPresenceIconsInChat": "Mostrar icono de presencia",
+      "delta": "Revolt API endpoint",
+      "assets": "Servidor que proporciona recursos de insignias",
+      "legacyEmotes": "Servidor que proporciona emotes personalizados obsoletos",
+      "emotes": "Servidor proporciona emotes personalizados"
+    },
+    "descriptions": {
+      "dataSaver": "Previene que archivos adjuntos a mensajes e/o imágenes incrustadas carguen",
+      "extremeDataSaver": "NO IMPLEMENTADO Intenta minimizar el tráfico de internet",
+      "rememberMe": "Guardar token (Configuración va a seguir siendo guardada)",
+      "legacyStyleSheet": "NO IMPLEMENTADO Trae de vuelta la interfaz de Retaped 1.2",
+      "compactMode": "NO IMPLEMENTADO Similar al modo compacto de Discord",
+      "revoltTheme": "Carga los colores de tu tema de Revite",
+      "showPresenceIconsInChat": "Muestra el estado de presencia al lado del usuario en mensajes",
+      "profile": {
+        "previewLabel": "Previsualización de perfil",
+        "editorLabel": "Editor de perfil",
+        "saveBtn": "Guardar perfil"
+      }
+    }
+  },
+  "messages": {
+    "invite": {
+      "memberCountText": "miembro(s)"
+    },
+    "contextButtons": {
+      "edit": "Editar",
+      "reply": "Responder",
+      "del": "Eliminar"
+    },
+    "masqueradeBadge": "Enmasq",
+    "botBadge": "Bot",
+    "blockedUser": "<Usuario Bloqueado>",
+    "markerText": "NUEVO"
+  },
+  "toolbar": {
+    "masqueradeInput": {
+      "buttonContent": "Enmascarar",
+      "name": "Nombre",
+      "avatar": "Foto de perfil",
+      "colour": "Color (debes de tener el permiso de manejar roles)"
+    },
+    "embedInput": {
+      "buttonContent": "Mandar contenido incrustado",
+      "title": "Título",
+      "icon": "URL de icono",
+      "desc": "Descripción",
+      "colour": "Color",
+      "url": "URL",
+      "embedIconUrl": "URL de icono",
+      "media": "ID de contenido (Subir a autumn)"
+    },
+    "websocket": "Restableser websocket",
+    "refresh": "Refrescar chat",
+    "json": "JSON"
+  },
+  "dms": {
+    "description": "Mensajes directos",
+    "buttonContent": "MDS",
+    "savedMessages": "Mensajes guardados"
+  },
+  "connection": {
+    "active": "Conectado",
+    "inactive": "Desconectado"
+  }
+}
