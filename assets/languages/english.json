@@ -45,7 +45,28 @@
       "reply": "Reply",
       "del": "Delete"
     },
+    "toolbar": {
+      "masqueradeInput": {
+        "buttonContent": "Masquerade",
+        "name": "Name",
+        "pfp": "Profile Picture",
+        "colour": "Colour (must have ManageRole permission)"
+      },
+      "embedInput": {
+        "buttonContent": "Send embed",
+        "title": "Title",
+        "icon": "Icon URL",
+        "desc": "Description",
+        "colour": "Colour",
+        "url": "URL",
+        "media": "Media ID (upload to Autumn)"
+      },
+      "websocket": "Re-establish websocket",
+      "refresh": "Refresh chat",
+      "json": "JSON"
+    },
     "masqueradeBadge": "Masq",
+    "botBadge": "Bot",
     "blockedUser": "<Blocked User>",
     "markerText": "NEW"
   },
