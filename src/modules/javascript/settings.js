@@ -104,6 +104,18 @@ async function loadSyncSettings() {
   }
 }
 
+function saveSyncSettings () {
+  fetch(`${settings.instance.delta}/sync/settings/set`, {
+    method: "POST",
+    headers: { "x-session-token": state.connection.token },
+    body: JSON.stringify({
+      ordering: JSON.stringify({
+        servers: state.ordering, 
+      })
+    }),
+  });
+}
+
 /**
  * Loads the settings in a given setting category
  * @param {String} settingCategory Any of: behaviour, visual, profile

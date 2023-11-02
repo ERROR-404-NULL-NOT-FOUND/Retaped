@@ -12,6 +12,7 @@
  */
 async function getServers() {
   let serverContainer = document.getElementById("serversContainer");
+  let addedServers = [];
   serverContainer.replaceChildren();
 
   state.unreads.unreadList.forEach((unread) => {
@@ -34,8 +35,16 @@ async function getServers() {
     if (serverInfo === 1) {
       showError({
         name: "AttributeError",
-        message: "A server in your server ordering does not exist",
+        message: "A server in your server ordering does not exist, removing from sync list",
       });
+      state.ordering.splice(i, 0);
+      saveSyncSettings();
+      continue;
+    }
+
+    if (addedServers.indexOf(serverInfo.id) !== -1) {
+      state.ordering.splice(i, 0);
+      saveSyncSettings();
       continue;
     }
 
@@ -84,7 +93,16 @@ async function getServers() {
     }
 
     serverContainer.appendChild(server);
+    addedServers.push(serverInfo.id);
   }
+
+  cache.servers.forEach((server) => {
+    if (addedServers.indexOf(server.id) === -1) {
+      state.ordering.push(server.id);
+      saveSyncSettings();
+      getServers();
+    }
+  })
 }
 
 //@license-end

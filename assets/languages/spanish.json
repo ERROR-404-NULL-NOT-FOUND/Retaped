@@ -49,6 +49,8 @@
   },
   "messages": {
     "invite": {
+      "joinText": "Join",
+      "alreadyJoinedText": "Already joined",
       "memberCountText": "miembro(s)"
     },
     "contextButtons": {

@@ -21,7 +21,6 @@ var cache = {
  * @return {Number} Error code; should never be 1
  * */
 function buildServerCache(servers) {
-  cache.servers = []; // Clear the cache
   try {
     for (let i = 0; i < servers.length; i++) {
       cache.servers.push({

@@ -195,6 +195,7 @@ function parseInvites(messageContent) {
       const inviteText = document.createElement("span");
       const inviteIcon = document.createElement("img");
       const inviteMemberCount = document.createElement("span");
+      const inviteButton = document.createElement("button");
 
       inviteContainer.classList.add("invite-container");
       inviteText.classList.add("invite-server-name");
@@ -211,9 +212,24 @@ function parseInvites(messageContent) {
 
       inviteMemberCount.textContent = `${inviteData.member_count} ${storage.language.messages.invite.memberCountText}`;
 
+      if(cacheLookup("servers", inviteData.server_id) === 1)
+        inviteButton.textContent = storage.language.messages.invite.joinText;
+      else
+        inviteButton.textContent = storage.language.messages.invite.alreadyJoinedText;
+
+      inviteButton.onclick = () => {
+        fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
+          headers: {
+            "x-session-token": state.connection.token 
+          },
+          method: "POST",
+        })
+      };
+
       inviteContainer.appendChild(inviteIcon);
       inviteContainer.appendChild(inviteText);
       inviteContainer.appendChild(inviteMemberCount);
+      inviteContainer.appendChild(inviteButton);
       messageContent.appendChild(inviteContainer);
     });
   }
