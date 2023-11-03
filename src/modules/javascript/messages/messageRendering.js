@@ -202,41 +202,44 @@ function parseInvites(messageContent) {
       inviteIcon.classList.add("invite-server-icon");
       inviteMemberCount.classList.add("invite-server-members");
 
-      fetchResource(`invites/${matched[0]}`).then(inviteData => {
+      fetchResource(`invites/${matched[0]}`).then((inviteData) => {
+        inviteText.textContent = inviteData.server_name;
 
-      inviteText.textContent = inviteData.server_name;
+        if (
+          inviteData.server_icon &&
+          !settings.behaviour.extremeDataSaver.value
+        )
+          inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
+        else inviteIcon.innerText = inviteData.server_name.charAt(0);
 
-      if (inviteData.server_icon && !settings.behaviour.extremeDataSaver.value)
-        inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
-      else inviteIcon.innerText = inviteData.server_name.charAt(0);
+        inviteMemberCount.textContent = formatTranslationKey(
+          storage.language.messages.invite.memberCountText,
+          "members",
+          inviteData.member_count
+        );
 
-      inviteMemberCount.textContent = formatTranslationKey(
-        storage.language.messages.invite.memberCountText,
-        "members",
-        inviteData.member_count);
+        if (cacheLookup("servers", inviteData.server_id) === 1)
+          inviteButton.textContent = storage.language.messages.invite.joinText;
+        else
+          inviteButton.textContent =
+            storage.language.messages.invite.alreadyJoinedText;
 
-      if (cacheLookup("servers", inviteData.server_id) === 1)
-        inviteButton.textContent = storage.language.messages.invite.joinText;
-      else
-        inviteButton.textContent =
-          storage.language.messages.invite.alreadyJoinedText;
+        inviteButton.onclick = () => {
+          fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
+            headers: {
+              "x-session-token": state.connection.token,
+            },
+            method: "POST",
+          });
+        };
 
-      inviteButton.onclick = () => {
-        fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
-          headers: {
-            "x-session-token": state.connection.token,
-          },
-          method: "POST",
-        });
-      };
-
-      inviteContainer.appendChild(inviteIcon);
-      inviteContainer.appendChild(inviteText);
-      inviteContainer.appendChild(inviteMemberCount);
-      inviteContainer.appendChild(inviteButton);
-      messageContent.appendChild(inviteContainer);
-      scrollChatToBottom();
-    });
+        inviteContainer.appendChild(inviteIcon);
+        inviteContainer.appendChild(inviteText);
+        inviteContainer.appendChild(inviteMemberCount);
+        inviteContainer.appendChild(inviteButton);
+        messageContent.appendChild(inviteContainer);
+        scrollChatToBottom();
+      });
     });
   }
   return messageContent;
@@ -469,7 +472,7 @@ function renderUsername(message, user, member) {
     profilePicture.src = member.avatar
       ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
       : user.pfp;
-      
+
     if (member.roles) {
       let highestRole;
       let currentRoleRank = 2 ** 64; //64-bit integer limit; no role can be ranked lower than this
@@ -512,7 +515,7 @@ function renderUsername(message, user, member) {
       profilePicture.src = `${settings.instance.january}/proxy?url=${message.masquerade.avatar}`;
     } else {
       profilePicture.src = user.pfp;
-     username.style.color = message.masquerade.colour;
+      username.style.color = message.masquerade.colour;
     }
   }
 

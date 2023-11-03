@@ -90,7 +90,6 @@ window.onload = async () => {
       ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
     });
 
-
   if (!localStorage.getItem("token")) return;
   start();
 };
