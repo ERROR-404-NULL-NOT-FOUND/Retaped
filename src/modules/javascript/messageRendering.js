@@ -131,30 +131,36 @@ function parseMentions(message, messageContent) {
  */
 function parseEmojis(messageContent) {
   //Searches for each standard emoji and replaces it with its unicode counterpart
-  //TODO: use mutant remix
+  //Loki TODO: Styling
   Object.keys(storage.emojis.standard).forEach((emoji) => {
     if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
+    let emojiImage = document.createElement("img");
+    emojiImage.classList.add("emoji");
+
+    emojiImage.src = `${settings.instance.emotes}/${storage.emojis.standard[
+      emoji
+    ]
+      .codePointAt(0) //Finding emoji codepoint
+      .toString(16)}.svg`; //Convert codepoint to hex to be compatible with the asset file naming
+
     messageContent.innerHTML = messageContent.innerHTML.replace(
       new RegExp(`:${emoji}:`, "g"),
-      storage.emojis.standard[emoji]
+      emojiImage.outerHTML
     );
   });
 
   //Ditto, but replaces it with an image instead
   Object.keys(storage.emojis.custom).forEach((emoji) => {
     if (messageContent.innerHTML.search(`:${emoji}:`) === -1) return;
-
-    let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
     let emojiImage = document.createElement("img");
+    emojiImage.classList.add("emoji");
 
     emojiImage.src = `${settings.instance.legacyEmotes}/projects/revolt/emotes/${storage.emojis.custom[emoji]}`;
-    messageContent.replaceChildren(); //Removes all elements in the message content
 
-    for (let i = 0; i < tmpMsg.length; i++) {
-      if (i !== tmpMsg.length - 1)
-        messageContent.innerHTML += tmpMsg[i] + emojiImage.outerHTML;
-      else messageContent.innerHTML += tmpMsg[i];
-    }
+    messageContent.innerHTML = messageContent.innerHTML.replace(
+      new RegExp(`:${emoji}:`, "g"),
+      emojiImage.outerHTML
+    );
   });
 
   //Matches custom emojis
@@ -164,20 +170,16 @@ function parseEmojis(messageContent) {
     )) !== null
   ) {
     for (let i = 0; i < matches.length; i++) {
-      let emoji = matches[i].split(":")[1];
-      let tmpMsg = messageContent.innerHTML.split(`:${emoji}:`);
+      let emoji = matches[i].split(":")[1]; //Split returns an array of [":", "<emoji>", ":"]
       let tmpImg = document.createElement("img");
       tmpImg.classList.add("emoji");
 
-      //This is quite possibly the only bit of code in the entire client that I would classify as "spaghetti"
-      let outputToGetAroundStupidDomManipulationShit = "";
-
       tmpImg.src = `${settings.instance.autumn}/emojis/${emoji}`;
 
-      for (let j = 1; j < tmpMsg.length; j++) {
-        outputToGetAroundStupidDomManipulationShit += tmpMsg[j];
-      }
-      messageContent.innerHTML = `${tmpMsg[0]}${tmpImg.outerHTML}${outputToGetAroundStupidDomManipulationShit}`;
+      messageContent.innerHTML = messageContent.innerHTML.replace(
+        new RegExp(`:${emoji}:`, "g"),
+        tmpImg.outerHTML
+      );
     }
   }
   return messageContent;
@@ -212,18 +214,19 @@ function parseInvites(messageContent) {
 
       inviteMemberCount.textContent = `${inviteData.member_count} ${storage.language.messages.invite.memberCountText}`;
 
-      if(cacheLookup("servers", inviteData.server_id) === 1)
+      if (cacheLookup("servers", inviteData.server_id) === 1)
         inviteButton.textContent = storage.language.messages.invite.joinText;
       else
-        inviteButton.textContent = storage.language.messages.invite.alreadyJoinedText;
+        inviteButton.textContent =
+          storage.language.messages.invite.alreadyJoinedText;
 
       inviteButton.onclick = () => {
         fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
           headers: {
-            "x-session-token": state.connection.token 
+            "x-session-token": state.connection.token,
           },
           method: "POST",
-        })
+        });
       };
 
       inviteContainer.appendChild(inviteIcon);
