@@ -4,7 +4,7 @@
     "emailPasswdPrompt": "Usa tu correo electrónico y contraseña de Revolt",
     "emailPlaceholder": "Correo electrónico",
     "passwdPlaceholder": "Contraseña",
-    "mfaPlaceholder": "Llave TOTP",
+    "mfaPlaceholder": "Token de autentificación",
     "tokenPrompt": "O utiliza tu token",
     "tokenPlaceholder": "Token",
     "advancedOptsPrompt": "Opciones avanzadas",
@@ -49,8 +49,8 @@
   },
   "messages": {
     "invite": {
-      "joinText": "Join",
-      "alreadyJoinedText": "Already joined",
+      "joinText": "Unirse al servidor",
+      "alreadyJoinedText": "Ya te uniste al servidor",
       "memberCountText": "miembro(s)"
     },
     "contextButtons": {
