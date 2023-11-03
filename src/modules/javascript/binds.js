@@ -1,7 +1,7 @@
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-3.0
 //A bunch of .onclick functions
 
-const embedBotton = document.querySelector("#sendEmbedButton");
+const embedButton = document.querySelector("#sendEmbedButton");
 const masqButton = document.querySelector("#sendMasqButton");
 const bonfireButton = document.querySelector("#bonfireButton");
 const refreshChatButton = document.querySelector("#refreshChatButton");
@@ -23,6 +23,7 @@ const langSelect = document.querySelector("#langSelect");
 
 langSelect.onchange = () => {
   settings.visual.language = langSelect.options[langSelect.selectedIndex].value; //Set language to selection
+  setSettings();
   updateLanguage();
 };
 
@@ -43,7 +44,7 @@ toolbarBtn.onclick = () => {
   toolbar.classList.toggle("show-toolbar");
 };
 
-embedBotton.onclick = () => {
+embedButton.onclick = () => {
   let embed = document.querySelector("#embed");
   embed.hidden = !embed.hidden;
 };

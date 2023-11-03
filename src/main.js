@@ -37,34 +37,31 @@ window.onload = async () => {
             documentHeight.scrollHeight - initialHeight
           );
         }, 500);
-      } else {
-        if (
-          documentHeight.scrollHeight - documentHeight.offsetHeight ===
-            documentHeight.scrollTop &&
-          cache.messages[cache.messages.length - 1].id in
-            state.unreads.unread.messages
-        ) {
-          fetch(
-            `${settings.instance.delta}/channels/${state.active.channel}/ack/${
-              cache.messages[cache.messages.length - 1].id
-            }`,
-            {
-              headers: {
-                "x-session-token": state.connection.token,
-              },
-              method: "PUT",
-            }
-          );
-        }
+        //      } else {
+        //        if (
+        //          documentHeight.scrollHeight - documentHeight.offsetHeight ===
+        //            documentHeight.scrollTop &&
+        //          cache.messages[cache.messages.length - 1].id in
+        //            state.unreads.unread.messages
+        //        ) {
+        //          fetch(
+        //            `${settings.instance.delta}/channels/${state.active.channel}/ack/${
+        //              cache.messages[cache.messages.length - 1].id
+        //            }`,
+        //            {
+        //              headers: {
+        //                "x-session-token": state.connection.token,
+        //              },
+        //              method: "PUT",
+        //            }
+        //          );
+        //        }
       }
     });
 
   await fetch("../assets/defaultSettings.json")
     .then((res) => res.json())
     .then((json) => (settings = json));
-  await fetch("../assets/languages.json")
-    .then((res) => res.json())
-    .then((json) => (storage.languages = json));
 
   fetch(`../assets/languages/${settings.visual.language}.json`)
     .then((res) => res.json())
@@ -73,19 +70,26 @@ window.onload = async () => {
       updateLanguage();
     });
 
-  let languageSelect = document.querySelector(".language-selection");
-  let languages = languageSelect.querySelector("#langSelect");
+  fetch("../assets/languages.json")
+    .then((res) => res.json())
+    .then((json) => {
+      storage.languages = json;
 
-  storage.languages.forEach((language) => {
-    const languageOpt = document.createElement("option");
-    languageOpt.value = language;
-    languageOpt.text = language;
-    languages.appendChild(languageOpt);
-  });
+      let languageSelect = document.querySelector(".language-selection");
+      let languages = languageSelect.querySelector("#langSelect");
 
-  languageSelect.querySelector(
-    "#langSelectIcon"
-  ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
+      storage.languages.forEach((language) => {
+        const languageOpt = document.createElement("option");
+        languageOpt.value = language;
+        languageOpt.text = language;
+        languages.appendChild(languageOpt);
+      });
+
+      languageSelect.querySelector(
+        "#langSelectIcon"
+      ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
+    });
+
 
   if (!localStorage.getItem("token")) return;
   start();

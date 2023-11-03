@@ -26,7 +26,6 @@ async function bonfire() {
     switch (data.type) {
       // User provided correct credentials
       case "Authenticated": {
-        console.log("test");
         document.querySelector("#connectionStatus").textContent =
           storage.language.connection.active;
         break;
@@ -45,10 +44,10 @@ async function bonfire() {
 
         if (data.channel === state.active.channel) {
           const messageContainer = document.querySelector("#messagesContainer");
-          const shouldAck =
-            document.hasFocus &&
+          const shouldAck = true;
+          /*document.hasFocus &&
             messageContainer.scrollHeight - messageContainer.offsetHeight >=
-              messageContainer.scrollTop + 10;
+              messageContainer.scrollTop + 10;*/
 
           if (shouldAck) {
             fetch(
@@ -154,7 +153,9 @@ async function bonfire() {
         buildServerCache(data.servers);
         buildChannelCache(data.channels);
         buildUserCache(data.users);
+        buildEmoteCache(data.emojis);
         getServers();
+        init();
         break;
 
       // User begins typing
@@ -279,6 +280,32 @@ async function bonfire() {
 
       case "ServerMemberUpdate": {
         updateUser(data);
+        break;
+      }
+
+      case "ServerCreate": {
+        state.ordering.push(data.server._id);
+        buildServerCache([data.server]);
+        saveSyncSettings();
+        getServers();
+        break;
+      }
+
+      case "ServerDelete": {
+        state.ordering.splice(state.ordering.indexOf(data.id), 1);
+        cache.servers.splice(cacheIndexLookup("servers", data.id), 1);
+        saveSyncSettings();
+        getServers();
+        break;
+      }
+
+      case "ServerMemberLeave": {
+        if (data.user === state.connection.userProfile._id) {
+          state.ordering.splice(state.ordering.indexOf(data.id), 1);
+          cache.servers.splice(cacheIndexLookup("servers", data.id), 1);
+          saveSyncSettings();
+          getServers();
+        }
         break;
       }
     }

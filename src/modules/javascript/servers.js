@@ -4,7 +4,6 @@
 // Functions related to server caching and rendering
 //
 
-
 // Renders servers from the cache
 /**
  * Renders servers from the cache
@@ -12,6 +11,7 @@
  */
 async function getServers() {
   let serverContainer = document.getElementById("serversContainer");
+  let addedServers = [];
   serverContainer.replaceChildren();
 
   state.unreads.unreadList.forEach((unread) => {
@@ -22,8 +22,12 @@ async function getServers() {
     ) {
       state.unreads.unread.messages.push(unread.last_id);
       state.unreads.unread.channels.push(unread._id.channel);
-      if (unread.mentions) state.unreads.mentioned.channels.push(unread._id.channel);
-      if (unread.mentions) state.unreads.mentioned.servers.push(cacheLookup("channels", unread._id.channel).server);
+      if (unread.mentions)
+        state.unreads.mentioned.channels.push(unread._id.channel);
+      if (unread.mentions)
+        state.unreads.mentioned.servers.push(
+          cacheLookup("channels", unread._id.channel).server
+        );
     }
   });
 
@@ -31,11 +35,19 @@ async function getServers() {
     const server = document.createElement("button");
     const serverIndex = cacheIndexLookup("servers", state.ordering[i]);
     const serverInfo = cacheLookup("servers", state.ordering[i]);
+
     if (serverInfo === 1) {
       showError({
         name: "AttributeError",
-        message: "A server in your server ordering does not exist",
+        message:
+          "A server in your server ordering does not exist, removing from sync list",
       });
+      state.ordering.splice(i, 0);
+      continue;
+    }
+
+    if (addedServers.indexOf(state.ordering[i]) !== -1) {
+      state.ordering.splice(i, 0);
       continue;
     }
 
@@ -84,6 +96,20 @@ async function getServers() {
     }
 
     serverContainer.appendChild(server);
+    addedServers.push(state.ordering[i]);
+  }
+
+  if (
+    cache.servers.some((server) => {
+      if (addedServers.indexOf(server.id) === -1) {
+        state.ordering.push(server.id);
+        return true;
+      }
+      return false;
+    })
+  ) {
+    getServers();
+    saveSyncSettings();
   }
 }
 
