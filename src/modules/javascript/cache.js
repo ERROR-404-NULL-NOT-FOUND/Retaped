@@ -66,11 +66,14 @@ function buildServerCache(servers) {
 function buildUserCache(users) {
   try {
     for (let i = 0; i < users.length; i++) {
+    console.log(users[i]);
       if (cacheLookup("users", users[i]._id) === 1)
         cache.users.push({
           id: users[i]._id,
           username: users[i].username,
-          pfp: users[i].avatar,
+          pfp: users[i].avatar ? 
+            `${settings.instance.autumn}/avatars/${users[i].avatar._id}` :
+            `${settings.instance.delta}/users/${users[i]._id}/default_avatar`,
           bot: users[i].bot,
           discriminator: users[i].discriminator,
           displayName: users[i].display_name
@@ -85,6 +88,7 @@ function buildUserCache(users) {
     showError(error);
     return 1;
   }
+  initUsers();
   return 0;
 }
 

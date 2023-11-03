@@ -1,10 +1,23 @@
 //Loki TODO: styling
 const correctionsContainer = document.querySelector("#correctionsContainer");
 
-const modules = { channel: channels, emote: emotes };
+const modules = { channel: channels, emote: emotes, user: users };
 let channelMap = {};
 let emoteMap = [];
+let userMap = [];
+
 let findMap = [];
+
+function initUsers() {
+  userMap.length = 0;
+  cache.users.forEach((user) => {
+    userMap.push({
+      name: user.displayName,
+      icon: user.pfp,
+     id: user.id,
+    });
+  });
+}
 
 function init() {
   Object.keys(storage.emojis.standard).forEach((emoji) => {
@@ -34,7 +47,6 @@ function init() {
       name: emote.name,
       icon: `${settings.instance.autumn}/emojis/${emote.id}`,
       id: emote.id,
-      type: "custom",
     });
   });
 }
@@ -131,6 +143,28 @@ function emotes(input, ret = false) {
         name: emote.name,
         type: "emote",
         image: emote.icon,
+      });
+    }
+  });
+  return hits;
+}
+
+function users(input, ret = false) {
+  if (ret) return `<@${input}>`;
+  if (input[0] !== "@") return [];
+  if (findMap.length >= 5) return [];
+
+  const processedIn = input.split("@")[1];
+
+  let hits = [];
+  userMap.forEach((user) => {
+    if (hits.length >= 5) return;
+    if (user.name.includes(processedIn)) {
+      hits.push({
+        id: user.id,
+        name: user.name,
+        type: "user",
+        image: user.icon,
       });
     }
   });
