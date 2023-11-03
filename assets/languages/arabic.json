@@ -48,6 +48,10 @@
     }
   },
   "messages": {
+    "inputField": {
+      "sendMessageText": "إرسال رسالة في",
+      "permissionDeniedText": "ليس لديك إذن لإرسال رسائل في"
+    },
     "invite": {
       "joinText": "إنضم",
       "alreadyJoinedText": "منضم بالفعل",
