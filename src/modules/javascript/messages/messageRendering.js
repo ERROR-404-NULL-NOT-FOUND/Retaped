@@ -108,9 +108,7 @@ function parseMentions(message, messageContent) {
       ping.appendChild(mentionPfp);
       mentionText.textContent = cacheLookup("users", mention).displayName;
 
-      mentionPfp.src = tmpUserProfile.pfp
-        ? `${settings.instance.autumn}/avatars/${tmpUserProfile.pfp._id}?max_side=256`
-        : `${settings.instance.delta}/users/${mention}/default_avatar?max_side=256`;
+      mentionPfp.src = tmpUserProfile.pfp;
       mentionText.textContent = cacheLookup("users", mention).displayName;
 
       ping.appendChild(mentionPfp);
@@ -465,10 +463,8 @@ function renderUsername(message, user, member) {
 
     profilePicture.src = member.avatar
       ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
-      : user.pfp
-      ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-      : `${settings.instance.delta}/users/${user.id}/default_avatar`;
-
+      : user.pfp;
+      
     if (member.roles) {
       let highestRole;
       let currentRoleRank = 2 ** 64; //64-bit integer limit; no role can be ranked lower than this
@@ -510,10 +506,8 @@ function renderUsername(message, user, member) {
     if (message.masquerade.avatar) {
       profilePicture.src = `${settings.instance.january}/proxy?url=${message.masquerade.avatar}`;
     } else {
-      profilePicture.src = user.pfp
-        ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-        : `${settings.instance.delta}/users/${user.pfp._id}/default_avatar`;
-      username.style.color = message.masquerade.colour;
+      profilePicture.src = user.pfp;
+     username.style.color = message.masquerade.colour;
     }
   }
 

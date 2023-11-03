@@ -36,11 +36,7 @@ async function loadProfile(userID) {
   displayName.textContent = user.displayName;
   badgesContainer.replaceChildren();
 
-  if (user.pfp) {
-    profilePicture.src = `${settings.instance.autumn}/avatars/${user.pfp._id}`;
-  } else {
-    profilePicture.src = `${settings.instance.delta}/users/${user._id}/default_avatar`;
-  }
+  profilePicture.src = user.pfp
 
   //Loki TODO: Style
   if (user.status) {

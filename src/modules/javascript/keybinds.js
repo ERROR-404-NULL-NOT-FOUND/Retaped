@@ -7,9 +7,10 @@
 const replyingContainer = document.querySelector(".replying-container");
 const inputContainer = document.querySelector("#input");
 
-window.addEventListener("keydown", (event) => {
+input.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "Enter":
+      correctionsContainer.replaceChildren();
       if (!event.shiftKey) {
         event.preventDefault();
         sendMessage();
@@ -25,10 +26,14 @@ window.addEventListener("keydown", (event) => {
         inputContainer.value = "";
       }
       break;
+
     case "Tab": {
       event.preventDefault();
       fill();
     }
+
+    default:
+      break;
   }
   return;
 });

@@ -70,7 +70,9 @@ function buildUserCache(users) {
         cache.users.push({
           id: users[i]._id,
           username: users[i].username,
-          pfp: users[i].avatar,
+          pfp: users[i].avatar ? 
+            `${settings.instance.autumn}/avatars/${users[i].avatar._id}` :
+            `${settings.instance.delta}/users/${users[i]._id}/default_avatar`,
           bot: users[i].bot,
           discriminator: users[i].discriminator,
           displayName: users[i].display_name
@@ -85,6 +87,7 @@ function buildUserCache(users) {
     showError(error);
     return 1;
   }
+  initUsers();
   return 0;
 }
 
