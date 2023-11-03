@@ -49,13 +49,13 @@
   },
   "messages": {
     "inputField": {
-      "sendMessageText": "Send a message in",
-      "permissionDeniedText": "You do not have permission to send messages in"
+      "sendMessageText": "Send a message in {{channel}}",
+      "permissionDeniedText": "You do not have permission to send messages in {{channel}}"
     }, 
     "invite": {
       "joinText": "Join",
       "alreadyJoinedText": "Already joined",
-      "memberCountText": "member(s)"
+      "memberCountText": "{{members}} member(s)"
     },
     "contextButtons": {
       "edit": "Edit",

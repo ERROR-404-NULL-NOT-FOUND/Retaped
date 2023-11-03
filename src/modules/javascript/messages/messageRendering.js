@@ -186,9 +186,9 @@ function parseEmojis(messageContent) {
 function parseInvites(messageContent) {
   if (
     messageContent.innerHTML &&
-    (matches = messageContent.innerText.match(/[^wiki\.]rvlt.gg\/[^ \/]*/))
+    (matches = messageContent.innerText.match(/rvlt.gg\/[^ \/]*(?<!wiki\.)/))
   ) {
-    matches.forEach(async (match) => {
+    matches.forEach((match) => {
       //Loki TODO: style
       const matched = match.match(/(?<=rvlt.gg\/).*/);
       const inviteContainer = document.createElement("div");
@@ -202,7 +202,7 @@ function parseInvites(messageContent) {
       inviteIcon.classList.add("invite-server-icon");
       inviteMemberCount.classList.add("invite-server-members");
 
-      const inviteData = await fetchResource(`invites/${matched[0]}`);
+      fetchResource(`invites/${matched[0]}`).then(inviteData => {
 
       inviteText.textContent = inviteData.server_name;
 
@@ -210,7 +210,10 @@ function parseInvites(messageContent) {
         inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
       else inviteIcon.innerText = inviteData.server_name.charAt(0);
 
-      inviteMemberCount.textContent = `${inviteData.member_count} ${storage.language.messages.invite.memberCountText}`;
+      inviteMemberCount.textContent = formatTranslationKey(
+        storage.language.messages.invite.memberCountText,
+        "members",
+        inviteData.member_count);
 
       if (cacheLookup("servers", inviteData.server_id) === 1)
         inviteButton.textContent = storage.language.messages.invite.joinText;
@@ -232,6 +235,8 @@ function parseInvites(messageContent) {
       inviteContainer.appendChild(inviteMemberCount);
       inviteContainer.appendChild(inviteButton);
       messageContent.appendChild(inviteContainer);
+      scrollChatToBottom();
+    });
     });
   }
   return messageContent;

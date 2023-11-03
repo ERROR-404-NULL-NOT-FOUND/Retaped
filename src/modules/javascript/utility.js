@@ -412,6 +412,10 @@ function updateUser(dataObject) {
   }
 }
 
+function formatTranslationKey(input, key, replacement) {
+  return input.replace(`{{${key}}}`, replacement);
+}
+
 async function updateLanguage() {
   await fetch(`../assets/languages/${settings.visual.language}.json`)
     .then((res) => res.json())
