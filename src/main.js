@@ -5,7 +5,7 @@
 //
 window.onload = async () => {
   //Noscript shenanigans; Loki, feel free to edit this
-  document.querySelectorAll(".error-content").forEach((element) => {
+  document.querySelectorAll(".error-container").forEach((element) => {
     element.style.display = "none";
   });
 
