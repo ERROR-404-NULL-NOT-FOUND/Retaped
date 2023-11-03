@@ -44,10 +44,10 @@ async function bonfire() {
 
         if (data.channel === state.active.channel) {
           const messageContainer = document.querySelector("#messagesContainer");
-          const shouldAck =
-            document.hasFocus &&
+          const shouldAck = true;
+          /*document.hasFocus &&
             messageContainer.scrollHeight - messageContainer.offsetHeight >=
-              messageContainer.scrollTop + 10;
+              messageContainer.scrollTop + 10;*/
 
           if (shouldAck) {
             fetch(
@@ -153,7 +153,9 @@ async function bonfire() {
         buildServerCache(data.servers);
         buildChannelCache(data.channels);
         buildUserCache(data.users);
+        buildEmoteCache(data.emojis);
         getServers();
+        init();
         break;
 
       // User begins typing

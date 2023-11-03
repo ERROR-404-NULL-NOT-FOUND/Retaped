@@ -25,8 +25,17 @@ window.addEventListener("keydown", (event) => {
         inputContainer.value = "";
       }
       break;
+    case "Tab": {
+      event.preventDefault();
+      fill();
+    }
   }
   return;
+});
+
+inputContainer.addEventListener("keyup", (event) => {
+  if (["Enter", "Escape"].indexOf(event.key) === -1) engine();
+
 });
 
 //@license-end

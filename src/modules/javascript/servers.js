@@ -4,7 +4,6 @@
 // Functions related to server caching and rendering
 //
 
-
 // Renders servers from the cache
 /**
  * Renders servers from the cache
@@ -23,8 +22,12 @@ async function getServers() {
     ) {
       state.unreads.unread.messages.push(unread.last_id);
       state.unreads.unread.channels.push(unread._id.channel);
-      if (unread.mentions) state.unreads.mentioned.channels.push(unread._id.channel);
-      if (unread.mentions) state.unreads.mentioned.servers.push(cacheLookup("channels", unread._id.channel).server);
+      if (unread.mentions)
+        state.unreads.mentioned.channels.push(unread._id.channel);
+      if (unread.mentions)
+        state.unreads.mentioned.servers.push(
+          cacheLookup("channels", unread._id.channel).server
+        );
     }
   });
 
@@ -32,19 +35,19 @@ async function getServers() {
     const server = document.createElement("button");
     const serverIndex = cacheIndexLookup("servers", state.ordering[i]);
     const serverInfo = cacheLookup("servers", state.ordering[i]);
+
     if (serverInfo === 1) {
       showError({
         name: "AttributeError",
-        message: "A server in your server ordering does not exist, removing from sync list",
+        message:
+          "A server in your server ordering does not exist, removing from sync list",
       });
       state.ordering.splice(i, 0);
-      saveSyncSettings();
       continue;
     }
 
-    if (addedServers.indexOf(serverInfo.id) !== -1) {
+    if (addedServers.indexOf(state.ordering[i]) !== -1) {
       state.ordering.splice(i, 0);
-      saveSyncSettings();
       continue;
     }
 
@@ -93,16 +96,21 @@ async function getServers() {
     }
 
     serverContainer.appendChild(server);
-    addedServers.push(serverInfo.id);
+    addedServers.push(state.ordering[i]);
   }
 
-  cache.servers.forEach((server) => {
-    if (addedServers.indexOf(server.id) === -1) {
-      state.ordering.push(server.id);
-      saveSyncSettings();
-      getServers();
-    }
-  })
+  if (
+    cache.servers.some((server) => {
+      if (addedServers.indexOf(server.id) === -1) {
+        state.ordering.push(server.id);
+        return true;
+      }
+      return false;
+    })
+  ) {
+    getServers();
+    saveSyncSettings();
+  }
 }
 
 //@license-end

@@ -18,8 +18,9 @@
     <script src="modules/javascript/channels.js" type="text/javascript" defer></script>
     <script src="modules/javascript/keybinds.js" type="text/javascript" defer></script>
     <script src="modules/javascript/login.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/messageRendering.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/messages.js" type="text/javascript" defer></script>
+    <script src="modules/javascript/messages/messageRendering.js" type="text/javascript" defer></script>
+    <script src="modules/javascript/messages/messages.js" type="text/javascript" defer></script>
+    <script src="modules/javascript/messages/correctionEngine.js" type="text/javascript" defer></script>
     <script src="modules/javascript/profiles.js" type="text/javascript" defer></script>
     <script src="modules/javascript/servers.js" type="text/javascript" defer></script>
     <script src="modules/javascript/settings.js" type="text/javascript" defer></script>
@@ -206,6 +207,8 @@
                 <div id="uploadsBarContainer" hidden=true>
                 </div>
 
+                <div id="correctionsContainer">
+                </div>
                 <!--Messages toolbar; normally hidden-->
                 <div class="toolbar">
                     <button id="bonfireButton">

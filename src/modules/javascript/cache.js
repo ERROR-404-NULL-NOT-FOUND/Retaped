@@ -13,7 +13,24 @@ var cache = {
   servers: [],
   //0 is id, 1 is author, 2 is content, masquerade
   messages: [],
+
+  emotes: [],
 };
+
+function buildEmoteCache(emotes) {
+  if (!emotes) return;
+
+  emotes.forEach((emote) => {
+    cache.emotes.push({
+      id: emote._id,
+      parent: emote.parent,
+      creator: emote.creator_id,
+      name: emote.name,
+      animated: emote.animated,
+      nsfw: emote.nsfw,
+    });
+  });
+}
 
 /*
  * Populates the server cache; only called from bonfire
@@ -91,6 +108,7 @@ function buildChannelCache(channels) {
             lastMessage: channels[i].last_message_id,
             defaultPermissions: getPermissions(channels[i].default_permissions),
             rolePermissions: getRolePermissions(channels[i].role_permissions),
+            icon: channels[i].icon,
           });
           break;
 
@@ -99,6 +117,7 @@ function buildChannelCache(channels) {
             id: channels[i]._id,
             name: channels[i].name,
             type: channels[i].channel_type,
+            icon: channels[i].icon,
             desc: channels[i].description,
           });
           break;
@@ -191,13 +210,15 @@ function getPermissions(permissionsInt) {
   // Assign values from the bitfield to an object
   let permissionsAllowed = {};
   Object.keys(storage.permissions).forEach((permission) => {
-    permissionsAllowed[permission] = (storage.permissions[permission] & permissionsAllowedBit);
-  })
+    permissionsAllowed[permission] =
+      storage.permissions[permission] & permissionsAllowedBit;
+  });
 
   let permissionsDenied = {};
   Object.keys(storage.permissions).forEach((permission) => {
-    permissionsDenied[permission] = (storage.permissions[permission] & permissionsDeniedBit);
-  })
+    permissionsDenied[permission] =
+      storage.permissions[permission] & permissionsDeniedBit;
+  });
 
   return {
     Allowed: permissionsAllowed,
