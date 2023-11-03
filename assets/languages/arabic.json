@@ -49,6 +49,8 @@
   },
   "messages": {
     "invite": {
+      "joinText": "إنضم",
+      "alreadyJoinedText": "منضم بالفعل",
       "memberCountText": "العضو (الأعضاء)"
     },
     "contextButtons": {
