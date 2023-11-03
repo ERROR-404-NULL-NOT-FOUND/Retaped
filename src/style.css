@@ -25,6 +25,7 @@ TODO: experiment with better/alternative color schemes. Current one has not so g
   --foreground: #ffffff;
   --background: #0f0f0f;
   --secondary-background: #1a1a1a;
+  /*Loki TODO: Add all the stuff from loadSyncSettings()*/
 
   /* VARS */
   --border-radius: 5px;
@@ -139,7 +140,7 @@ fieldset legend {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  gap: .8rem; 
+  gap: .8rem;
 }
 
 #dms {

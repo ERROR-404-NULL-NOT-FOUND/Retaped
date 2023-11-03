@@ -4,6 +4,11 @@
 // Run on page load
 //
 window.onload = async () => {
+  //Noscript shenanigans; Loki, feel free to edit this
+  document.querySelectorAll(".error-content").forEach((element) => {
+    element.style.display = "none";
+  });
+
   fetch("../assets/emojis.json")
     .then((res) => res.json())
     .then((json) => (storage.emojis = json));
