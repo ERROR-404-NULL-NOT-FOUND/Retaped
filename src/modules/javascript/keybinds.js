@@ -26,10 +26,14 @@ input.addEventListener("keydown", (event) => {
         inputContainer.value = "";
       }
       break;
+
     case "Tab": {
       event.preventDefault();
       fill();
     }
+
+    default:
+      break;
   }
   return;
 });

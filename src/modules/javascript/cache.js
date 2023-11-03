@@ -66,7 +66,6 @@ function buildServerCache(servers) {
 function buildUserCache(users) {
   try {
     for (let i = 0; i < users.length; i++) {
-    console.log(users[i]);
       if (cacheLookup("users", users[i]._id) === 1)
         cache.users.push({
           id: users[i]._id,

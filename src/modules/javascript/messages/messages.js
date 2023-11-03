@@ -76,6 +76,7 @@ async function getMessages(id) {
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
+  correctionsContainer.replaceChildren();
 
   const uploadsBarContainer = document.querySelector("#uploadsBarContainer");
 
@@ -83,15 +84,17 @@ async function getMessages(id) {
   uploadsBarContainer.hidden = true;
   state.messageMods.attachments.length = 0;
 
+  clearMessages(id);
+
   if (!checkPermission(id, "SendMessage")) {
-    input.value = "You don't have permission to send messages in this channel";
+    input.value = `${storage.language.messages.inputField.permissionDeniedText} #${cacheLookup("channels", state.active.channel).name}`;
     input.readOnly = true;
   } else {
+    input.placeholder = `${storage.language.messages.inputField.sendMessageText} #${cacheLookup("channels", state.active.channel).name}`;
     input.value = "";
     input.readOnly = false;
   }
 
-  clearMessages(id);
   let [messages, unread] = await getNewMessages(id);
 
   //Wait for images to start loading

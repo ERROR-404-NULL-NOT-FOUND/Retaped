@@ -48,6 +48,10 @@
     }
   },
   "messages": {
+    "inputField": {
+      "sendMessageText": "Send a message in",
+      "permissionDeniedText": "You do not have permission to send messages in"
+    }, 
     "invite": {
       "joinText": "Join",
       "alreadyJoinedText": "Already joined",
