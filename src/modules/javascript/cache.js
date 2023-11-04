@@ -111,7 +111,7 @@ function buildChannelCache(channels) {
             lastMessage: channels[i].last_message_id,
             defaultPermissions: getPermissions(channels[i].default_permissions),
             rolePermissions: getRolePermissions(channels[i].role_permissions),
-            icon: channels[i].icon,
+            icon: channels[i].icon ? channels[i].icon._id : undefined,
           });
           break;
 
@@ -138,32 +138,6 @@ function buildChannelCache(channels) {
     return 1;
   }
 
-  try {
-    for (const server in cache.servers) {
-      if (!cache.servers[server].categories) continue;
-
-      cache.servers[server].categories.forEach((category) => {
-        let tmpCategory = [];
-
-        category.channels.forEach((channel) => {
-          let anthTmpChannel;
-          for (const tmpChannel in channels) {
-            if (channels[tmpChannel].id === channel) {
-              anthTmpChannel = tmpChannel;
-              break;
-            }
-          }
-
-          tmpCategory.push(channels[anthTmpChannel]);
-        });
-
-        cache.servers[server].categories.push({ [category]: tmpCategory });
-      });
-    }
-  } catch (error) {
-    showError(error);
-    return 1;
-  }
   return 0;
 }
 
