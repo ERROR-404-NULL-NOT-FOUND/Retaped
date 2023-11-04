@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" id="currentCSS">
     <link rel="stylesheet" href="legacy.css" type="text/css" media="screen" id="legacyCSS" disabled="true">
     <link rel="canonical" href="https://error-404-null-not-found.github.io/Retaped/">
-    <!--Script loading-->
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" type="text/javascript" defer></script>
     <script src="modules/javascript/variables.js" type="text/javascript" defer></script>
     <script src="modules/javascript/binds.js" type="text/javascript" defer></script>
@@ -37,10 +37,8 @@
                 that's held together by duct tape and bad code
             </h4>
         </div>
-        <!--Login form-->
-        <form class="login-form">
 
-            <!--Error display-->
+        <form class="login-form">
             <!--FIXME: Styling is weird-->
             <div id="loginErrorContainer" class="error-container" display="block">
                 <p id="loginErrorContent" class="error-content">
@@ -58,19 +56,16 @@
             <fieldset>
                 <legend>Login method</legend>
 
-                <!--Main login form-->
                 <label>Use your Revolt email and password</label>
                 <input id="email" autocomplete="on" placeholder="Email address" type="email">
                 <input id="password" placeholder="Password" type="password">
                 <input id="mfa" placeholder="TOTP Key">
 
-                <!--Custom token selection-->
                 <details>
                     <summary>Or use your token</summary>
                     <input id="token" type="password" autocomplete="off" placeholder="Token">
                 </details>
 
-                <!--Custom hosting options-->
                 <details>
                     <summary>Advanced options</summary>
                     <input type="url" id="customInstance" placeholder="Custom instance URL">
@@ -79,7 +74,6 @@
                 </details>
             </fieldset>
 
-            <!--Preferences form-->
             <fieldset>
                 <legend>Preferences</legend>
                 <div>
@@ -100,9 +94,7 @@
         </form>
     </div>
 
-    <!--Main app skeleton-->
     <div id="app">
-        <!--User profile modal-->
         <div id="userProfile" class="modal-container">
             <div class="modal-background">
             </div>
@@ -124,7 +116,6 @@
             </div>
         </div>
 
-        <!--User settings modal-->
         <div id="settings" class="modal-container">
             <div class="modal-background"></div>
             <div class="modal">
@@ -141,7 +132,6 @@
             </div>
         </div>
 
-        <!--Servers list-->
         <!--TODO: Scan for unreads in DMs-->
         <div id="serversBar">
             <button id="dms">DMS</button>
@@ -149,7 +139,6 @@
             <div id="serversContainer"></div>
         </div>
 
-        <!--Channel selection-->
         <div id="channelBar">
             <h2 id="serverName"></h2>
             <img id="serverBG">
@@ -157,9 +146,7 @@
             <div id="channelsContainer"></div>
         </div>
 
-        <!--Main container, including channel info, for some reason-->
         <div id="chatContainer">
-            <!--Chat header-->
             <!-- TODO: transform this into a channel header -->
             <!-- TODO: move these stats in the settings modal -->
             <div class="chat-header">
@@ -177,12 +164,9 @@
                 </div>
             </div>
 
-            <!--Message header-->
             <div id="messagesContainer"></div>
 
-            <!--Message bar-->
             <div class="messagebar-container">
-                <!--Embed input container; usually hidden-->
                 <div id="embed" hidden="false">
                     <input type="text" autocomplete="off" placeholder="Title" id="embedTitle" />
                     <input type="text" autocomplete="off" placeholder="Icon URL" id="embedIconURL" />
@@ -191,7 +175,6 @@
                     <input type="text" autocomplete="off" placeholder="URL" id="embedURL" />
                     <input type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
                 </div>
-                <!--Masquerade input container; usually hidden-->
                 <div id="masquerade" hidden="false">
                     <input type="text" autocomplete="off" placeholder="Name" id="masqName" />
                     <input type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
@@ -199,29 +182,25 @@
                         id="masqColour" />
                 </div>
 
-                <!--Error container-->
                 <!--FIXME: Actually use this-->
                 <div id="errorContainer" class="error-container">
                     <p id="errorContent" class="error-content">
                     </p>
                 </div>
 
-                <!--Replies container-->
                 <div class="replying-container"></div>
 
-                <!--Typing indicator-->
                 <div id="typingBarContainer">
                     <span id="typingBar"></span> is typing
                 </div>
 
-                <!--List of attachments-->
                 <!--FIXME: Styling-->
                 <div id="uploadsBarContainer" hidden=true>
                 </div>
 
                 <div id="correctionsContainer">
                 </div>
-                <!--Messages toolbar; normally hidden-->
+
                 <div class="toolbar">
                     <button id="bonfireButton">
                         Re-establish websocket
@@ -240,7 +219,6 @@
                     </button>
                 </div>
 
-                <!--Message bar-->
                 <div id="messageBar">
                     <button class="toolbar-btn">↑</button>
 
@@ -254,7 +232,6 @@
                     <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000
                         autofocus=1></textarea>
 
-                    <!--Message send button-->
                     <button class="send-btn">
                         ⟶
                     </button>
@@ -265,3 +242,4 @@
 </body>
 
 </html>
+
