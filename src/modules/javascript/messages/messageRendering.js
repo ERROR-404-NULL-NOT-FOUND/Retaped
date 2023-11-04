@@ -423,7 +423,7 @@ function contextButtons(message) {
   };
 
   editButton.onclick = () => {
-    editingMessageID = message._id;
+    state.messageMods.editing = message._id;
     document.querySelector("#input").value = message.content;
   };
 

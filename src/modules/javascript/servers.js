@@ -108,8 +108,8 @@ async function getServers() {
       return false;
     })
   ) {
-    getServers();
     saveSyncSettings();
+    getServers();
   }
 }
 
