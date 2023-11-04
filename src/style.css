@@ -201,7 +201,6 @@ fieldset legend {
 
 .profile-top {
   height: 12rem;
-  min-width: 600px;
   width: 100%;
   display: -webkit-box;
   display: -ms-flexbox;

@@ -23,7 +23,7 @@
 }
 
 .modal {
-  min-width: 500px;
+  min-width: 600px;
   width: fit-content;
   max-width: 75ch;
   padding: 1.5rem;
