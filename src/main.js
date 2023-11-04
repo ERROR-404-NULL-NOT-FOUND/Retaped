@@ -89,10 +89,6 @@ window.onload = async () => {
         languageOpt.text = language;
         languages.appendChild(languageOpt);
       });
-
-      languageSelect.querySelector(
-        "#langSelectIcon"
-      ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
     });
 
   if (!localStorage.getItem("token")) return;

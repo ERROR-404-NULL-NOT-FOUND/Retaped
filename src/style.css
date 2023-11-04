@@ -90,6 +90,12 @@ fieldset legend {
   outline: none;
 }
 
+.language-selection {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
 #login-btn {
   width: 100%;
 }
