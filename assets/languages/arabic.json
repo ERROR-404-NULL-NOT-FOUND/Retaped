@@ -49,13 +49,13 @@
   },
   "messages": {
     "inputField": {
-      "sendMessageText": "إرسال رسالة في",
-      "permissionDeniedText": "ليس لديك إذن لإرسال رسائل في"
+      "sendMessageText": "إرسال رسالة في {{channel}}",
+      "permissionDeniedText": "ليس لديك إذن لإرسال رسائل في {{channel}}"
     },
     "invite": {
       "joinText": "إنضم",
       "alreadyJoinedText": "منضم بالفعل",
-      "memberCountText": "العضو (الأعضاء)"
+      "memberCountText": "{{members}} عضو (الأعضاء)"
     },
     "contextButtons": {
       "edit": "عدل",
