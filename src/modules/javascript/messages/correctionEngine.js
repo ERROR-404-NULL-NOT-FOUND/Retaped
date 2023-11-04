@@ -14,7 +14,7 @@ function initUsers() {
     userMap.push({
       name: user.displayName,
       icon: user.pfp,
-     id: user.id,
+      id: user.id,
     });
   });
 }

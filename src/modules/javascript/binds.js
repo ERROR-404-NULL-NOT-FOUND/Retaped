@@ -59,11 +59,11 @@ bonfireButton.onclick = () => {
 };
 
 refreshChatButton.onclick = () => {
-  getMessages(activeChannel);
+  getMessages(state.active.channel);
 };
 
 sendJSONbutton.onclick = () => {
-  sendRawJSON = !sendRawJSON;
+  state.messageMods.sendRawJSON = !state.messageMods.sendRawJSON;
 };
 
 sendMessageButton.onclick = () => {

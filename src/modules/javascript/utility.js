@@ -184,6 +184,7 @@ async function showError(error) {
   let errorContainer;
   if (state.errorTimeout) clearTimeout(state.errorTimeout);
 
+  console.error(error);
   if (!state.connection.token)
     errorContainer = document.querySelector("#loginErrorContainer");
   else errorContainer = document.querySelector("#errorContainer");
@@ -321,7 +322,6 @@ function updateUser(dataObject) {
           document
             .querySelectorAll(`#USRNM-${userID} > .chat-pfp`)
             .forEach((element) => {
-              console.log(element);
               element.src = `${settings.instance.autumn}/avatars/${dataObject.data.avatar._id}`;
             });
         }
@@ -410,6 +410,10 @@ function updateUser(dataObject) {
       }
     });
   }
+}
+
+function formatTranslationKey(input, key, replacement) {
+  return input.replace(`{{${key}}}`, replacement);
 }
 
 async function updateLanguage() {

@@ -47,8 +47,17 @@
 
             <!--Error display-->
             <!--FIXME: Styling is weird-->
-            <div id="loginErrorContainer" class="error-container">
-                <p id="loginErrorContent" class="error-content"></p>
+            <div id="loginErrorContainer" class="error-container" display="block">
+                <p id="loginErrorContent" class="error-content">
+                    <noscript>
+                        I see that you've disabled JS and/or have this client blacklisted in libreJS.
+                        Fear not, free internet and/or lowspec pirate, for this client is both written without a
+                        framework and decently optimized, with the source code available both on
+                        <a href="https://github.com/error-404-null-not-found/retaped">=> Github</a> and in the
+                        source tree of this site, as all of the code remains un-minimized.
+                        No secrecy here!
+                    </noscript>
+                </p>
             </div>
 
             <fieldset>
@@ -185,13 +194,15 @@
                 <div id="masquerade" hidden="false">
                     <input type="text" autocomplete="off" placeholder="Name" id="masqName" />
                     <input type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
-                    <input type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)" id="masqColour" />
+                    <input type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)"
+                        id="masqColour" />
                 </div>
 
                 <!--Error container-->
                 <!--FIXME: Actually use this-->
                 <div id="errorContainer" class="error-container">
-                    <p id="errorContent" class="error-content"></p>
+                    <p id="errorContent" class="error-content">
+                    </p>
                 </div>
 
                 <!--Replies container-->
@@ -236,10 +247,11 @@
                     <button>
                         <!-- FIXME: Doesn't show cursor on hover-->
                         <label class="upload-label" for="upload">+
-                          <input type="file" id="upload">
+                            <input type="file" id="upload">
                         </label>
                     </button>
-                    <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000 autofocus=1></textarea>
+                    <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000
+                        autofocus=1></textarea>
 
                     <!--Message send button-->
                     <button class="send-btn">

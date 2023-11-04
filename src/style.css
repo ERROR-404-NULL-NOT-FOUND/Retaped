@@ -25,6 +25,7 @@ TODO: experiment with better/alternative color schemes. Current one has not so g
   --foreground: #ffffff;
   --background: #0f0f0f;
   --secondary-background: #1a1a1a;
+  /*Loki TODO: Add all the stuff from loadSyncSettings()*/
 
   /* VARS */
   --border-radius: 5px;
@@ -59,30 +60,35 @@ TODO: experiment with better/alternative color schemes. Current one has not so g
   text-transform: uppercase;
 }
 
-.hl { color: var(--accent); }
+.hl {
+  color: var(--accent);
+}
 
 .login-form {
-	width: 450px;
-	max-width: 100%;
+  width: 450px;
+  max-width: 100%;
 }
 
 fieldset {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
-	border:none;
-	border-top: 1px solid;
-	border-color: #393939;
-	padding: 1rem 0;
+  gap: 0.5rem;
+  border: none;
+  border-top: 1px solid;
+  border-color: #393939;
+  padding: 1rem 0;
 }
 
 fieldset legend {
-	color: hsl(0, 0%, 49%);
-	font-size: 1.4em;
-	padding: 0;
+  color: hsl(0, 0%, 49%);
+  font-size: 1.4em;
+  padding: 0;
 }
 
-#toggleTheme, #toggleToken { outline: none; }
+#toggleTheme,
+#toggleToken {
+  outline: none;
+}
 
 #login-btn {
   width: 100%;
@@ -139,7 +145,7 @@ fieldset legend {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  gap: .8rem; 
+  gap: 0.8rem;
 }
 
 #dms {
@@ -160,15 +166,9 @@ fieldset legend {
   align-items: center;
   padding: 0.3rem 0;
   background: transparent;
-  opacity: .5;
+  opacity: 0.5;
   overflow: hidden;
   text-align: left;
-}
-
-#channelsContainer button::before {
-  content: "# ";
-  font-size: 1.1em;
-  padding: 0 0.6rem;
 }
 
 #chatContainer {
@@ -215,7 +215,7 @@ fieldset legend {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  gap: .6rem;
+  gap: 0.6rem;
 }
 
 #profilePicture {
@@ -230,14 +230,14 @@ fieldset legend {
 }
 
 #roleContainer {
-  padding: .5rem 0;
+  padding: 0.5rem 0;
   display: flex;
-  gap: .4rem;
+  gap: 0.4rem;
 }
 
 #bio {
   max-height: 15rem;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
   overflow: auto;
 }
 
@@ -245,22 +245,22 @@ fieldset legend {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  gap: .3rem;
-  margin: .2rem;
+  gap: 0.3rem;
+  margin: 0.2rem;
 }
 
 .chat-pfp {
   width: 40px;
   height: 40px;
   -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   cursor: pointer;
 }
 
 .username {
-	font-weight: bold;
-	background: none;
-  padding: 0 .5rem;
+  font-weight: bold;
+  background: none;
+  padding: 0 0.5rem;
 }
 
 .username:hover {
@@ -272,12 +272,12 @@ fieldset legend {
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
   justify-content: space-between;
   color: var(--foreground);
   background: var(--servers-bg);
-  padding: .1rem;
+  padding: 0.1rem;
 }
 
 #channelName {
@@ -290,7 +290,7 @@ fieldset legend {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 /* TODO: lower the font size of the chat. just a little bit */
@@ -335,8 +335,8 @@ fieldset legend {
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .message-attachments {
@@ -345,10 +345,10 @@ fieldset legend {
   display: flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   align-items: flex-start;
-  gap: .3rem;
+  gap: 0.3rem;
 }
 
 .message-attachments img {
@@ -373,7 +373,7 @@ fieldset legend {
 #typingBarContainer {
   display: none;
   padding: 1ch;
-  gap: .5ch;
+  gap: 0.5ch;
 }
 
 #typingBarContainer > span {
@@ -381,7 +381,7 @@ fieldset legend {
 }
 
 #typingBarContainer div {
-  gap: .5ch;
+  gap: 0.5ch;
 }
 
 #typingBarContainer img {
@@ -414,7 +414,7 @@ fieldset legend {
 }
 
 .replying-content {
-  padding: .4rem 1rem;
+  padding: 0.4rem 1rem;
 }
 
 .replying-content::before {
@@ -429,8 +429,8 @@ fieldset legend {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  gap: .4rem;
-  padding: .4rem;
+  gap: 0.4rem;
+  padding: 0.4rem;
 }
 
 .unread-server {
@@ -453,7 +453,7 @@ fieldset legend {
 }
 
 .mentioned-channel {
-  color: var(--mention); 
+  color: var(--mention);
   background-color: var(--tertiary-backgound);
   font-weight: bold;
   opacity: 1;
@@ -507,18 +507,18 @@ input[type="file"] {
   background-color: inherit;
 }
 
-.reaction>img {
+.reaction > img {
   width: 15px;
   height: 15px;
   border-radius: 100%;
-  margin-right: .3rem;
+  margin-right: 0.3rem;
 }
 
-.badge>img {
+.badge > img {
   width: 2em;
   height: 2em;
   border-radius: 100%;
-  margin-right: .3rem;
+  margin-right: 0.3rem;
 }
 
 #badgesContainer {
@@ -537,4 +537,14 @@ input[type="file"] {
   flex-direction: row;
   align-items: start;
   flex-wrap: wrap;
+}
+
+.channel > img,
+#correctionsContainer > div > img {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.3em;
+}
+#serverBG {
+  width: 100%;
 }

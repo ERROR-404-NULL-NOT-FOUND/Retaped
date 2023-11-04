@@ -4,6 +4,11 @@
 // Run on page load
 //
 window.onload = async () => {
+  //Noscript shenanigans; Loki, feel free to edit this
+  document.querySelectorAll(".error-container").forEach((element) => {
+    element.style.display = "none";
+  });
+
   fetch("../assets/emojis.json")
     .then((res) => res.json())
     .then((json) => (storage.emojis = json));
@@ -89,7 +94,6 @@ window.onload = async () => {
         "#langSelectIcon"
       ).src = `${settings.instance.emotes}1f310.svg`; //Globe with meridians; 🌐
     });
-
 
   if (!localStorage.getItem("token")) return;
   start();

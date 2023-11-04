@@ -87,10 +87,18 @@ async function getMessages(id) {
   clearMessages(id);
 
   if (!checkPermission(id, "SendMessage")) {
-    input.value = `${storage.language.messages.inputField.permissionDeniedText} #${cacheLookup("channels", state.active.channel).name}`;
+    input.value = formatTranslationKey(
+      storage.language.messages.inputField.permissionDeniedText,
+      "channel",
+      `#${cacheLookup("channels", state.active.channel).name}`
+    );
     input.readOnly = true;
   } else {
-    input.placeholder = `${storage.language.messages.inputField.sendMessageText} #${cacheLookup("channels", state.active.channel).name}`;
+    input.placeholder = formatTranslationKey(
+      storage.language.messages.inputField.sendMessageText,
+      "channel",
+      `#${cacheLookup("channels", state.active.channel).name}`
+    );
     input.value = "";
     input.readOnly = false;
   }

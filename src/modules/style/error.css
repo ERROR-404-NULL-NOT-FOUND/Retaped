@@ -1,11 +1,17 @@
 .error-container {
-  display: none; /* block */
+  /* Changes as soon as the client loads; only here for noscript */
+  display: block;
   background: var(--error);
   border-radius: var(--border-radius);
-  padding: .7rem;
+  padding: 0.7rem;
 }
 
 .error-content {
   margin: 0;
 }
 
+.error-content>a,
+/*noscript*/
+.error-content>span>a {
+  color: var(--channels-bg);
+}

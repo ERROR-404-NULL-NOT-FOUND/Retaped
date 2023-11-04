@@ -40,7 +40,6 @@ input.addEventListener("keydown", (event) => {
 
 inputContainer.addEventListener("keyup", (event) => {
   if (["Enter", "Escape"].indexOf(event.key) === -1) engine();
-
 });
 
 //@license-end
