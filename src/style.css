@@ -224,10 +224,25 @@ fieldset legend {
   gap: 0.6rem;
 }
 
+.pfpContainer {
+  position: relative;
+}
+
 #profilePicture {
   width: 80px;
   height: 80px;
   object-fit: cover;
+}
+
+.presence-icon {
+  max-height: 1em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.pfpContainer > .presence-icon {
+  max-height: 1.6em;
 }
 
 #displayName {
@@ -532,12 +547,7 @@ input[type="file"] {
   display: flex;
   flex-direction: row;
 }
-/*Intended: overlayed over pfp*/
-.presence-icon {
-  max-height: 1em;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
+
 .setting-container {
   display: flex;
   flex-direction: row;

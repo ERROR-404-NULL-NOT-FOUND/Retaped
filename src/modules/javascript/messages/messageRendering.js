@@ -451,6 +451,9 @@ function renderUsername(message, user, member) {
   const userData = document.createElement("div");
   const username = document.createElement("button");
 
+  const pleaseNoMoreSuffering = document.createElement("div");
+  pleaseNoMoreSuffering.style.position = "relative";
+
   profilePicture.classList.add("chat-pfp");
   userData.classList.add("userdata");
   username.classList.add("username");
@@ -527,11 +530,12 @@ function renderUsername(message, user, member) {
     loadProfile(user.id);
   };
 
-  userData.appendChild(profilePicture);
+  userData.appendChild(pleaseNoMoreSuffering);
+  pleaseNoMoreSuffering.appendChild(profilePicture);
   userData.appendChild(username);
   userData.appendChild(masqueradeBadge);
   if (settings.visual.showPresenceIconsInChat)
-    userData.appendChild(presenceIcon);
+    pleaseNoMoreSuffering.appendChild(presenceIcon);
 
   return userData;
 }
