@@ -198,7 +198,7 @@ async function bonfire() {
 
         if ((typingUserContainer = document.getElementById(data.user))) {
           typingUserContainer.remove();
-          state.currentlyTyping.splice(
+          state.currentlyTyping = state.currentlyTyping.splice(
             state.currentlyTyping.indexOf(data.user),
             1
           );

@@ -281,106 +281,123 @@ function parseMessageContent(message) {
  * @returns {HTMLElement} HTML element containing the embed
  */
 function renderEmbed(embed) {
-  let embedContainer = document.createElement("div");
-  if (embed.type === "Text" || embed.type === "Website") {
-    //Loki TODO: style
-    embedContainer.style.backgroundColor = embed.colour;
+  try {
+    let embedContainer = document.createElement("div");
+    if (embed.type === "Text" || embed.type === "Website") {
+      //Loki TODO: style
+      embedContainer.style.backgroundColor = embed.colour;
 
-    if (embed.icon_url) {
-      let icon = document.createElement("img");
+      if (embed.icon_url) {
+        let icon = document.createElement("img");
 
-      icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
-      icon.classList.add("embed-icon");
+        icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
+        icon.classList.add("embed-icon");
 
-      embedContainer.appendChild(icon);
-    }
+        embedContainer.appendChild(icon);
+      }
 
-    if (embed.original_url) {
-      let originalURL = document.createElement("span");
+      if (embed.original_url) {
+        let originalURL = document.createElement("span");
 
-      originalURL.classList.add("embed-site-name");
-      originalURL.textContent = embed.original_url;
+        originalURL.classList.add("embed-site-name");
+        originalURL.textContent = embed.original_url;
 
-      embedContainer.appendChild(originalURL);
-    }
+        embedContainer.appendChild(originalURL);
+      }
 
-    if (embed.site_name) {
-      let siteName = document.createElement("span");
+      if (embed.site_name) {
+        let siteName = document.createElement("span");
 
-      siteName.classList.add("embed-site-name");
-      siteName.textContent = embed.site_name;
+        siteName.classList.add("embed-site-name");
+        siteName.textContent = embed.site_name;
 
-      embedContainer.appendChild(siteName);
-    }
+        embedContainer.appendChild(siteName);
+      }
 
-    if (embed.title) {
-      let title = document.createElement("h3");
+      if (embed.title) {
+        let title = document.createElement("h3");
 
-      title.classList.add("embedTitle");
-      title.textContent = embed.title;
+        title.classList.add("embedTitle");
+        title.textContent = embed.title;
 
-      embedContainer.appendChild(title);
-    }
+        embedContainer.appendChild(title);
+      }
 
-    if (embed.description) {
-      let description = document.createElement("pre");
+      if (embed.description) {
+        let description = document.createElement("pre");
 
-      description.classList.add("embedDesc");
-      description.textContent = embed.description;
+        description.classList.add("embedDesc");
+        description.textContent = embed.description;
 
-      embedContainer.appendChild(description);
-    }
+        embedContainer.appendChild(description);
+      }
 
-    //Loki TODO: cap image size
-    if (embed.image && embed.image.url && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("img");
+      //Loki TODO: cap image size
+      if (
+        embed.image &&
+        embed.image.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
 
-      embedContainer.appendChild(media);
-    }
+        embedContainer.appendChild(media);
+      }
 
-    if (embed.video && embed.video.url && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("video");
+      if (
+        embed.video &&
+        embed.video.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("video");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
 
-      embedContainer.appendChild(media);
-    }
+        embedContainer.appendChild(media);
+      }
 
-    if (embed.media && embed.media._id && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("img");
+      if (
+        embed.media &&
+        embed.media._id &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
 
-      embedContainer.appendChild(media);
-    }
-  } else {
-    if (
-      embed.type === "Image" &&
-      embed.url &&
-      !settings.behaviour.dataSaver.value
-    ) {
-      let media = document.createElement("img");
-
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
-
-      embedContainer.appendChild(media);
+        embedContainer.appendChild(media);
+      }
     } else {
-      if (!embed.url) return embedContainer;
-      let media = document.createElement("video");
+      if (
+        embed.type === "Image" &&
+        embed.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
 
-      embedContainer.appendChild(media);
+        embedContainer.appendChild(media);
+      } else {
+        if (!embed.url) return embedContainer;
+        let media = document.createElement("video");
+
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+
+        embedContainer.appendChild(media);
+      }
     }
+    return embedContainer;
+  } catch (error) {
+    showError(error);
+    return document.createElement("div");
   }
-  return embedContainer;
 }
 
 /**
