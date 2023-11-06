@@ -258,7 +258,7 @@ function parseChannels(messageContent) {
       const channelInfo = cacheLookup("channels", channel);
 
       const channelElement = document.createElement("span");
-      channelElement.classList.add("channelLink");
+      channelElement.classList.add("tag");
       channelElement.innerText = "#" + channelInfo.name;
       messageContent.innerHTML = messageContent.innerHTML.replace(
         new RegExp(`&lt;#${channel}&gt;`), //<#{channel}>
@@ -503,10 +503,13 @@ function renderUsername(message, user, member) {
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user.displayName;
 
-    if (user.status)
-      presenceIcon.src = `../assets/${
-        user.status.presence ? user.status.presence : "Offline"
-      }.svg`;
+    presenceIcon.src = `../assets/${
+      user.status
+        ? user.status.presence
+          ? user.status.presence
+          : "Offline"
+        : "Offline"
+    }.svg`;
 
     if (user.bot !== undefined)
       masqueradeBadge.textContent = storage.language.messages.botBadge;
@@ -659,10 +662,11 @@ async function parseMessage(message) {
     user = await userLookup(message.author);
   }
 
-  if (message.system) {
-    messageContent.textContent = message.system.type;
+  if (message.system || message.author === "00000000000000000000000000") {
+    messageContent.textContent =
+      storage.language.messages.system[message.system.type];
 
-    messageContainer.appendChild(renderUsername(message));
+    messageContainer.appendChild(renderUsername(message, user, {}));
     messageContainer.appendChild(messageContent);
     return messageDisplay;
   } else {
