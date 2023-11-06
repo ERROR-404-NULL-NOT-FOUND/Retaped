@@ -244,6 +244,30 @@ function parseInvites(messageContent) {
   }
   return messageContent;
 }
+
+function parseChannels(messageContent) {
+  if (
+    (matches = messageContent.innerText.match(
+      /<#[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}>/g
+    ))
+  ) {
+    matches.forEach((channelMatch) => {
+      const channel = channelMatch.match(
+        /[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/g
+      )[0];
+      const channelInfo = cacheLookup("channels", channel);
+
+      const channelElement = document.createElement("span");
+      channelElement.classList.add("channelLink");
+      channelElement.innerText = "#" + channelInfo.name;
+      messageContent.innerHTML = messageContent.innerHTML.replace(
+        new RegExp(`&lt;#${channel}&gt;`), //<#{channel}>
+        channelElement.outerHTML
+      );
+    });
+  }
+  return messageContent;
+}
 /**
  * Description
  * @param {Object} message  Message object to render
@@ -263,6 +287,7 @@ function parseMessageContent(message) {
 
   messageContent = parseEmojis(messageContent);
   messageContent = parseMentions(message, messageContent);
+  messageContent = parseChannels(messageContent);
 
   //Markdown renderer
   messageContent.innerHTML = marked
