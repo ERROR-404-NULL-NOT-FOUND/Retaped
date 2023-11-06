@@ -44,11 +44,17 @@ async function loadDMs() {
       if (!["DirectMessage", "Group"].includes(cache.channels[i].type))
         continue;
 
+      const dmButtonContainer = document.createElement("div");
       const dmButton = document.createElement("button");
-      dmButton.classList.add("channel");
+      const dmButtonAvatar = document.createElement("img");
+
+      dmButtonContainer.classList.add("channel");
 
       if (cache.channels[i].type === "Group") {
         dmButton.textContent = cache.channels[i].name;
+        dmButtonAvatar.src = cache.channels[i].icon
+          ? `${settings.instance.autumn}/icons/${cache.channels[i].icon._id}`
+          : `${settings.instance.legacyEmotes}/projects/revolt/group.png`;
       } else {
         let user;
 
@@ -60,17 +66,21 @@ async function loadDMs() {
           user = await userLookup(cache.channels[i].recipients[0]);
         }
 
-        dmButton.textContent = `@${user.username}#${user.discriminator}`;
+        dmButton.textContent = `${user.username}#${user.discriminator}`;
+        dmButtonAvatar.src = user.pfp;
       }
-
-      dmButton.onclick = () => {
+      const onClick = () => {
         getMessages(cache.channels[i].id);
         document.querySelector("#channelName").innerText = dmButton.textContent;
         document.querySelector("#channelDesc").innerText.length = 0;
       };
+      dmButton.onclick = onClick;
+      dmButtonAvatar.onclick = onClick;
 
       dmButton.id = cache.channels[i].id;
-      userCat.appendChild(dmButton);
+      dmButtonContainer.appendChild(dmButtonAvatar);
+      dmButtonContainer.appendChild(dmButton);
+      userCat.appendChild(dmButtonContainer);
     }
     channelContainer.appendChild(userCat);
   } catch (error) {

@@ -51,7 +51,7 @@
     "inputField": {
       "sendMessageText": "Send a message in {{channel}}",
       "permissionDeniedText": "You do not have permission to send messages in {{channel}}"
-    }, 
+    },
     "invite": {
       "joinText": "Join",
       "alreadyJoinedText": "Already joined",
@@ -65,9 +65,22 @@
     "masqueradeBadge": "Masq",
     "botBadge": "Bot",
     "blockedUser": "<Blocked User>",
-    "markerText": "NEW"
+    "markerText": "NEW",
+    "system": {
+      "user_joined": "System: joined",
+      "user_added": "System: added",
+      "user_remove": "System: emoved",
+      "user_left": "System: left",
+      "user_kicked": "System: kicked",
+      "user_banned": "System: banned",
+      "channel_renamed": "System: channel renamed",
+      "channel_description_changed": "System: channel description updated",
+      "channel_icon_changed": "System: channel icon updated",
+      "channel_ownership_changed": "System: channel ownership changed"
+    }
   },
   "toolbar": {
+    "typingIndicator": " is typing",
     "masqueradeInput": {
       "buttonContent": "Masquerade",
       "name": "Name",
@@ -81,7 +94,6 @@
       "desc": "Description",
       "colour": "Colour",
       "url": "URL",
-      "embedIconUrl": "Icon URL",
       "media": "Media ID (upload to Autumn)"
     },
     "websocket": "Re-establish websocket",
