@@ -438,7 +438,6 @@ async function updateLanguage() {
     .then((res) => (storage.language = res));
   Array.from(deepKeys(storage.language)).forEach((translationKey) => {
     if ((element = document.querySelector(`*[name="${translationKey}"]`))) {
-      console.log(element.tagName);
       let value = valueOfDeepKey(translationKey.split("."), storage.language);
       switch (element.tagName) {
         case "INPUT":
@@ -446,7 +445,6 @@ async function updateLanguage() {
         default:
           element.innerText = value;
       }
-      console.log(element);
     } else {
       console.log(`Translatable element not found: ${translationKey}`);
     }
