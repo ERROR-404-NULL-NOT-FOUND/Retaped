@@ -61,27 +61,27 @@
             </div>
 
             <fieldset>
-                <legend name='login.loginMethodPrompt'>Login method</legend>
+                <legend name='login.loginMethodPrompt' class="translatable">Login method</legend>
 
                 <!--Main login form-->
-                <label name="login.emailPasswdPrompt">Use your Revolt email and password</label>
-                <input name="login.emailPlaceholder" id="email" autocomplete="on" placeholder="Email address"
+                <label name="login.emailPasswdPrompt" class="translatable">Use your Revolt email and password</label>
+                <input name="login.emailPlaceholder" class="translatable" id="email" autocomplete="on" placeholder="Email address"
                     type="email">
-                <input name="login.passwdPlaceholder" id="password" placeholder="Password" type="password">
-                <input name="login.mfaPlaceholder" id="mfa" placeholder="TOTP Key">
+                <input name="login.passwdPlaceholder" class="translatable" id="password" placeholder="Password" type="password">
+                <input name="login.mfaPlaceholder" class="translatable" id="mfa" placeholder="TOTP Key">
 
                 <!--Custom token selection-->
                 <details>
-                    <summary name="login.tokenPrompt">Or use your token</summary>
-                    <input name="login.tokenPlaceholder" id="token" type="password" autocomplete="off" placeholder="Token">
+                    <summary name="login.tokenPrompt" class="translatable">Or use your token</summary>
+                    <input name="login.tokenPlaceholder" class="translatable" id="token" type="password" autocomplete="off" placeholder="Token">
                 </details>
 
                 <!--Custom hosting options-->
                 <details>
-                    <summary name="login.advancedOptsPrompt">Advanced options</summary>
-                    <input type="url" name="settings.names.delta" id="customInstance" placeholder="Custom instance URL">
-                    <input type="url" name="settings.names.legacyEmotes" id="customLegacyEmotes" placeholder="Custom legacy emotes host">
-                    <input type="url" name="settings.names.assets" id="customAssets" placeholder="Custom assets host">
+                    <summary name="login.advancedOptsPrompt" class="translatable">Advanced options</summary>
+                    <input type="url" name="settings.names.delta" class="translatable" id="customInstance" placeholder="Custom instance URL">
+                    <input type="url" name="settings.names.legacyEmotes" class="translatable" id="customLegacyEmotes" placeholder="Custom legacy emotes host">
+                    <input type="url" name="settings.names.assets" class="translatable" id="customAssets" placeholder="Custom assets host">
                 </details>
             </fieldset>
 
@@ -90,13 +90,13 @@
                 <legend name="login.preferencesPrompt">Preferences</legend>
                 <div>
                     <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
-                    <label id="toggleThemeLabel" name="settings.names.revoltTheme" for="toggle-theme">Use my Revolt theme</label>
+                    <label id="toggleThemeLabel" name="settings.names.revoltTheme" class="translatable" for="toggle-theme">Use my Revolt theme</label>
 
                     <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
-                    <label id="toggleRememberLabel" name="settings.names.rememberMe" for="toggle-token">Remember me</label>
+                    <label id="toggleRememberLabel" name="settings.names.rememberMe" class="translatable" for="toggle-token">Remember me</label>
                 </div>
             </fieldset>
-            <button id="login-btn" name="login.loginBtn" type="button">Login</button>
+            <button id="login-btn" name="login.loginBtn" class="translatable" type="button">Login</button>
         </form>
     </div>
 
@@ -130,21 +130,21 @@
             <div class="modal">
                 <h1 name="settings.settings">Settings</h1>
                 <div id="categories">
-                    <button name="settings.categories.behaviour" id="behaviourSetting">Behaviour</button>
-                    <button name="settings.categories.visual" id="visualSetting">Visuals</button>
-                    <button name="settings.categories.profile" id="profileSetting">Profile</button>
+                    <button name="settings.categories.behaviour" class="translatable" id="behaviourSetting">Behaviour</button>
+                    <button name="settings.categories.visual" class="translatable" id="visualSetting">Visuals</button>
+                    <button name="settings.categories.profile" class="translatable" id="profileSetting">Profile</button>
                 </div>
                 <h3 id="settingCatName"></h3>
                 <div id="mainSettings">
                 </div>
-                <button name="settings.closeBtn" id="closeSettingsBtn">Close settings</button>
+                <button name="settings.closeBtn" clsas="trasnlatable" id="closeSettingsBtn">Close settings</button>
             </div>
         </div>
 
         <!--Servers list-->
         <!--TODO: Scan for unreads in DMs-->
         <div id="serversBar">
-            <button name="dms.buttonContent" id="dms">DMS</button>
+            <button name="dms.buttonContent" class="translatable" id="dms">DMS</button>
             <hr>
             <div id="serversContainer"></div>
         </div>
@@ -169,11 +169,11 @@
                 </div>
 
                 <div class="chat-header-right">
-                    <p id="connectionStatus">Disconnected</p>
+                    <p id="connectionStatus" class="translatable">Disconnected</p>
                     -
                     <p id="themeLabel">Default theme</p>
                     <br>
-                    <button name="settings.settings" id="openSettingsBtn">Settings</button>
+                    <button name="settings.settings" class="translatable" id="openSettingsBtn">Settings</button>
                 </div>
             </div>
 
@@ -184,18 +184,18 @@
             <div class="messagebar-container">
                 <!--Embed input container; usually hidden-->
                 <div id="embed" hidden="false">
-                    <input name="toolbar.embedInput.title" type="text" autocomplete="off" placeholder="Title" id="embedTitle" />
-                    <input name="toolbar.embedInput.icon" type="text" autocomplete="off" placeholder="Icon URL" id="embedIconURL" />
-                    <input name="toolbar.embedInput.desc" type="text" autocomplete="off" placeholder="Description" id="embedDesc" />
-                    <input name="toolbar.embedInput.colour" type="text" autocomplete="off" placeholder="Color" id="embedColour" />
-                    <input name="toolbar.embedInput.url" type="text" autocomplete="off" placeholder="URL" id="embedURL" />
-                    <input name="toolbar.embedInput.media" type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
+                    <input name="toolbar.embedInput.title" class="translatable" type="text" autocomplete="off" placeholder="Title" id="embedTitle" />
+                    <input name="toolbar.embedInput.icon" class="translatable" type="text" autocomplete="off" placeholder="Icon URL" id="embedIconURL" />
+                    <input name="toolbar.embedInput.desc" class="translatable" type="text" autocomplete="off" placeholder="Description" id="embedDesc" />
+                    <input name="toolbar.embedInput.colour" class="translatable" type="text" autocomplete="off" placeholder="Color" id="embedColour" />
+                    <input name="toolbar.embedInput.url" class="translatable" type="text" autocomplete="off" placeholder="URL" id="embedURL" />
+                    <input name="toolbar.embedInput.media" class="translatable" type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
                 </div>
                 <!--Masquerade input container; usually hidden-->
                 <div id="masquerade" hidden="false">
-                    <input name="toolbar.masqueradeInput.name" type="text" autocomplete="off" placeholder="Name" id="masqName" />
-                    <input name="toolbar.masqueradeInput.avatar" type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
-                    <input name="toolbar.masqueradeInput.colour" type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)"
+                    <input name="toolbar.masqueradeInput.name" class="translatable" type="text" autocomplete="off" placeholder="Name" id="masqName" />
+                    <input name="toolbar.masqueradeInput.avatar" class="translatable" type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
+                    <input name="toolbar.masqueradeInput.colour" class="translatable" type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)"
                         id="masqColour" />
                 </div>
 
@@ -211,7 +211,7 @@
 
                 <!--Typing indicator-->
                 <div id="typingBarContainer">
-                    <span id="typingBar"></span><span name="toolbar.typingIndicator"></span>
+                    <span id="typingBar"></span><span name="toolbar.typingIndicator" class="translatable"></span>
                 </div>
 
                 <!--List of attachments-->
@@ -223,19 +223,19 @@
                 </div>
                 <!--Messages toolbar; normally hidden-->
                 <div class="toolbar">
-                    <button name="toolbar.websocket" id="bonfireButton">
+                    <button name="toolbar.websocket" class="translatable" id="bonfireButton">
                         Re-establish websocket
                     </button>
-                    <button name="toolbar.refresh" id="refreshChatButton">
+                    <button name="toolbar.refresh" class="translatable" id="refreshChatButton">
                         Refresh chat
                     </button>
-                    <button name="toolbar.embedInput.buttonContent" id="sendEmbedButton">
+                    <button name="toolbar.embedInput.buttonContent" class="translatable" id="sendEmbedButton">
                         Send embed
-                        <button name="toolbar.masqueradeInput.buttonContent" id="sendMasqButton">
+                        <button name="toolbar.masqueradeInput.buttonContent" class="translatable" id="sendMasqButton">
                             Masquerade
                         </button>
                     </button>
-                    <button name="toolbar.json" id="sendJSONbutton">
+                    <button name="toolbar.json" class="translatable" id="sendJSONbutton">
                         JSON
                     </button>
                 </div>
@@ -251,7 +251,7 @@
                             <input type="file" id="upload">
                         </label>
                     </button>
-                    <textarea name="messages.inputField.permissionDeniedText" autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000
+                    <textarea name="messages.inputField.permissionDeniedText" class="translatable" autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000
                         autofocus=1></textarea>
 
                     <!--Message send button-->
