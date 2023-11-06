@@ -548,3 +548,43 @@ input[type="file"] {
 #serverBG {
   width: 100%;
 }
+.embedsContainer {
+  max-width: 60%;
+}
+.embed {
+  border-radius: var(--border-radius);
+  -webkit-border-radius: var(--border-radius);
+  -moz-border-radius: var(--border-radius);
+  -ms-border-radius: var(--border-radius);
+  -o-border-radius: var(--border-radius);
+}
+.embed > .embedMedia {
+  width: 100%;
+  max-width: inherit;
+}
+
+.embedDesc {
+  display: block;
+  width: auto;
+  word-break: break-all;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+  -moz-hyphens: manual;
+  -ms-hyphens: manual;
+  padding-right: 1em;
+  padding-left: 1em;
+}
+.embed > .embed-site-name {
+  display: block;
+  width: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 1em;
+  padding-left: 1em;
+  font-size: 0.75em;
+}
+.embed > .embedTitle {
+  padding-right: 1em;
+  padding-left: 1em;
+}

@@ -308,6 +308,7 @@ function parseMessageContent(message) {
 function renderEmbed(embed) {
   try {
     let embedContainer = document.createElement("div");
+    embedContainer.classList.add("embed");
     if (embed.type === "Text" || embed.type === "Website") {
       //Loki TODO: style
       embedContainer.style.backgroundColor = embed.colour;
@@ -349,10 +350,12 @@ function renderEmbed(embed) {
       }
 
       if (embed.description) {
-        let description = document.createElement("pre");
+        let description = document.createElement("div");
 
         description.classList.add("embedDesc");
-        description.textContent = embed.description;
+        description.innerHTML = marked.parse(
+          embed.description.replace("<", "&lt;").replace(">", "&gt;")
+        );
 
         embedContainer.appendChild(description);
       }
