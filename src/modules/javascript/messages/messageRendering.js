@@ -244,6 +244,30 @@ function parseInvites(messageContent) {
   }
   return messageContent;
 }
+
+function parseChannels(messageContent) {
+  if (
+    (matches = messageContent.innerText.match(
+      /<#[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}>/g
+    ))
+  ) {
+    matches.forEach((channelMatch) => {
+      const channel = channelMatch.match(
+        /[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/g
+      )[0];
+      const channelInfo = cacheLookup("channels", channel);
+
+      const channelElement = document.createElement("span");
+      channelElement.classList.add("tag");
+      channelElement.innerText = "#" + channelInfo.name;
+      messageContent.innerHTML = messageContent.innerHTML.replace(
+        new RegExp(`&lt;#${channel}&gt;`), //<#{channel}>
+        channelElement.outerHTML
+      );
+    });
+  }
+  return messageContent;
+}
 /**
  * Description
  * @param {Object} message  Message object to render
@@ -263,6 +287,7 @@ function parseMessageContent(message) {
 
   messageContent = parseEmojis(messageContent);
   messageContent = parseMentions(message, messageContent);
+  messageContent = parseChannels(messageContent);
 
   //Markdown renderer
   messageContent.innerHTML = marked
@@ -281,106 +306,126 @@ function parseMessageContent(message) {
  * @returns {HTMLElement} HTML element containing the embed
  */
 function renderEmbed(embed) {
-  let embedContainer = document.createElement("div");
-  if (embed.type === "Text" || embed.type === "Website") {
-    //Loki TODO: style
-    embedContainer.style.backgroundColor = embed.colour;
+  try {
+    let embedContainer = document.createElement("div");
+    embedContainer.classList.add("embed");
+    if (embed.type === "Text" || embed.type === "Website") {
+      //Loki TODO: style
+      embedContainer.style.backgroundColor = embed.colour;
 
-    if (embed.icon_url) {
-      let icon = document.createElement("img");
+      if (embed.icon_url) {
+        let icon = document.createElement("img");
 
-      icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
-      icon.classList.add("embed-icon");
+        icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
+        icon.classList.add("embed-icon");
 
-      embedContainer.appendChild(icon);
-    }
+        embedContainer.appendChild(icon);
+      }
 
-    if (embed.original_url) {
-      let originalURL = document.createElement("span");
+      if (embed.original_url) {
+        let originalURL = document.createElement("span");
 
-      originalURL.classList.add("embed-site-name");
-      originalURL.textContent = embed.original_url;
+        originalURL.classList.add("embed-site-name");
+        originalURL.textContent = embed.original_url;
 
-      embedContainer.appendChild(originalURL);
-    }
+        embedContainer.appendChild(originalURL);
+      }
 
-    if (embed.site_name) {
-      let siteName = document.createElement("span");
+      if (embed.site_name) {
+        let siteName = document.createElement("span");
 
-      siteName.classList.add("embed-site-name");
-      siteName.textContent = embed.site_name;
+        siteName.classList.add("embed-site-name");
+        siteName.textContent = embed.site_name;
 
-      embedContainer.appendChild(siteName);
-    }
+        embedContainer.appendChild(siteName);
+      }
 
-    if (embed.title) {
-      let title = document.createElement("h3");
+      if (embed.title) {
+        let title = document.createElement("h3");
 
-      title.classList.add("embedTitle");
-      title.textContent = embed.title;
+        title.classList.add("embedTitle");
+        title.textContent = embed.title;
 
-      embedContainer.appendChild(title);
-    }
+        embedContainer.appendChild(title);
+      }
 
-    if (embed.description) {
-      let description = document.createElement("pre");
+      if (embed.description) {
+        let description = document.createElement("div");
 
-      description.classList.add("embedDesc");
-      description.textContent = embed.description;
+        description.classList.add("embedDesc");
+        description.innerHTML = marked.parse(
+          embed.description.replace("<", "&lt;").replace(">", "&gt;")
+        );
 
-      embedContainer.appendChild(description);
-    }
+        embedContainer.appendChild(description);
+      }
 
-    //Loki TODO: cap image size
-    if (embed.image && embed.image.url && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("img");
+      //Loki TODO: cap image size
+      if (
+        embed.image &&
+        embed.image.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
 
-      embedContainer.appendChild(media);
-    }
+        embedContainer.appendChild(media);
+      }
 
-    if (embed.video && embed.video.url && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("video");
+      if (
+        embed.video &&
+        embed.video.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("video");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
 
-      embedContainer.appendChild(media);
-    }
+        embedContainer.appendChild(media);
+      }
 
-    if (embed.media && embed.media._id && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("img");
+      if (
+        embed.media &&
+        embed.media._id &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
 
-      embedContainer.appendChild(media);
-    }
-  } else {
-    if (
-      embed.type === "Image" &&
-      embed.url &&
-      !settings.behaviour.dataSaver.value
-    ) {
-      let media = document.createElement("img");
-
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
-
-      embedContainer.appendChild(media);
+        embedContainer.appendChild(media);
+      }
     } else {
-      if (!embed.url) return embedContainer;
-      let media = document.createElement("video");
+      if (
+        embed.type === "Image" &&
+        embed.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
 
-      embedContainer.appendChild(media);
+        embedContainer.appendChild(media);
+      } else {
+        if (!embed.url) return embedContainer;
+        let media = document.createElement("video");
+
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+
+        embedContainer.appendChild(media);
+      }
     }
+    return embedContainer;
+  } catch (error) {
+    showError(error);
+    return document.createElement("div");
   }
-  return embedContainer;
 }
 
 /**
@@ -464,10 +509,13 @@ function renderUsername(message, user, member) {
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user.displayName;
 
-    if (user.status)
-      presenceIcon.src = `../assets/${
-        user.status.presence ? user.status.presence : "Offline"
-      }.svg`;
+    presenceIcon.src = `../assets/${
+      user.status
+        ? user.status.presence
+          ? user.status.presence
+          : "Offline"
+        : "Offline"
+    }.svg`;
 
     if (user.bot !== undefined)
       masqueradeBadge.textContent = storage.language.messages.botBadge;
@@ -621,10 +669,11 @@ async function parseMessage(message) {
     user = await userLookup(message.author);
   }
 
-  if (message.system) {
-    messageContent.textContent = message.system.type;
+  if (message.system || message.author === "00000000000000000000000000") {
+    messageContent.textContent =
+      storage.language.messages.system[message.system.type];
 
-    messageContainer.appendChild(renderUsername(message));
+    messageContainer.appendChild(renderUsername(message, user, {}));
     messageContainer.appendChild(messageContent);
     return messageDisplay;
   } else {
