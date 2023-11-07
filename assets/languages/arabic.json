@@ -1,4 +1,10 @@
 {
+  "config": {
+    "text-direction": "RL",
+    "maintainers": [
+      "vloddot#2349"
+    ]
+  },
   "login": {
     "loginMethodPrompt": "طريقة تسجيل الدخول",
     "emailPasswdPrompt": "استخدم البريد البريد الإلكتروني وكلمة المرور الخاصة بRevolt",
@@ -65,9 +71,22 @@
     "masqueradeBadge": "تنكر",
     "botBadge": "بوت",
     "blockedUser": "<مستخدم محظور>",
-    "markerText": "جديد"
+    "markerText": "جديد",
+    "system": {
+      "user_joined": "النظام: إنضم",
+      "user_added": "النظام: أضيف",
+      "user_remove": "النظام: حُذر",
+      "user_left": "النظام: غاذر",
+      "user_kicked": "النظام: طرد",
+      "user_banned": "النظام: حظر",
+      "channel_renamed": "النظام: عدًل اسم القناة",
+      "channel_description_changed": "النظام: عدًل وصف القناة",
+      "channel_icon_changed": "النظام: عدًلت أيقونة القناة",
+      "channel_ownership_changed": "النظام: تغيرت ملكية القناة"
+    }
   },
   "toolbar": {
+    "typingIndicator": " is typing",
     "masqueradeInput": {
       "buttonContent": "تنكر",
       "name": "الاسم",
@@ -81,7 +100,6 @@
       "desc": "الوصف",
       "colour": "اللون",
       "url": "الرابط",
-      "embedIconUrl": "رابط الأيقونة",
       "media": "المعرف الفريد للوسائط (ارفع علي Autumn)"
     },
     "websocket": "إعادة تهيئة الwebsocket",
