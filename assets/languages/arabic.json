@@ -1,0 +1,118 @@
+{
+  "config": {
+    "text-direction": "RL",
+    "maintainers": [
+      "vloddot#2349"
+    ]
+  },
+  "login": {
+    "loginMethodPrompt": "طريقة تسجيل الدخول",
+    "emailPasswdPrompt": "استخدم البريد البريد الإلكتروني وكلمة المرور الخاصة بRevolt",
+    "emailPlaceholder": "البريد الإلكترني",
+    "passwdPlaceholder": "كلمة المرور",
+    "mfaPlaceholder": "رمز التوثيق",
+    "tokenPrompt": "أو استخدم رمزك المميز",
+    "tokenPlaceholder": "رمز مميز",
+    "advancedOptsPrompt": "إعدادات متقدمة",
+    "preferencesPrompt": "إعدادات",
+    "loginBtn": "تسجيل الدخول"
+  },
+  "settings": {
+    "settings": "إعدادات",
+    "closeBtn": "غلف الإعدادات",
+    "categories": {
+      "behaviour": "السلوك",
+      "visual": "المظهر",
+      "profile": "الملف الشخصي"
+    },
+    "names": {
+      "dataSaver": "موفر البيانات",
+      "extremeDataSaver": "موفر البيانات الشديد",
+      "rememberMe": "تذكرني",
+      "legacyStyleSheet": "الشكل القديم",
+      "compactMode": "الوضع المدمج",
+      "revoltTheme": "استخدم سمات Revolt",
+      "showPresenceIconsInChat": "أظهر أيقونات الحالة",
+      "delta": "رابط السيرفر الحامل لمعلومات Revolt",
+      "assets": "رابط السيرفر الحامل لمعلومات الشارات",
+      "legacyEmotes": "رابط السيرفر الحامل لمعلومات التعبيرات المخصصة",
+      "emotes": "رابط السيرفر الحامل لمعلومات التعبيرات"
+    },
+    "descriptions": {
+      "dataSaver": "يوقف تحميل الصور في الرسائل",
+      "extremeDataSaver": "يحاول تقليل المعلومات المحملة (غير منفذة حالياً)",
+      "rememberMe": "حفظ رمز الجلسة (الإعدادات مازالت محفوظة)",
+      "legacyStyleSheet": "يرجع الشكل القديم الخاص بRetaped v1.2 (غير منفذة حالياً)",
+      "compactMode": "شبيه للوضع المدمج الخاص بDiscord (غير منفذة حالياً)",
+      "revoltTheme": "يحمل معلومات الألوان المحددة بRevite",
+      "showPresenceIconsInChat": "يظهر حالة مستخدم إلي جانب الاسم المستخدم الخاص بهم في القنوات",
+      "profile": {
+        "previewLabel": "عرض الملف الشخصي",
+        "editorLabel": "معدل الملف الشخصي",
+        "saveBtn": "حفظ الملف الشخصي"
+      }
+    }
+  },
+  "messages": {
+    "inputField": {
+      "sendMessageText": "إرسال رسالة في {{channel}}",
+      "permissionDeniedText": "ليس لديك إذن لإرسال رسائل في {{channel}}"
+    },
+    "invite": {
+      "joinText": "إنضم",
+      "alreadyJoinedText": "منضم بالفعل",
+      "memberCountText": "{{members}} عضو (الأعضاء)"
+    },
+    "contextButtons": {
+      "edit": "عدل",
+      "reply": "رد",
+      "del": "إلغ"
+    },
+    "masqueradeBadge": "تنكر",
+    "botBadge": "بوت",
+    "blockedUser": "<مستخدم محظور>",
+    "markerText": "جديد",
+    "system": {
+      "user_joined": "النظام: إنضم",
+      "user_added": "النظام: أضيف",
+      "user_remove": "النظام: حُذر",
+      "user_left": "النظام: غاذر",
+      "user_kicked": "النظام: طرد",
+      "user_banned": "النظام: حظر",
+      "channel_renamed": "النظام: عدًل اسم القناة",
+      "channel_description_changed": "النظام: عدًل وصف القناة",
+      "channel_icon_changed": "النظام: عدًلت أيقونة القناة",
+      "channel_ownership_changed": "النظام: تغيرت ملكية القناة"
+    }
+  },
+  "toolbar": {
+    "typingIndicator": " is typing",
+    "masqueradeInput": {
+      "buttonContent": "تنكر",
+      "name": "الاسم",
+      "avatar": "الصورة الشخصية",
+      "colour": "اللون (يجب أن يكون لديك إذن ManageRole)"
+    },
+    "embedInput": {
+      "buttonContent": "إرسال رسالة مضمنة",
+      "title": "العنوان",
+      "icon": "رابط الأيقونة",
+      "desc": "الوصف",
+      "colour": "اللون",
+      "url": "الرابط",
+      "media": "المعرف الفريد للوسائط (ارفع علي Autumn)"
+    },
+    "websocket": "إعادة تهيئة الwebsocket",
+    "refresh": "إعادة تحميل المحادثة",
+    "json": "JSON"
+  },
+  "dms": {
+    "description": "الرسائل المباشرة",
+    "buttonContent": "DMS",
+    "savedMessages": "الرسائل المحفوظة"
+  },
+  "connection": {
+    "active": "متصل",
+    "inactive": "غير متصل"
+  }
+}
