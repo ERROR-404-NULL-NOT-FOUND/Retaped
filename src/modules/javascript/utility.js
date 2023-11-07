@@ -436,6 +436,13 @@ async function updateLanguage() {
   await fetch(`../assets/languages/${settings.visual.language}.json`)
     .then((res) => res.json())
     .then((res) => (storage.language = res));
+  if (storage.language.config["text-direction"] === "RL") {
+        let sheet = ".translatable {direction:rtl;}"
+        let style = document.createElement("style");
+        style.innerText = sheet;
+
+        document.head.appendChild(style);
+      }
   Array.from(deepKeys(storage.language)).forEach((translationKey) => {
     if ((element = document.querySelector(`*[name="${translationKey}"]`))) {
       let value = valueOfDeepKey(translationKey.split("."), storage.language);
@@ -445,6 +452,7 @@ async function updateLanguage() {
         default:
           element.innerText = value;
       }
+      
     } else {
       console.log(`Translatable element not found: ${translationKey}`);
     }

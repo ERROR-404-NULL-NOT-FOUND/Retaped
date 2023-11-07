@@ -90,6 +90,12 @@ fieldset legend {
   outline: none;
 }
 
+.language-selection {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
 #login-btn {
   width: 100%;
 }
@@ -195,7 +201,6 @@ fieldset legend {
 
 .profile-top {
   height: 12rem;
-  min-width: 600px;
   width: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -218,10 +223,25 @@ fieldset legend {
   gap: 0.6rem;
 }
 
+.pfpContainer {
+  position: relative;
+}
+
 #profilePicture {
   width: 80px;
   height: 80px;
   object-fit: cover;
+}
+
+.presence-icon {
+  max-height: 1em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.pfpContainer > .presence-icon {
+  max-height: 1.6em;
 }
 
 #displayName {
@@ -277,13 +297,16 @@ fieldset legend {
   justify-content: space-between;
   color: var(--foreground);
   background: var(--servers-bg);
-  padding: 0.1rem;
+  padding: 0.5rem;
+}
+
+#channelName, #channelDesc {
+  padding: 0 1rem;
 }
 
 #channelName {
   font-weight: bold;
   font-size: 1.3em;
-  padding: 0 1rem;
 }
 
 .chat-header-right {
@@ -526,12 +549,7 @@ input[type="file"] {
   display: flex;
   flex-direction: row;
 }
-/*Intended: overlayed over pfp*/
-.presence-icon {
-  max-height: 1em;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
+
 .setting-container {
   display: flex;
   flex-direction: row;
@@ -548,6 +566,7 @@ input[type="file"] {
 #serverBG {
   width: 100%;
 }
+
 .embedsContainer {
   max-width: 60%;
 }
@@ -588,3 +607,4 @@ input[type="file"] {
   padding-right: 1em;
   padding-left: 1em;
 }
+

@@ -1,4 +1,8 @@
 {
+  "config": {
+    "text-direction": "LR",
+    "maintainers": ["error404nullnotfound#4042"]
+  },
   "login": {
     "loginMethodPrompt": "Login method",
     "emailPasswdPrompt": "Use your Revolt email and password",
