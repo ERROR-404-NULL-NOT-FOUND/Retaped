@@ -41,7 +41,7 @@ async function loadProfile(userID) {
   //Loki TODO: Style
   if (user.status) {
     if (user.status.text) status.textContent = user.status.text;
-    presenceIcon.src = `../assets/${
+    presenceIcon.src = `../assets/images/presence/${
       user.status.presence ? user.status.presence : "Offline"
     }.svg`;
   }

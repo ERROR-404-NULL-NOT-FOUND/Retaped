@@ -281,7 +281,7 @@ function updateUser(dataObject) {
         document
           .querySelectorAll(`#USRNM-${userID} > .presence-icon`)
           .forEach((element) => {
-            element.src = `../assets/${dataObject.data.status.presence}.svg`;
+            element.src = `../assets/images/presence/${dataObject.data.status.presence}.svg`;
           });
         break;
       }

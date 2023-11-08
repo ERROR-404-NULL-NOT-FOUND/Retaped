@@ -496,7 +496,7 @@ function renderUsername(message, user, member) {
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user.displayName;
 
-    presenceIcon.src = `../assets/${
+    presenceIcon.src = `../assets/images/presence/${
       user.status
         ? user.status.presence
           ? user.status.presence
