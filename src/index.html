@@ -136,6 +136,9 @@
     <div id="settings" class="modal-container">
       <div class="modal-background"></div>
       <div class="modal">
+        <div class="state-info">
+          <p id="themeLabel">Default theme</p>
+        </div>
         <h1 name="settings.settings">Settings</h1>
         <div id="categories">
           <button name="settings.categories.behaviour" class="translatable" id="behaviourSetting">
@@ -151,11 +154,7 @@
         <h3 id="settingCatName"></h3>
         <div id="mainSettings"></div>
 
-        <div>
-          <p id="connectionStatus">Disconnected</p>
-          <p id="themeLabel">Default theme</p>
-        </div>
-        <button name="settings.closeBtn" clsas="trasnlatable" id="closeSettingsBtn">
+        <button name="settings.closeBtn" class="translatable" id="closeSettingsBtn">
           Close settings
         </button>
       </div>
@@ -187,6 +186,7 @@
         </div>
 
         <div class="chat-header-right">
+          <p id="connectionStatus">Disconnected</p>
           <button name="settings.settings" class="translatable" id="openSettingsBtn">
             Settings
           </button>

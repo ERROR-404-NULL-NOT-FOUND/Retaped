@@ -28,6 +28,7 @@ async function bonfire() {
       case "Authenticated": {
         document.querySelector("#connectionStatus").textContent =
           storage.language.connection.active;
+        loadSyncSettings();
         break;
       }
 
@@ -314,6 +315,17 @@ async function bonfire() {
   state.connection.socket.addEventListener("error", function (event) {
     showError(event);
   });
+  state.connection.socket.onclose = (event) => {
+    document.querySelector("#connectionStatus").textContent =
+      storage.language.connection.inactive;
+    showError({
+      name: "connectionError",
+      message: "Websocket disconnected; attempting reconnection",
+    });
+    setTimeout(() => {
+      start(settings.instance.bonfire);
+    }, 5000);
+  };
 }
 
 //@license-end
