@@ -73,23 +73,6 @@ function renderReactions(reactions, channelID, messageID) {
 function parseMentions(message, messageContent) {
   if (message.mentions) {
     message.mentions.forEach((mention) => {
-      let splitMessage;
-      // Due to sanitization, we have to check for the HTML eqiuvilents of the symbols < and >
-      if (
-        (splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`))
-          .length === 1
-      )
-        return;
-
-      let segConcat = document.createElement("div");
-      let newSeg;
-
-      splitMessage.forEach((segment) => {
-        newSeg = document.createElement("span");
-        newSeg.innerHTML = segment;
-        segConcat.appendChild(newSeg);
-      });
-
       let ping = document.createElement("button");
       let pingContainer = document.createElement("div");
       let mentionPfp = document.createElement("img");
@@ -114,8 +97,12 @@ function parseMentions(message, messageContent) {
       ping.appendChild(mentionPfp);
       ping.appendChild(mentionText);
       pingContainer.appendChild(ping);
-      segConcat.insertBefore(pingContainer, newSeg);
-      messageContent = segConcat;
+
+      // Due to sanitization, we have to check for the HTML equivalents of the symbols < and >
+      messageContent.innerHTML = messageContent.innerHTML.replace(
+        new RegExp(`&lt;@${mention}&gt;`, "g"),
+        ping.outerHTML
+      );
     });
   }
 
