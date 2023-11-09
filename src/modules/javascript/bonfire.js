@@ -156,6 +156,7 @@ async function bonfire() {
         buildUserCache(data.users);
         buildEmoteCache(data.emojis);
         getServers();
+        loadHome();
         init();
         break;
 
@@ -315,6 +316,7 @@ async function bonfire() {
   state.connection.socket.addEventListener("error", function (event) {
     showError(event);
   });
+
   state.connection.socket.onclose = (event) => {
     document.querySelector("#connectionStatus").textContent =
       storage.language.connection.inactive;

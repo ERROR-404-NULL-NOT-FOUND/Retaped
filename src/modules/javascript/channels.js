@@ -10,32 +10,58 @@
 async function loadDMs() {
   try {
     const channelContainer = document.querySelector("#channelsContainer");
-    const userCat = document.createElement("summary");
+    const infoCatText = document.createElement("summary");
+    const userCatText = document.createElement("summary");
+    const infoCat = document.createElement("details");
+    const userCat = document.createElement("details");
+    const savedMessagesButton = document.createElement("button");
+    const homeButton = document.createElement("button");
 
     state.active.channel = "";
+    infoCatText.textContent = storage.language.dms.infoCat;
+    userCatText.textContent = storage.language.dms.description;
 
-    userCat.classList.add("categoryText");
+    userCatText.classList.add("category-text");
+    userCat.classList.add("channel-category");
+    infoCatText.classList.add("category-text");
+    infoCat.classList.add("channel-category");
+    infoCat.open = true;
+    userCat.open = true;
 
     document.querySelector("#serverBG").src = "";
 
     document.querySelector("#serverName").innerText =
       storage.language.dms.description;
-    document.querySelector("#channelName").innerText = "";
+    document.querySelector("#channelName").innerText =
+      storage.language.dms.description;
+    document.querySelector("#channelDesc").innerText =
+      storage.language.channels.noDesc;
     channelContainer.replaceChildren();
     clearMessages();
 
-    await fetchResource(`users/${state.connection.userProfile._id}/dm`).then(
-      (response) => {
-        const dmButton = document.createElement("button");
+    savedMessagesButton.textContent = storage.language.dms.savedMessages;
+    savedMessagesButton.classList.add("channel");
+    savedMessagesButton.classList.add("saved-messages");
 
-        dmButton.textContent = storage.language.dms.savedMessages;
-        dmButton.classList.add("channel");
-        dmButton.onclick = () => {
+    homeButton.textContent = storage.language.homeScreen.home;
+    homeButton.classList.add("channel");
+    homeButton.classList.add("home-button");
+    homeButton.onclick = loadHome;
+
+    infoCat.appendChild(infoCatText);
+    infoCat.appendChild(savedMessagesButton);
+    infoCat.appendChild(homeButton);
+
+    userCat.appendChild(userCatText);
+
+    channelContainer.appendChild(infoCat);
+    channelContainer.appendChild(userCat);
+
+    fetchResource(`users/${state.connection.userProfile._id}/dm`).then(
+      (response) => {
+        savedMessagesButton.onclick = () => {
           getMessages(response._id);
         };
-
-        dmButton.id = response._id;
-        userCat.appendChild(dmButton);
       }
     );
 
@@ -82,7 +108,6 @@ async function loadDMs() {
       dmButtonContainer.appendChild(dmButton);
       userCat.appendChild(dmButtonContainer);
     }
-    channelContainer.appendChild(userCat);
   } catch (error) {
     showError(error);
     return 1;
@@ -109,15 +134,20 @@ function renderChannel(channelID, id) {
       });
     }
 
+    if (state.active.server !== id) getChannels(id);
+
     state.active.server = id;
     state.active.channel = currentChannel.id;
     getMessages(currentChannel.id);
     document.querySelector("#channelName").innerText = currentChannel.name;
 
     //Channel description setting; the expression checks whether or not the channel has a desc
-    document.querySelector("#channelDesc").innerText = currentChannel.desc
-      ? currentChannel.desc
-      : "This channel doesn't have a description yet";
+    (async () => {
+      console.log(await parseMessageContent(currentChannel.desc));
+      document.querySelector("#channelDesc").innerHTML = currentChannel.desc
+        ? await parseMessageContent({ content: currentChannel.desc }).innerHTML
+        : storage.language.channels.noDesc;
+    })();
   };
 
   channel.id = currentChannel.id;
@@ -153,6 +183,15 @@ async function getChannels(id) {
     const channelContainer = document.querySelector("#channelsContainer");
     const server = cacheLookup("servers", id);
     channelContainer.replaceChildren();
+
+    //Loki TODO: styling
+    if (server.background)
+      document.querySelector(
+        "#serverBG"
+      ).src = `${settings.instance.autumn}/banners/${server.background._id}?width=480`;
+    else document.querySelector("#serverBG").src = "";
+
+    document.getElementById("serverName").innerText = server.name;
 
     let addedChannels = [];
     if (server.categories) {
