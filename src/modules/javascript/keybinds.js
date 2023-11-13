@@ -30,6 +30,18 @@ input.addEventListener("keydown", (event) => {
     case "Tab": {
       event.preventDefault();
       fill();
+      break;
+    }
+
+    case "ArrowUp": {
+      if (input.value.length !== 0) break;
+      cache.messages.findLast((message) => {
+        if (message.author !== state.connection.userProfile._id) return;
+        state.messageMods.editing = message.id;
+        document.querySelector("#input").value = message.content;
+
+        return true;
+      });
     }
 
     default:

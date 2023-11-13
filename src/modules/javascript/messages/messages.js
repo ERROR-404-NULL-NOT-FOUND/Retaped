@@ -133,22 +133,6 @@ async function sendMessage() {
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
 
-  //Checking for valid pings, and replacing with an actual ping
-  // TODO: Make this work
-  /*
-  if (message.search(/@[^ ]*) != -1) {
-  //  let pings = /@[^ ]*[Symbol.match](message);
-    for (let i = 0; i < pings.length; i++) {
-      if (await userLookup(pings[i].replace("@", "")) !== undefined) {
-        message = message.replace(
-          pings[i],
-          `<@${await userLookup(pings[i].replace("@", ""))[0]}>`
-        );
-      }
-    }
-  }
-  */
-
   state.messageSending = true;
   messageContainer.classList.add("messageSending");
   messageContainer.readOnly = true;
