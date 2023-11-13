@@ -108,7 +108,10 @@ window.onload = async () => {
  */
 async function start() {
   state.connection.token = localStorage.getItem("token");
-  await login();
+  if (state.connection.token)
+    (document.querySelector(`#loginErrorContent`).innerText =
+      "Your token has been loaded from local storage; the client will soon load"),
+      await login();
 
   if (!localStorage.getItem("token") && settings.behaviour.rememberMe)
     localStorage.setItem("token", state.connection.token);

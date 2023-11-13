@@ -608,3 +608,8 @@ input[type="file"] {
   padding-left: 1em;
 }
 
+.embed > .embed-icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+}

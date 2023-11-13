@@ -310,10 +310,11 @@ function renderEmbed(embed) {
       }
 
       if (embed.original_url) {
-        let originalURL = document.createElement("span");
+        let originalURL = document.createElement("a");
 
         originalURL.classList.add("embed-site-name");
         originalURL.textContent = embed.original_url;
+        originalURL.href = embed.original_url;
 
         embedContainer.appendChild(originalURL);
       }
@@ -366,10 +367,14 @@ function renderEmbed(embed) {
         embed.video.url &&
         !settings.behaviour.dataSaver.value
       ) {
-        let media = document.createElement("video");
+        // This is done because January doesn't proxy videos, so, to avoid
+        // external websites being without the user's consent, we just provide a link
+        // to the video
+        let media = document.createElement("a");
 
         media.classList.add("embedMedia");
-        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.href = `${settings.instance.january}/proxy?url=${embed.video.url}`;
+        media.innerText = "Link to video";
 
         embedContainer.appendChild(media);
       }
