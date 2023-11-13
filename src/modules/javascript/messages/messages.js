@@ -11,6 +11,7 @@
  * @returns {Array} List the messages that are fetched
  */
 async function getNewMessages(id, startingMessage = undefined) {
+  debugInfo("Getting messages");
   let messagesContainer = document.querySelector("#messagesContainer");
   const placeholder = await fetchResource(
     `channels/${id}/messages?include_users=true&${

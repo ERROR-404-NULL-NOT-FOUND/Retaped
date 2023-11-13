@@ -1,4 +1,5 @@
 function loadHome() {
+  debugInfo("Loading home");
   const header = document.createElement("h1");
   const subheader = document.createElement("h3");
   const unreadChannelsContainer = document.createElement("div");

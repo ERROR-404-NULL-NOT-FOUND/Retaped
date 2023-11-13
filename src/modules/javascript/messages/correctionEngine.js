@@ -56,6 +56,7 @@ function fill() {
   const input =
     inputCont.value.split(" ")[inputCont.value.split(" ").length - 1];
 
+  debugInfo("Correction winner determined; filling");
   const winner = findMap[0];
   inputCont.value =
     inputCont.value.substring(0, inputCont.value.length - input.length) +

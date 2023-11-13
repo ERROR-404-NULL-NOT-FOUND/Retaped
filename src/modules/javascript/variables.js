@@ -26,6 +26,7 @@ var storage = {
   emojis: {},
   permissions: {},
   language: {},
+  packageSettings: {}
 };
 
 var state = {
