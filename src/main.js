@@ -4,6 +4,8 @@
 // Run on page load
 //
 window.onload = async () => {
+  state.connection.token = localStorage.getItem("token");
+
   //Noscript shenanigans; Loki, feel free to edit this
   document.querySelectorAll(".error-container").forEach((element) => {
     element.style.display = "none";
@@ -32,7 +34,7 @@ window.onload = async () => {
     .querySelector("#messagesContainer")
     .addEventListener("scroll", async function (e) {
       let documentHeight = document.querySelector("#messagesContainer");
-      if (documentHeight.scrollTop === 0) {
+      if (documentHeight.scrollTop === 0 && !state.homeScreen) {
         initialHeight = documentHeight.scrollHeight;
         await getNewMessages(
           state.active.channel,
@@ -72,7 +74,10 @@ window.onload = async () => {
   if (!settings) {
     await fetch("../assets/defaultSettings.json")
       .then((res) => res.json())
-      .then((json) => (settings = json));
+      .then((json) => {
+        settings = json;
+        setSettings();
+      });
   }
 
   fetch(`../assets/languages/${settings.visual.language}.json`)
@@ -107,11 +112,10 @@ window.onload = async () => {
  * @returns {null} Should not return
  */
 async function start() {
-  state.connection.token = localStorage.getItem("token");
   if (state.connection.token)
-    (document.querySelector(`#loginErrorContent`).innerText =
-      "Your token has been loaded from local storage; the client will soon load"),
-      await login();
+    document.querySelector(`#loginErrorContent`).innerText =
+      "Your token has been loaded from local storage; the client will soon load";
+  await login();
 
   if (!localStorage.getItem("token") && settings.behaviour.rememberMe)
     localStorage.setItem("token", state.connection.token);

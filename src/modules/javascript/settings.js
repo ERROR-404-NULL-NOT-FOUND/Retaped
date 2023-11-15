@@ -16,6 +16,7 @@ async function processSettings() {
 
   if (localStorage.getItem("settings"))
     settings = JSON.parse(localStorage.getItem("settings"));
+  else return;
 
   if (instanceURL.value) {
     await fetch(instanceURL.value)
