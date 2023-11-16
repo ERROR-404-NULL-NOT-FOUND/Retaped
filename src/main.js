@@ -42,12 +42,7 @@ window.onload = async () => {
             .querySelector("#messagesContainer")
             .firstChild.id.replace("MSG-", "")
         );
-        setTimeout(() => {
-          documentHeight.scrollTo(
-            0,
-            documentHeight.scrollHeight - initialHeight
-          );
-        }, 500);
+        documentHeight.scrollTo(0, documentHeight.scrollHeight - initialHeight);
         //      } else {
         //        if (
         //          documentHeight.scrollHeight - documentHeight.offsetHeight ===

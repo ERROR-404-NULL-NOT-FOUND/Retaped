@@ -109,10 +109,7 @@ async function getMessages(id) {
 
   //Wait for images to start loading
   //if (!unread)
-  // TODO: re-scroll once images load
-  setTimeout(() => {
-    scrollChatToBottom();
-  }, 200);
+  scrollChatToBottom();
 
   fetch(
     `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
