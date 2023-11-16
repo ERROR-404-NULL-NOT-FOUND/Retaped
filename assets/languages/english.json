@@ -57,7 +57,8 @@
   "messages": {
     "inputField": {
       "sendMessageText": "Send a message in {{channel}}",
-      "permissionDeniedText": "You do not have permission to send messages in {{channel}}"
+      "permissionDeniedText": "You do not have permission to send messages in {{channel}}",
+      "editingText": "Editing message"
     },
     "invite": {
       "joinText": "Join",

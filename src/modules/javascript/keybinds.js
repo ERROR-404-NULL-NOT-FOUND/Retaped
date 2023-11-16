@@ -24,6 +24,7 @@ input.addEventListener("keydown", (event) => {
       } else {
         state.messageMods.editing = "";
         inputContainer.value = "";
+        document.querySelector("#editingTag").hidden = true;
       }
       break;
 

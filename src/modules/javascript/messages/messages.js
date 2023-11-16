@@ -74,6 +74,7 @@ async function getNewMessages(id, startingMessage = undefined) {
  * @returns {null} Doesn't return
  */
 async function getMessages(id) {
+  state.homeScreen = false;
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
@@ -179,6 +180,7 @@ async function sendMessage() {
 
       if (state.messageMods.editing) {
         state.messageMods.editing = "";
+        document.querySelector("#editingTag").hidden = true;
         return;
       }
       fetch(

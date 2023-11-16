@@ -462,6 +462,7 @@ function contextButtons(message) {
   editButton.onclick = () => {
     state.messageMods.editing = message._id;
     document.querySelector("#input").value = message.content;
+    document.querySelector("#editingTag").hidden = false;
   };
 
   deleteButton.onclick = (event) => {
@@ -536,11 +537,11 @@ function renderUsername(message, user, member) {
       if (highestRole !== undefined) {
         // Testing if it's a valid hex code
         if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
-          username.style.backgroundColor = highestRole.colour;
+          username.style.color = highestRole.colour;
         } else {
           //For the funky CSS like role gradients
-          username.style.background = highestRole.colour;
-          username.style.backgroundClip = "border-box";
+          username.style.backgroundImage = highestRole.colour;
+          username.classList.add("css-username");
         }
       }
     }

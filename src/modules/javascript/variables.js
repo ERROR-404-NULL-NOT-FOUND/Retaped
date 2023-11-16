@@ -31,6 +31,7 @@ var storage = {
 
 var state = {
   errorTimeout: [],
+  homeScreen: false,
   messageMods: {
     sendRawJSON: false,
     replies: [],
