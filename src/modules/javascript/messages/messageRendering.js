@@ -310,10 +310,11 @@ function renderEmbed(embed) {
       }
 
       if (embed.original_url) {
-        let originalURL = document.createElement("span");
+        let originalURL = document.createElement("a");
 
         originalURL.classList.add("embed-site-name");
         originalURL.textContent = embed.original_url;
+        originalURL.href = embed.original_url;
 
         embedContainer.appendChild(originalURL);
       }
@@ -366,10 +367,14 @@ function renderEmbed(embed) {
         embed.video.url &&
         !settings.behaviour.dataSaver.value
       ) {
-        let media = document.createElement("video");
+        // This is done because January doesn't proxy videos, so, to avoid
+        // external websites being without the user's consent, we just provide a link
+        // to the video
+        let media = document.createElement("a");
 
         media.classList.add("embedMedia");
-        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.href = `${settings.instance.january}/proxy?url=${embed.video.url}`;
+        media.innerText = "Link to video";
 
         embedContainer.appendChild(media);
       }
@@ -457,6 +462,7 @@ function contextButtons(message) {
   editButton.onclick = () => {
     state.messageMods.editing = message._id;
     document.querySelector("#input").value = message.content;
+    document.querySelector("#editingTag").hidden = false;
   };
 
   deleteButton.onclick = (event) => {
@@ -531,11 +537,11 @@ function renderUsername(message, user, member) {
       if (highestRole !== undefined) {
         // Testing if it's a valid hex code
         if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
-          username.style.backgroundColor = highestRole.colour;
+          username.style.color = highestRole.colour;
         } else {
           //For the funky CSS like role gradients
-          username.style.background = highestRole.colour;
-          username.style.backgroundClip = "border-box";
+          username.style.backgroundImage = highestRole.colour;
+          username.classList.add("css-username");
         }
       }
     }
@@ -620,6 +626,7 @@ function renderAttachments(message) {
       tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
     }
     tmpAttachment.type = tmpAttchmntAttrs.content_type;
+    tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
     attachments.appendChild(tmpAttachment);
   });
   return attachments;

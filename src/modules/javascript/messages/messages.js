@@ -11,6 +11,7 @@
  * @returns {Array} List the messages that are fetched
  */
 async function getNewMessages(id, startingMessage = undefined) {
+  debugInfo("Getting messages");
   let messagesContainer = document.querySelector("#messagesContainer");
   const placeholder = await fetchResource(
     `channels/${id}/messages?include_users=true&${
@@ -73,6 +74,7 @@ async function getNewMessages(id, startingMessage = undefined) {
  * @returns {null} Doesn't return
  */
 async function getMessages(id) {
+  state.homeScreen = false;
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
@@ -107,10 +109,7 @@ async function getMessages(id) {
 
   //Wait for images to start loading
   //if (!unread)
-  // TODO: re-scroll once images load
-  setTimeout(() => {
-    scrollChatToBottom();
-  }, 200);
+  scrollChatToBottom();
 
   fetch(
     `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
@@ -132,22 +131,6 @@ async function sendMessage() {
 
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
-
-  //Checking for valid pings, and replacing with an actual ping
-  // TODO: Make this work
-  /*
-  if (message.search(/@[^ ]*) != -1) {
-  //  let pings = /@[^ ]*[Symbol.match](message);
-    for (let i = 0; i < pings.length; i++) {
-      if (await userLookup(pings[i].replace("@", "")) !== undefined) {
-        message = message.replace(
-          pings[i],
-          `<@${await userLookup(pings[i].replace("@", ""))[0]}>`
-        );
-      }
-    }
-  }
-  */
 
   state.messageSending = true;
   messageContainer.classList.add("messageSending");
@@ -194,6 +177,7 @@ async function sendMessage() {
 
       if (state.messageMods.editing) {
         state.messageMods.editing = "";
+        document.querySelector("#editingTag").hidden = true;
         return;
       }
       fetch(

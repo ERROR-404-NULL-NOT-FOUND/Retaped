@@ -13,6 +13,7 @@ async function bonfire() {
   state.connection.socket = new WebSocket(settings.instance.bonfire);
 
   state.connection.socket.addEventListener("open", async function (event) {
+    debugInfo("Socket opened; sending creds");
     state.connection.socket.send(
       `{"type": "Authenticate","token": "${state.connection.token}"}`
     );
@@ -26,6 +27,7 @@ async function bonfire() {
     switch (data.type) {
       // User provided correct credentials
       case "Authenticated": {
+        debugInfo("Authenticated successfully");
         document.querySelector("#connectionStatus").textContent =
           storage.language.connection.active;
         loadSyncSettings();
@@ -34,6 +36,7 @@ async function bonfire() {
 
       // Used for message unreads and adding new messages to the messagebox
       case "Message":
+        debugInfo("Received message", data);
         updateUnreads(
           data.channel,
           data._id,
@@ -84,21 +87,28 @@ async function bonfire() {
               cacheLookup("channels", data.channel).server
             ) === -1
           ) {
-            document
-              .getElementById(
-                `SERVER-${cacheLookup("channels", data.channel).server}`
+            if (
+              state.unreads.muted.channels.indexOf(
+                cacheLookup("channels", data.channel).server
               )
-              .classList.add(
-                data.mentions &&
-                  data.mentions.indexOf(state.connection.userProfile._id) !== -1
-                  ? "mentioned-server"
-                  : "unread-server"
-              );
+            )
+              document
+                .getElementById(
+                  `SERVER-${cacheLookup("channels", data.channel).server}`
+                )
+                .classList.add(
+                  data.mentions &&
+                    data.mentions.indexOf(state.connection.userProfile._id) !==
+                      -1
+                    ? "mentioned-server"
+                    : "unread-server"
+                );
           }
         }
         break;
 
       case "MessageDelete":
+        debugInfo("Message deleted", data);
         if (data.channel === state.active.channel) {
           document
             .querySelector("#messagesContainer")
@@ -107,6 +117,7 @@ async function bonfire() {
         break;
 
       case "MessageUpdate":
+        debugInfo("Message updated", data);
         if (data.channel === state.active.channel) {
           messageDisplay = document.querySelector(`#MSG-${data.id}`);
           messageContent = messageDisplay.querySelector(".messageContent");
@@ -115,6 +126,7 @@ async function bonfire() {
 
       // Channel has been acknowledge as read
       case "ChannelAck":
+        debugInfo("Message acknowledged", data);
         await updateUnreads(data.id, data.message_id, false);
 
         if ((channel = document.getElementById(data.id))) {
@@ -149,6 +161,7 @@ async function bonfire() {
 
       // Cache building, received immediately after 'Authenticated'
       case "Ready":
+        debugInfo("Ready event received; building cache");
         buildServerCache(data.servers);
         buildChannelCache(data.channels);
         buildUserCache(data.users);
@@ -161,6 +174,7 @@ async function bonfire() {
       // User begins typing
       // TODO: add timeout
       case "ChannelStartTyping": {
+        debugInfo("User started typing", data);
         if (
           data.id !== state.active.channel ||
           state.currentlyTyping.indexOf(data.user) !== -1 ||
@@ -194,6 +208,7 @@ async function bonfire() {
 
       // User stops typing
       case "ChannelStopTyping": {
+        debugInfo("User stopped typing", data);
         if (data.id !== state.active.channel) break;
 
         if ((typingUserContainer = document.getElementById(data.user))) {
@@ -209,6 +224,7 @@ async function bonfire() {
       }
 
       case "MessageReact": {
+        debugInfo("Message reacted", data);
         if (data.channel_id !== state.active.channel) break;
 
         let reactionsContainer = document.getElementById(
@@ -249,6 +265,7 @@ async function bonfire() {
       }
 
       case "MessageUnreact": {
+        debugInfo("Message unreacted", data);
         if (data.channel_id !== state.active.channel) break;
 
         let reactionsContainer = document.getElementById(
@@ -274,16 +291,19 @@ async function bonfire() {
         break;
       }
       case "UserUpdate": {
+        debugInfo("User updated", data);
         updateUser(data);
         break;
       }
 
       case "ServerMemberUpdate": {
+        debugInfo("Member updated", data);
         updateUser(data);
         break;
       }
 
       case "ServerCreate": {
+        debugInfo("Server created", data);
         state.ordering.push(data.server._id);
         buildServerCache([data.server]);
         saveSyncSettings();
@@ -292,6 +312,7 @@ async function bonfire() {
       }
 
       case "ServerDelete": {
+        debugInfo("Left server (or it was deleted)", data);
         state.ordering.splice(state.ordering.indexOf(data.id), 1);
         cache.servers.splice(cacheIndexLookup("servers", data.id), 1);
         saveSyncSettings();
@@ -300,6 +321,7 @@ async function bonfire() {
       }
 
       case "ServerMemberLeave": {
+        debugInfo("Member left", data);
         if (data.user === state.connection.userProfile._id) {
           state.ordering.splice(state.ordering.indexOf(data.id), 1);
           cache.servers.splice(cacheIndexLookup("servers", data.id), 1);
@@ -323,6 +345,7 @@ async function bonfire() {
       message: "Websocket disconnected; attempting reconnection",
     });
     setTimeout(() => {
+      debugInfo("", data);
       start(settings.instance.bonfire);
     }, 5000);
   };

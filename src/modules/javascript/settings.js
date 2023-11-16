@@ -16,6 +16,7 @@ async function processSettings() {
 
   if (localStorage.getItem("settings"))
     settings = JSON.parse(localStorage.getItem("settings"));
+  else return;
 
   if (instanceURL.value) {
     await fetch(instanceURL.value)
@@ -105,6 +106,7 @@ async function loadSyncSettings() {
 }
 
 function saveSyncSettings() {
+  debugInfo("Saving sync settings");
   fetch(`${settings.instance.delta}/sync/settings/set`, {
     method: "POST",
     headers: { "x-session-token": state.connection.token },
@@ -122,6 +124,7 @@ function saveSyncSettings() {
  * @returns {null} Doesn't return
  */
 async function loadSetting(settingCategory) {
+  debugInfo("Loading settings");
   let mainSettings = document.querySelector("#mainSettings");
   let settingCatName = document.querySelector("#settingCatName");
   settingCatName.innerText =
@@ -130,6 +133,7 @@ async function loadSetting(settingCategory) {
 
   if (settingCategory !== "profile") {
     Object.keys(settings[settingCategory]).forEach((setting) => {
+      debugInfo(`Loading setting: ${setting}`);
       let settingContainer = document.createElement("div");
       let settingInput = document.createElement("input");
       let settingInputLabel = document.createElement("label");
@@ -159,6 +163,7 @@ async function loadSetting(settingCategory) {
       mainSettings.appendChild(settingContainer);
     });
   } else {
+    debugInfo("Loading profile editor");
     //Loki TODO: style
     //Creates a div with text, profile preview, text, profile editor, save button
     let user = await fetchResource(

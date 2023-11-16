@@ -1,4 +1,6 @@
 function loadHome() {
+  debugInfo("Loading home");
+  state.homeScreen = true;
   const header = document.createElement("h1");
   const subheader = document.createElement("h3");
   const unreadChannelsContainer = document.createElement("div");
@@ -30,7 +32,7 @@ function loadHome() {
       `/channels/${channel}/messages/${channelInfo.lastMessage}`
     ).then(async (res) => {
       const username = document.createElement("span");
-      const author = await userLookup(res.author);
+      const author = await userLookup(res.author ? res.author : res.system.id);
       const parsedMessage = await parseMessageContent(res);
 
       username.classList.add("username");

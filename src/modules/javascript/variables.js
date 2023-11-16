@@ -26,10 +26,12 @@ var storage = {
   emojis: {},
   permissions: {},
   language: {},
+  packageSettings: {}
 };
 
 var state = {
   errorTimeout: [],
+  homeScreen: false,
   messageMods: {
     sendRawJSON: false,
     replies: [],

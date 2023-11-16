@@ -93,7 +93,7 @@ fieldset legend {
 .language-selection {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 #login-btn {
@@ -279,7 +279,7 @@ fieldset legend {
 
 .username {
   font-weight: bold;
-  background: none;
+  /*background: none;*/
   padding: 0 0.5rem;
 }
 
@@ -300,7 +300,8 @@ fieldset legend {
   padding: 0.5rem;
 }
 
-#channelName, #channelDesc {
+#channelName,
+#channelDesc {
   padding: 0 1rem;
 }
 
@@ -535,6 +536,10 @@ input[type="file"] {
   height: 15px;
   border-radius: 100%;
   margin-right: 0.3rem;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  -o-border-radius: 100%;
 }
 
 .badge > img {
@@ -608,3 +613,12 @@ input[type="file"] {
   padding-left: 1em;
 }
 
+.embed > .embed-icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+}
+.css-username {
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
