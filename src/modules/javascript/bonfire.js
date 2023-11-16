@@ -89,16 +89,22 @@ async function bonfire() {
               cacheLookup("channels", data.channel).server
             ) === -1
           ) {
-            document
-              .getElementById(
-                `SERVER-${cacheLookup("channels", data.channel).server}`
+            if (
+              state.unreads.muted.channels.indexOf(
+                cacheLookup("channels", data.channel).server
               )
-              .classList.add(
-                data.mentions &&
-                  data.mentions.indexOf(state.connection.userProfile._id) !== -1
-                  ? "mentioned-server"
-                  : "unread-server"
-              );
+            )
+              document
+                .getElementById(
+                  `SERVER-${cacheLookup("channels", data.channel).server}`
+                )
+                .classList.add(
+                  data.mentions &&
+                    data.mentions.indexOf(state.connection.userProfile._id) !==
+                      -1
+                    ? "mentioned-server"
+                    : "unread-server"
+                );
           }
         }
         break;
