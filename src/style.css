@@ -573,7 +573,7 @@ input[type="file"] {
 }
 
 .embedsContainer {
-  max-width: 60%;
+  max-width: 20%;
 }
 .embed {
   border-radius: var(--border-radius);

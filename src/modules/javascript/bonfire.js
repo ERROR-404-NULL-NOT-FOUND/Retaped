@@ -73,7 +73,10 @@ async function bonfire() {
         } else {
           if (
             (channel = document.getElementById(data.channel)) &&
-            state.unreads.muted.channels.indexOf(data.channel) === -1
+            state.unreads.muted.channels.indexOf(data.channel) === -1 &&
+            state.unreads.muted.servers.indexOf(
+              cacheLookup("channels", data.id).server
+            ) === -1
           ) {
             channel.classList.add(
               data.mentions &&
@@ -139,21 +142,29 @@ async function bonfire() {
         let stillUnread = false;
         let stillMentioned = false;
 
-        cacheLookup(
-          "servers",
-          cacheLookup("channels", data.id).server
-        ).channels.forEach((channel) => {
-          if (state.unreads.unread.channels.indexOf(channel) !== -1)
-            stillUnread = true;
-          if (state.unreads.mentioned.channels.indexOf(channel) !== -1)
-            stillMentioned = true;
-        });
+        if (
+          state.unreads.muted.servers.indexOf(
+            cacheLookup("channels", data.id).server
+          ) === -1
+        ) {
+          cacheLookup(
+            "servers",
+            cacheLookup("channels", data.id).server
+          ).channels.forEach((channel) => {
+            if (state.unreads.muted.channels.indexOf(channel) !== -1) {
+              if (state.unreads.unread.channels.indexOf(channel) !== -1)
+                stillUnread = true;
+              if (state.unreads.mentioned.channels.indexOf(channel) !== -1)
+                stillMentioned = true;
+            }
+          });
 
-        let server = document.getElementById(
-          `SERVER-${cacheLookup("channels", data.id).server}`
-        );
-        if (!stillUnread) server.classList.remove("unread-server");
-        if (!stillMentioned) server.classList.remove("mentioned-server");
+          let server = document.getElementById(
+            `SERVER-${cacheLookup("channels", data.id).server}`
+          );
+          if (!stillUnread) server.classList.remove("unread-server");
+          if (!stillMentioned) server.classList.remove("mentioned-server");
+        }
         break;
 
       // Uh oh
