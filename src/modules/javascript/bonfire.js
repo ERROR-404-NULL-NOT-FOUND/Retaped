@@ -65,9 +65,7 @@ async function bonfire() {
             );
           }
 
-          document
-            .querySelector("#messagesContainer")
-            .appendChild(await parseMessage(data));
+          messageContainer.appendChild(await parseMessage(data));
 
           if (shouldAck) scrollChatToBottom();
         } else {
