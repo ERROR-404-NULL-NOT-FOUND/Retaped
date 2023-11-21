@@ -16,29 +16,25 @@ function loadHome() {
   state.unreads.unread.channels.forEach((channel) => {
     if (state.unreads.muted.channels.indexOf(channel) !== -1) return;
     const channelInfo = cacheLookup("channels", channel);
-    const unreadChannelContainer = document.createElement("div");
     const unreadChannel = renderChannel(channel, channelInfo.server);
+    const unreadMessageContainer = document.createElement("div");
+    const unreadServer = document.createElement("span");
     const lastMessage = document.createElement("div");
-
+    
+    unreadServer.textContent = cacheLookup("servers", channelInfo.server).name;
     lastMessage.classList.add("channel-last-message");
-    unreadChannelContainer.classList.add("home-unread-channel");
+    unreadMessageContainer.classList.add("home-unread-message");
+    unreadChannel.classList.add("home-unread-channel");
 
-    lastMessage.id = `MSG-${channelInfo.lastMessage}`;
-
-    unreadChannelContainer.appendChild(unreadChannel);
-    unreadChannelContainer.appendChild(lastMessage);
-    unreadChannelsContainer.appendChild(unreadChannelContainer);
+    unreadMessageContainer.appendChild(unreadChannel);
+    unreadMessageContainer.appendChild(unreadServer);
+    unreadMessageContainer.appendChild(lastMessage);
+    unreadChannelsContainer.appendChild(unreadMessageContainer);
     fetchResource(
       `/channels/${channel}/messages/${channelInfo.lastMessage}`
     ).then(async (res) => {
-      const username = document.createElement("span");
-      const author = await userLookup(res.author ? res.author : res.system.id);
-      const parsedMessage = await parseMessageContent(res);
-
-      username.classList.add("username");
-      username.innerText = author.displayName;
-
-      lastMessage.outerHTML = username.outerHTML + parsedMessage.outerHTML;
+      const parsedMessage = await parseMessage(res);
+      lastMessage.outerHTML = parsedMessage.outerHTML;
     });
   });
   messagesContainer.appendChild(header);

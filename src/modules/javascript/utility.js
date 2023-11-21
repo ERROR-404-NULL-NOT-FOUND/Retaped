@@ -147,23 +147,20 @@ async function updateUnreads(
   if (unread) {
     if (state.unreads.unread.channels.indexOf(channelID) === -1)
       state.unreads.unread.channels.push(channelID);
-  } else
+
+    if (state.unreads.mentioned.channels.indexOf(channelID) === -1 && mentioned)
+      state.unreads.mentioned.channels.push(channelID);
+  } else {
     state.unreads.unread.channels.splice(
       state.unreads.unread.channels.indexOf(channelID),
       1
     );
 
-  if (state.unreads.mentioned.channels.indexOf(channelID) !== -1)
-    state.unreads.mentioned.channels.splice(
-      state.unreads.mentioned.channels.indexOf(channelID),
-      1
-    );
-
-  if (mentioned) {
-    if (unread) {
-      if (state.unreads.mentioned.channels.indexOf(channelID) === -1)
-        state.unreads.mentioned.channels.push(channelID);
-    }
+    if (state.unreads.mentioned.channels.indexOf(channelID) !== -1)
+      state.unreads.mentioned.channels.splice(
+        state.unreads.mentioned.channels.indexOf(channelID),
+        1
+      );
   }
 
   for (let i = 0; i < state.unreads.unreadList.length; i++) {
@@ -414,12 +411,12 @@ async function updateLanguage() {
     .then((res) => res.json())
     .then((res) => (storage.language = res));
   if (storage.language.config["text-direction"] === "RL") {
-        let sheet = ".translatable {direction:rtl;}"
-        let style = document.createElement("style");
-        style.innerText = sheet;
+    let sheet = ".translatable {direction:rtl;}";
+    let style = document.createElement("style");
+    style.innerText = sheet;
 
-        document.head.appendChild(style);
-      }
+    document.head.appendChild(style);
+  }
   Array.from(deepKeys(storage.language)).forEach((translationKey) => {
     if ((element = document.querySelector(`*[name="${translationKey}"]`))) {
       let value = valueOfDeepKey(translationKey.split("."), storage.language);
@@ -429,7 +426,6 @@ async function updateLanguage() {
         default:
           element.innerText = value;
       }
-      
     } else {
       debugInfo(`Translatable element not found: ${translationKey}`);
     }

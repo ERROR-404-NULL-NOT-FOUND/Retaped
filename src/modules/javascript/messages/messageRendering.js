@@ -484,6 +484,7 @@ function contextButtons(message) {
 
 function renderUsername(message, user, member) {
   const masqueradeBadge = document.createElement("span");
+  const botBadge = document.createElement("span");
   const profilePicture = document.createElement("img");
   const presenceIcon = document.createElement("img");
   const userData = document.createElement("div");
@@ -511,7 +512,7 @@ function renderUsername(message, user, member) {
     }.svg`;
 
     if (user.bot !== undefined)
-      masqueradeBadge.textContent = storage.language.messages.botBadge;
+      botBadge.textContent = storage.language.messages.botBadge;
 
     profilePicture.src = member.avatar
       ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
@@ -546,7 +547,7 @@ function renderUsername(message, user, member) {
       }
     }
   } else {
-    masqueradeBadge.textContent = storage.language.messages.botBadge;
+    masqueradeBadge.textContent = storage.language.messages.masqueradeBadge;
     if (message.masquerade.name) username.textContent = message.masquerade.name;
     else
       username.textContent = member.nickname
@@ -575,6 +576,7 @@ function renderUsername(message, user, member) {
   pleaseNoMoreSuffering.appendChild(profilePicture);
   userData.appendChild(username);
   userData.appendChild(masqueradeBadge);
+  userData.appendChild(botBadge);
   if (settings.visual.showPresenceIconsInChat)
     pleaseNoMoreSuffering.appendChild(presenceIcon);
 
