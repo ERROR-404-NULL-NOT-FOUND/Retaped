@@ -233,15 +233,20 @@ fieldset legend {
   object-fit: cover;
 }
 
+.custom-status-container {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
 .presence-icon {
   max-height: 1em;
+}
+
+.userdata .presence-icon {
   position: absolute;
   bottom: 0;
   right: 0;
-}
-
-.pfpContainer > .presence-icon {
-  max-height: 1.6em;
 }
 
 #displayName {
