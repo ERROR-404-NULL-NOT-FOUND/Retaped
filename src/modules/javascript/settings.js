@@ -77,7 +77,7 @@ async function loadSyncSettings() {
       state.unreads.muted.servers.push(server);
   });
 
-  if (settings.theme.value == true) {
+  if (settings.visual.revoltTheme.value == true) {
     let themeVars = document.querySelector(":root");
     themeVars.style.setProperty("--accent", theme.accent);
     themeVars.style.setProperty("--error", theme.error);
