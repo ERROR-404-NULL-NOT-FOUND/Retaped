@@ -188,12 +188,15 @@ async function bonfire() {
         debugInfo("User started typing", data);
         if (
           data.id !== state.active.channel ||
-          state.currentlyTyping.indexOf(data.user) !== -1 ||
-          document.getElementById(data.user) === null
+          state.currentlyTyping.indexOf(data.user) !== -1
         )
           break;
 
-        const typingMember = cacheLookup("members", data.user, activeServer);
+        const typingMember = cacheLookup(
+          "members",
+          data.user,
+          state.active.server
+        );
         const typingUser = await userLookup(data.user);
         const typingUserContainer = document.createElement("div");
         const typingUserName = document.createElement("span");
@@ -201,7 +204,7 @@ async function bonfire() {
 
         typingUserPfp.src =
           typingMember.pfp === undefined
-            ? `${settings.instance.autumn}/avatars/${typingUser.pfp._id}?max_side=25`
+            ? typingUser.pfp
             : `${settings.instance.autumn}/avatars/${typingMember.pfp._id}?max_side=25`;
         typingUserContainer.appendChild(typingUserPfp);
 
@@ -211,9 +214,8 @@ async function bonfire() {
         typingUserContainer.id = typingUser.id;
 
         state.currentlyTyping.push(data.user);
-        typingBar.appendChild(typingUserContainer);
+        document.querySelector("#typingBar").appendChild(typingUserContainer);
         document.getElementById("typingBarContainer").style.display = "flex";
-        scrollChatToBottom();
         break;
       }
 
@@ -230,8 +232,9 @@ async function bonfire() {
           );
         }
 
-        if (typingBar.children.length === 0)
+        if (document.querySelector("#typingBar").children.length === 0)
           document.getElementById("typingBarContainer").style.display = "none";
+        break;
       }
 
       case "MessageReact": {
