@@ -18,13 +18,14 @@ async function processSettings() {
     settings = JSON.parse(localStorage.getItem("settings"));
   else return;
 
-  if (instanceURL.value) {
+  if (loginData.instanceURL.value) {
     await fetch(instanceURL.value)
       .then((res) => res.json())
       .then((data) => {
-        settings.instance.delta = instanceURL.value;
+        settings.instance.delta = loginData.instanceURL.value;
         settings.instance.autumn = data.features.autumn.url;
         settings.instance.january = data.features.january.url;
+        setSettings();
       })
       .catch((error) => {
         showError(error);
