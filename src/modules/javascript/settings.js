@@ -135,18 +135,35 @@ async function loadSetting(settingCategory) {
     Object.keys(settings[settingCategory]).forEach((setting) => {
       debugInfo(`Loading setting: ${setting}`);
       let settingContainer = document.createElement("div");
-      let settingInput = document.createElement("input");
       let settingInputLabel = document.createElement("label");
       let settingDesc = document.createElement("span");
 
-      settingInput.type = "checkbox";
-      settingInput.checked = settings[settingCategory][setting].value;
-      settingInput.id = setting;
-      settingInput.onclick = () => {
-        settings[settingCategory][setting].value =
-          !settings[settingCategory][setting].value;
-        setSettings();
-      };
+      let settingInput;
+      if (typeof settings[settingCategory][setting].value === "boolean") {
+        settingInput = document.createElement("input");
+        settingInput.type = "checkbox";
+        settingInput.checked = settings[settingCategory][setting].value;
+        settingInput.id = setting;
+        settingInput.onclick = () => {
+          settings[settingCategory][setting].value =
+            !settings[settingCategory][setting].value;
+          setSettings();
+        };
+      } else {
+        settingInput = document.createElement("select");
+        settingInput.onchange = () => {
+          settings.visual.language.value =
+            langSelect.options[settingInput.selectedIndex].value; //Set language to selection
+          setSettings();
+          updateLanguage();
+        };
+        storage.languages.forEach((language) => {
+          languageOpt = document.createElement("option");
+          languageOpt.value = language;
+          languageOpt.text = language;
+          settingInput.appendChild(languageOpt);
+        });
+      }
 
       //Loki TODO: style
       settingDesc.innerHTML =

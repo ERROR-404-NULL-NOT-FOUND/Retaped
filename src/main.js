@@ -75,7 +75,7 @@ window.onload = async () => {
       });
   }
 
-  fetch(`../assets/languages/${settings.visual.language}.json`)
+  fetch(`../assets/languages/${settings.visual.language.value}.json`)
     .then((res) => res.json())
     .then((res) => {
       storage.language = res;

@@ -18,7 +18,11 @@
   },
 
   "visual": {
-    "language": "english",
+    "language": {
+      "value": "english",
+      "name": "Language",
+      "description": "Your preferred language. Please note that languages other than English are not maintained by the primary maintainer, so they may be outdated"
+    },
     "legacyStyleSheet": {
       "value": false,
       "name": "Legacy style sheet",

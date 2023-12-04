@@ -34,7 +34,8 @@
       "delta": "Revolt API endpoint",
       "assets": "Webserver hosting badge assets",
       "legacyEmotes": "Webserver hosting custom emote assets",
-      "emotes": "Webserver hosting emote assets"
+      "emotes": "Webserver hosting emote assets",
+      "language": "Language"
     },
     "descriptions": {
       "dataSaver": "Disables attachment & embed image loading",
@@ -44,6 +45,7 @@
       "compactMode": "UNIMPLEMENTED Similar to Discord's compact mode",
       "revoltTheme": "Loads the colour scheme data set by Revite",
       "showPresenceIconsInChat": "Shows a user's presence next to their username in channels",
+      "language": "Your preferred language. Please note that languages other than English are not maintained by the primary maintainer, so they may be outdated",
       "profile": {
         "previewLabel": "Profile preview",
         "editorLabel": "Profile editor",

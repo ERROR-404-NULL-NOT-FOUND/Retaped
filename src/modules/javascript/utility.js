@@ -407,7 +407,7 @@ function valueOfDeepKey(keys, object) {
 }
 
 async function updateLanguage() {
-  await fetch(`../assets/languages/${settings.visual.language}.json`)
+  await fetch(`../assets/languages/${settings.visual.language.value}.json`)
     .then((res) => res.json())
     .then((res) => (storage.language = res));
   if (storage.language.config["text-direction"] === "RL") {
