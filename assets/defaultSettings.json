@@ -50,7 +50,7 @@
     "bonfire": "wss://ws.revolt.chat",
     "autumn": "https://autumn.revolt.chat",
     "january": "https://jan.revolt.chat",
-    "assets": "Removed due to licencing",
+    "assets": "https://app.revolt.chat",
     "legacyEmotes": "https://dl.insrt.uk",
     "emotes": "https://static.revolt.chat/emoji/mutant/"
   }

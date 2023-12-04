@@ -53,7 +53,7 @@ async function loadProfile(userID) {
         let badgeContainer = document.createElement("div");
         let badgeImg = document.createElement("img");
 
-        badgeImg.src = `${settings.instance.assets}${storage.badges[badge]}`;
+        badgeImg.src = `${settings.instance.assets}${storage.badges[badge].asset}`;
         badgeContainer.classList.add("badge", badge);
 
         badgeContainer.appendChild(badgeImg);

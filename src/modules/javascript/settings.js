@@ -18,13 +18,14 @@ async function processSettings() {
     settings = JSON.parse(localStorage.getItem("settings"));
   else return;
 
-  if (instanceURL.value) {
+  if (loginData.instanceURL.value) {
     await fetch(instanceURL.value)
       .then((res) => res.json())
       .then((data) => {
-        settings.instance.delta = instanceURL.value;
+        settings.instance.delta = loginData.instanceURL.value;
         settings.instance.autumn = data.features.autumn.url;
         settings.instance.january = data.features.january.url;
+        setSettings();
       })
       .catch((error) => {
         showError(error);
@@ -77,7 +78,7 @@ async function loadSyncSettings() {
       state.unreads.muted.servers.push(server);
   });
 
-  if (toggleTheme.checked == true) {
+  if (settings.visual.revoltTheme.value == true) {
     let themeVars = document.querySelector(":root");
     themeVars.style.setProperty("--accent", theme.accent);
     themeVars.style.setProperty("--error", theme.error);

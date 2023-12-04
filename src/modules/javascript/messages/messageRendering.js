@@ -84,9 +84,7 @@ function parseMentions(message, messageContent) {
       ping.classList.add("tag");
 
       //TODO: make this work
-      ping.onclick = () => {
-        loadProfile(mention);
-      };
+      ping.setAttribute("onclick", `loadProfile("${mention}")`);
 
       ping.appendChild(mentionPfp);
       mentionText.textContent = cacheLookup("users", mention).displayName;
@@ -628,8 +626,8 @@ function renderAttachments(message) {
       tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
     }
     tmpAttachment.type = tmpAttchmntAttrs.content_type;
-    tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
-    attachments.appendChild(tmpAttachment);
+          tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
+          attachments.appendChild(tmpAttachment);
   });
   return attachments;
 }

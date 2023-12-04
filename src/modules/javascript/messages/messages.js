@@ -127,7 +127,7 @@ async function getMessages(id) {
  * @returns {null} Doesn't return
  */
 async function sendMessage() {
-  if (state.messageSending) return;
+  if (state.messageSending || !input.value) return;
 
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
@@ -139,23 +139,41 @@ async function sendMessage() {
   let attachmentIDs;
   if (state.messageMods.attachments) attachmentIDs = await uploadToAutumn();
 
+  state.messageMods.masquerade = {
+    colour: document.querySelector("#masqColour").value,
+    avatar: document.querySelector("#masqPfp").value,
+    name: document.querySelector("#masqName").value,
+  };
+
+  state.messageMods.embed = {
+    title: document.querySelector("#embedTitle").value,
+    description: document.querySelector("#embedDesc").value,
+    media: document.querySelector("#embedMedia").value,
+    colour: document.querySelector("#embedColour").value,
+    url: document.querySelector("#embedURL").value,
+  };
+
+  ["masquerade", "embed"].forEach((messageMod) => {
+    Object.keys(state.messageMods[messageMod]).forEach((key) => {
+      if (!state.messageMods[messageMod][key]) {
+        delete state.messageMods[messageMod][key];
+      }
+    });
+  });
+
   let body = state.messageMods.sendRawJSON
     ? message
     : {
         content: message,
         replies: state.messageMods.replies,
         masquerade: state.messageMods.masquerade,
-        embeds: state.messageMods.embeds,
+        embeds: [state.messageMods.embed],
         attachments: attachmentIDs,
       };
 
-  if (!state.messageMods.masquerade.name) body.masquerade = null;
-
-  if (
-    !state.messageMods.embed.title.value ||
-    !state.messageMods.embed.title.value
-  )
-    body.embed = null;
+  if (!state.messageMods.masquerade.name) delete body.masquerade;
+  if (!state.messageMods.embed.title || !state.messageMods.embed.description)
+    delete body.embeds;
 
   await fetch(
     state.messageMods.editing === ""
@@ -190,6 +208,8 @@ async function sendMessage() {
     });
 
   messageContainer.value = "";
+  state.messageMods.masquerade = {};
+  state.messageMods.embed = {};
   state.messageMods.replies.length = 0;
   state.messageMods.attachments.length = 0;
 
