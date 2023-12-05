@@ -2,252 +2,281 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title>Retaped</title>
+  <meta charset="utf-8" />
+  <title>Retaped</title>
 
-    <link rel="icon" type="image/png" href="../assets/favicon.png">
-    <link rel="stylesheet" href="style.css" type="text/css" media="screen" id="currentCSS">
-    <link rel="stylesheet" href="legacy.css" type="text/css" media="screen" id="legacyCSS" disabled="true">
-    <link rel="canonical" href="https://error-404-null-not-found.github.io/Retaped/">
-    <!--Script loading-->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/variables.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/binds.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/bonfire.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/cache.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/channels.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/keybinds.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/login.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/messages/messageRendering.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/messages/messages.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/messages/correctionEngine.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/profiles.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/servers.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/settings.js" type="text/javascript" defer></script>
-    <script src="modules/javascript/utility.js" type="text/javascript" defer></script>
-    <script src="main.js" type="text/javascript" defer></script>
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+  <link rel="stylesheet" href="style.css" type="text/css" media="screen" id="currentCSS" />
+  <link rel="stylesheet" href="legacy.css" type="text/css" media="screen" id="legacyCSS" disabled="true" />
+  <link rel="canonical" href="https://error-404-null-not-found.github.io/Retaped/" />
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/variables.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/binds.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/bonfire.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/cache.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/channels.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/keybinds.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/login.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/messages/messageRendering.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/messages/messages.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/messages/correctionEngine.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/profiles.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/servers.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/settings.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/utility.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/logging.js" type="text/javascript" defer></script>
+  <script src="modules/javascript/home-screen.js" type="text/javascript" defer></script>
+  <script src="main.js" type="text/javascript" defer></script>
 </head>
 
 <body>
-    <div class="login-screen">
-        <div class="title">
-            <h1 id="name"><span class="hl">Re</span>taped</h1>
-            <h4 id="desc">
-                The revolt.chat client re-taped from the one <br>
-                that's held together by duct tape and bad code
-            </h4>
-        </div>
-        <!--Loki TODO: Style-->
-        <div class="language-selection">
-            <img id="langSelectIcon">
-            <select id="langSelect"></select>
-        </div>
-        <!--Login form-->
-        <form class="login-form">
-
-            <!--Error display-->
-            <!--FIXME: Styling is weird-->
-            <div id="loginErrorContainer" class="error-container">
-                <p id="loginErrorContent" class="error-content"></p>
-            </div>
-
-            <fieldset>
-                <legend>Login method</legend>
-
-                <!--Main login form-->
-                <label>Use your Revolt email and password</label>
-                <input id="email" autocomplete="on" placeholder="Email address" type="email">
-                <input id="password" placeholder="Password" type="password">
-                <input id="mfa" placeholder="TOTP Key">
-
-                <!--Custom token selection-->
-                <details>
-                    <summary>Or use your token</summary>
-                    <input id="token" type="password" autocomplete="off" placeholder="Token">
-                </details>
-
-                <!--Custom hosting options-->
-                <details>
-                    <summary>Advanced options</summary>
-                    <input type="url" id="customInstance" placeholder="Custom instance URL">
-                    <input type="url" id="customLegacyEmotes" placeholder="Custom legacy emotes host">
-                    <input type="url" id="customAssets" placeholder="Custom assets host">
-                </details>
-            </fieldset>
-
-            <!--Preferences form-->
-            <fieldset>
-                <legend>Preferences</legend>
-                <div>
-                    <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true">
-                    <label id="toggleThemeLabel" for="toggle-theme">Use my Revolt theme</label>
-
-                    <input type="checkbox" id="toggleToken" name="toggle-token" checked="true">
-                    <label id="toggleRememberLabel" for="toggle-token">Remember me</label>
-                </div>
-            </fieldset>
-            <button id="login-btn" type="button">Login</button>
-        </form>
+  <div class="login-screen">
+    <div class="title">
+      <h1 id="name"><span class="hl">Re</span>taped</h1>
+      <h4 id="desc">
+        The revolt.chat client re-taped from the one <br />
+        that's held together by duct tape and bad code
+      </h4>
     </div>
 
-    <!--Main app skeleton-->
-    <div id="app">
-        <!--User profile modal-->
-        <div id="userProfile" class="modal-container">
-            <div class="modal-background">
-            </div>
-            <div class="modal">
-                <div id="profileMedia" class="profile-top">
-                    <div class="profile-name">
-                        <img id="profilePicture" />
-                        <div>
-                            <p id="displayName"></p>
-                            <img id="presenceIcon">
-                            <p id="username"></p>
-                            <p id="status"></p>
-                        </div>
-                    </div>
-                </div>
-                <div id="badgesContainer"></div>
-                <div id="roleContainer"></div>
-                <p id="bio"></p>
-            </div>
+    <form class="login-form">
+      <!--FIXME: Styling is weird-->
+      <div id="loginErrorContainer" class="error-container" display="block">
+        <p id="loginErrorContent" class="error-content">
+          <noscript>
+            I see that you've disabled JS and/or have this client blacklisted
+            in libreJS. Fear not, free internet and/or lowspec pirate, for
+            this client is both written without a framework and decently
+            optimized, with the source code available both on
+            <a href="https://github.com/error-404-null-not-found/retaped">=> Github</a>
+            and in the source tree of this site, as all of the code remains
+            un-minimized. No secrecy here!
+          </noscript>
+        </p>
+      </div>
+
+      <fieldset>
+        <legend name="login.loginMethodPrompt" class="translatable">
+          Login method
+        </legend>
+
+        <label name="login.emailPasswdPrompt" class="translatable">Use your Revolt email and password</label>
+        <input name="login.emailPlaceholder" class="translatable" id="email" autocomplete="on"
+          placeholder="Email address" type="email" />
+        <input name="login.passwdPlaceholder" class="translatable" id="password" placeholder="Password"
+          type="password" />
+        <input name="login.mfaPlaceholder" class="translatable" id="mfa" placeholder="TOTP Key" />
+
+        <details>
+          <summary name="login.tokenPrompt" class="translatable">
+            Or use your token
+          </summary>
+          <input name="login.tokenPlaceholder" class="translatable" id="token" type="password" autocomplete="off"
+            placeholder="Token" />
+        </details>
+
+        <details>
+          <summary name="login.advancedOptsPrompt" class="translatable">
+            Advanced options
+          </summary>
+          <input type="url" name="settings.names.delta" class="translatable" id="customInstance"
+            placeholder="Custom instance URL" />
+          <input type="url" name="settings.names.legacyEmotes" class="translatable" id="customLegacyEmotes"
+            placeholder="Custom legacy emotes host" />
+          <input type="url" name="settings.names.assets" class="translatable" id="customAssets"
+            placeholder="Custom assets host" />
+        </details>
+      </fieldset>
+
+      <fieldset>
+        <legend name="login.preferencesPrompt">Preferences</legend>
+        <div>
+          <input type="checkbox" id="toggleTheme" name="toggle-theme" checked="true" />
+          <label id="toggleThemeLabel" name="settings.names.revoltTheme" class="translatable" for="toggle-theme">Use my
+            Revolt theme</label>
+
+          <input type="checkbox" id="toggleToken" name="toggle-token" checked="true" />
+          <label id="toggleRememberLabel" name="settings.names.rememberMe" class="translatable"
+            for="toggle-token">Remember me</label>
         </div>
 
-        <!--User settings modal-->
-        <div id="settings" class="modal-container">
-            <div class="modal-background"></div>
-            <div class="modal">
-                <h1>Settings</h1>
-                <div id="categories">
-                    <button id="behaviourSetting">Behaviour</button>
-                    <button id="visualSetting">Visuals</button>
-                    <button id="profileSetting">Profile</button>
-                </div>
-                <h3 id="settingCatName"></h3>
-                <div id="mainSettings">
-                </div>
-                <button id="closeSettingsBtn">Close settings</button>
+        <div class="language-selection">
+          <label>Language: </label>
+          <select id="langSelect"></select>
+        </div>
+      </fieldset>
+      <button id="login-btn" name="login.loginBtn" class="translatable" type="button">
+        Login
+      </button>
+    </form>
+  </div>
+
+  <div id="app">
+    <div id="userProfile" class="modal-container">
+      <div class="modal-background"></div>
+      <div class="modal">
+        <div id="profileMedia" class="profile-top">
+          <div class="profile-name">
+            <div class="pfpContainer">
+              <img id="profilePicture" />
             </div>
-        </div>
-
-        <!--Servers list-->
-        <!--TODO: Scan for unreads in DMs-->
-        <div id="serversBar">
-            <button id="dms">DMS</button>
-            <hr>
-            <div id="serversContainer"></div>
-        </div>
-
-        <!--Channel selection-->
-        <div id="channelBar">
-            <h2 id="serverName"></h2>
-            <img id="serverBG">
-            <h3 id="channelDescription"></h3>
-            <div id="channelsContainer"></div>
-        </div>
-
-        <!--Main container, including channel info, for some reason-->
-        <div id="chatContainer">
-            <!--Chat header-->
-            <!-- TODO: transform this into a channel header -->
-            <!-- TODO: move these stats in the settings modal -->
-            <div class="chat-header">
-                <div>
-                    <p id="channelName"></p>
-                    <p id="channelDesc"></p>
-                </div>
-
-                <div class="chat-header-right">
-                    <p id="connectionStatus">Disconnected</p>
-                    -
-                    <p id="themeLabel">Default theme</p>
-                    <br>
-                    <button id="openSettingsBtn">Settings</button>
-                </div>
+            <div>
+              <p id="displayName"></p>
+              <p id="username"></p>
+              <div class="custom-status-container">
+                <img id="presenceIcon" class="presence-icon" />
+                <p id="status"></p>
+              </div>
             </div>
-
-            <!--Message header-->
-            <div id="messagesContainer"></div>
-
-            <!--Message bar-->
-            <div class="messagebar-container">
-                <!--Embed input container; usually hidden-->
-                <div id="embed" hidden="false">
-                    <input type="text" autocomplete="off" placeholder="Title" id="embedTitle" />
-                    <input type="text" autocomplete="off" placeholder="Icon URL" id="embedIconURL" />
-                    <input type="text" autocomplete="off" placeholder="Description" id="embedDesc" />
-                    <input type="text" autocomplete="off" placeholder="Color" id="embedColour" />
-                    <input type="text" autocomplete="off" placeholder="URL" id="embedURL" />
-                    <input type="text" autocomplete="off" placeholder="Media id (upload to Autumn)" id="embedMedia" />
-                </div>
-                <!--Masquerade input container; usually hidden-->
-                <div id="masquerade" hidden="false">
-                    <input type="text" autocomplete="off" placeholder="Name" id="masqName" />
-                    <input type="text" autocomplete="off" placeholder="Profile picture" id="masqPfp" />
-                    <input type="text" autocomplete="off" placeholder="Colour (must have ManageRole permission)" id="masqColour" />
-                </div>
-
-                <!--Error container-->
-                <!--FIXME: Actually use this-->
-                <div id="errorContainer" class="error-container">
-                    <p id="errorContent" class="error-content"></p>
-                </div>
-
-                <!--Replies container-->
-                <div class="replying-container"></div>
-
-                <!--Typing indicator-->
-                <div id="typingBarContainer">
-                    <span id="typingBar"></span> is typing
-                </div>
-
-                <!--List of attachments-->
-                <!--FIXME: Styling-->
-                <div id="uploadsBarContainer" hidden=true>
-                </div>
-
-                <div id="correctionsContainer">
-                </div>
-                <!--Messages toolbar; normally hidden-->
-                <div class="toolbar">
-                    <button id="bonfireButton">
-                        Re-establish websocket
-                    </button>
-                    <button id="refreshChatButton">
-                        Refresh chat
-                    </button>
-                    <button id="sendEmbedButton">
-                        Send embed
-                    </button>
-                    <button id="sendJSONbutton">
-                        JSON
-                    </button>
-                    <button id="sendMasqButton">
-                        Masquerade
-                    </button>
-                </div>
-
-                <!--Message bar-->
-                <div id="messageBar">
-                    <button class="toolbar-btn">↑</button>
-
-                    <!-- FIXME: the width of the label is really small so pressing it is hard. -->
-                    <button>
-                        <!-- FIXME: Doesn't show cursor on hover-->
-                        <label class="upload-label" for="upload">+
-                          <input type="file" id="upload">
-                        </label>
-                    </button>
-                    <textarea autocomplete="off" placeholder="Speak in channel" id="input" rows=1 maxlength=2000 autofocus=1></textarea>
-
-                    <!--Message send button-->
-                    <button class="send-btn">
-                        ⟶
-                    </button>
-                </div>
-            </div>
+          </div>
         </div>
+        <div id="badgesContainer"></div>
+        <div id="roleContainer"></div>
+        <p id="bio"></p>
+      </div>
+    </div>
+
+    <div id="settings" class="modal-container">
+      <div class="modal-background"></div>
+      <div class="modal">
+        <div class="state-info">
+          <p id="themeLabel">Default theme</p>
+        </div>
+        <h1 name="settings.settings">Settings</h1>
+        <div id="categories">
+          <button name="settings.categories.behaviour" class="translatable" id="behaviourSetting">
+            Behaviour
+          </button>
+          <button name="settings.categories.visual" class="translatable" id="visualSetting">
+            Visuals
+          </button>
+          <button name="settings.categories.profile" class="translatable" id="profileSetting">
+            Profile
+          </button>
+        </div>
+        <h3 id="settingCatName"></h3>
+        <div id="mainSettings"></div>
+
+        <button name="settings.closeBtn" class="translatable" id="closeSettingsBtn">
+          Close settings
+        </button>
+      </div>
+    </div>
+
+    <!--TODO: Scan for unreads in DMs-->
+    <div id="serversBar">
+      <button name="dms.buttonContent" class="translatable" id="dms">
+        DMS
+      </button>
+      <hr />
+      <div id="serversContainer"></div>
+    </div>
+
+    <div id="channelBar">
+      <h2 id="serverName"></h2>
+      <img id="serverBG" />
+      <h3 id="channelDescription"></h3>
+      <div id="channelsContainer"></div>
+    </div>
+
+    <div id="chatContainer">
+      <!-- TODO: transform this into a channel header -->
+      <!-- TODO: move these stats in the settings modal -->
+      <div class="chat-header">
+        <div>
+          <p id="channelName"></p>
+          <p id="channelDesc"></p>
+        </div>
+
+        <div class="chat-header-right">
+          <p id="connectionStatus">Disconnected</p>
+          <button name="settings.settings" class="translatable" id="openSettingsBtn">
+            Settings
+          </button>
+        </div>
+      </div>
+
+      <div id="messagesContainer">
+      </div>
+
+      <div class="messagebar-container">
+        <div id="embed" hidden="false">
+          <input name="toolbar.embedInput.title" class="translatable" type="text" autocomplete="off" placeholder="Title"
+            id="embedTitle" />
+          <input name="toolbar.embedInput.icon" class="translatable" type="text" autocomplete="off"
+            placeholder="Icon URL" id="embedIconURL" />
+          <input name="toolbar.embedInput.desc" class="translatable" type="text" autocomplete="off"
+            placeholder="Description" id="embedDesc" />
+          <input name="toolbar.embedInput.colour" class="translatable" type="text" autocomplete="off"
+            placeholder="Color" id="embedColour" />
+          <input name="toolbar.embedInput.url" class="translatable" type="text" autocomplete="off" placeholder="URL"
+            id="embedURL" />
+          <input name="toolbar.embedInput.media" class="translatable" type="text" autocomplete="off"
+            placeholder="Media id (upload to Autumn)" id="embedMedia" />
+        </div>
+        <div id="masquerade" hidden="false">
+          <input name="toolbar.masqueradeInput.name" class="translatable" type="text" autocomplete="off"
+            placeholder="Name" id="masqName" />
+          <input name="toolbar.masqueradeInput.avatar" class="translatable" type="text" autocomplete="off"
+            placeholder="Profile picture" id="masqPfp" />
+          <input name="toolbar.masqueradeInput.colour" class="translatable" type="text" autocomplete="off"
+            placeholder="Colour (must have ManageRole permission)" id="masqColour" />
+        </div>
+
+        <!--FIXME: Actually use this-->
+        <div id="errorContainer" class="error-container">
+          <p id="errorContent" class="error-content"></p>
+        </div>
+
+        <p id="editingTag" class="translatable" name="messages.inputField.editingText" hidden="true">Editing message</p>
+
+        <div class="replying-container"></div>
+
+        <div id="typingBarContainer">
+          <span id="typingBar"></span><span name="toolbar.typingIndicator" class="translatable"></span>
+        </div>
+
+        <!--FIXME: Styling-->
+        <div id="uploadsBarContainer" hidden="true"></div>
+
+        <div id="correctionsContainer"></div>
+
+        <div class="toolbar">
+          <button name="toolbar.websocket" class="translatable" id="bonfireButton">
+            Re-establish websocket
+          </button>
+          <button name="toolbar.refresh" class="translatable" id="refreshChatButton">
+            Refresh chat
+          </button>
+          <button name="toolbar.embedInput.buttonContent" class="translatable" id="sendEmbedButton">
+            Send embed
+            <button name="toolbar.masqueradeInput.buttonContent" class="translatable" id="sendMasqButton">
+              Masquerade
+            </button>
+          </button>
+          <button name="toolbar.json" class="translatable" id="sendJSONbutton">
+            JSON
+          </button>
+        </div>
+
+        <div id="messageBar">
+          <button class="toolbar-btn">↑</button>
+
+          <!-- FIXME: the width of the label is really small so pressing it is hard. -->
+          <button>
+            <!-- FIXME: Doesn't show cursor on hover-->
+            <label class="upload-label" for="upload">+
+              <input type="file" id="upload" />
+            </label>
+          </button>
+          <textarea name="messages.inputField.permissionDeniedText" class="translatable" autocomplete="off"
+            placeholder="Speak in channel" id="input" rows="1" maxlength="2000" autofocus="1"></textarea>
+
+          <button class="send-btn">⟶</button>
+        </div>
+        </p>
+      </div>
     </div>
 </body>
 

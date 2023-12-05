@@ -73,23 +73,6 @@ function renderReactions(reactions, channelID, messageID) {
 function parseMentions(message, messageContent) {
   if (message.mentions) {
     message.mentions.forEach((mention) => {
-      let splitMessage;
-      // Due to sanitization, we have to check for the HTML eqiuvilents of the symbols < and >
-      if (
-        (splitMessage = messageContent.innerHTML.split(`&lt;@${mention}&gt;`))
-          .length === 1
-      )
-        return;
-
-      let segConcat = document.createElement("div");
-      let newSeg;
-
-      splitMessage.forEach((segment) => {
-        newSeg = document.createElement("span");
-        newSeg.innerHTML = segment;
-        segConcat.appendChild(newSeg);
-      });
-
       let ping = document.createElement("button");
       let pingContainer = document.createElement("div");
       let mentionPfp = document.createElement("img");
@@ -101,23 +84,23 @@ function parseMentions(message, messageContent) {
       ping.classList.add("tag");
 
       //TODO: make this work
-      ping.onclick = () => {
-        loadProfile(mention);
-      };
+      ping.setAttribute("onclick", `loadProfile("${mention}")`);
 
       ping.appendChild(mentionPfp);
       mentionText.textContent = cacheLookup("users", mention).displayName;
 
-      mentionPfp.src = tmpUserProfile.pfp
-        ? `${settings.instance.autumn}/avatars/${tmpUserProfile.pfp._id}?max_side=256`
-        : `${settings.instance.delta}/users/${mention}/default_avatar?max_side=256`;
+      mentionPfp.src = tmpUserProfile.pfp;
       mentionText.textContent = cacheLookup("users", mention).displayName;
 
       ping.appendChild(mentionPfp);
       ping.appendChild(mentionText);
       pingContainer.appendChild(ping);
-      segConcat.insertBefore(pingContainer, newSeg);
-      messageContent = segConcat;
+
+      // Due to sanitization, we have to check for the HTML equivalents of the symbols < and >
+      messageContent.innerHTML = messageContent.innerHTML.replace(
+        new RegExp(`&lt;@${mention}&gt;`, "g"),
+        ping.outerHTML
+      );
     });
   }
 
@@ -188,9 +171,9 @@ function parseEmojis(messageContent) {
 function parseInvites(messageContent) {
   if (
     messageContent.innerHTML &&
-    (matches = messageContent.innerText.match(/[^wiki\.]rvlt.gg\/[^ \/]*/))
+    (matches = messageContent.innerText.match(/rvlt.gg\/[^ \/]*(?<!wiki\.)/))
   ) {
-    matches.forEach(async (match) => {
+    matches.forEach((match) => {
       //Loki TODO: style
       const matched = match.match(/(?<=rvlt.gg\/).*/);
       const inviteContainer = document.createElement("div");
@@ -204,36 +187,68 @@ function parseInvites(messageContent) {
       inviteIcon.classList.add("invite-server-icon");
       inviteMemberCount.classList.add("invite-server-members");
 
-      const inviteData = await fetchResource(`invites/${matched[0]}`);
+      fetchResource(`invites/${matched[0]}`).then((inviteData) => {
+        inviteText.textContent = inviteData.server_name;
 
-      inviteText.textContent = inviteData.server_name;
+        if (
+          inviteData.server_icon &&
+          !settings.behaviour.extremeDataSaver.value
+        )
+          inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
+        else inviteIcon.innerText = inviteData.server_name.charAt(0);
 
-      if (inviteData.server_icon && !settings.behaviour.extremeDataSaver.value)
-        inviteIcon.src = `${settings.instance.autumn}/icons/${inviteData.server_icon._id}`;
-      else inviteIcon.innerText = inviteData.server_name.charAt(0);
+        inviteMemberCount.textContent = formatTranslationKey(
+          storage.language.messages.invite.memberCountText,
+          "members",
+          inviteData.member_count
+        );
 
-      inviteMemberCount.textContent = `${inviteData.member_count} ${storage.language.messages.invite.memberCountText}`;
+        if (cacheLookup("servers", inviteData.server_id) === 1)
+          inviteButton.textContent = storage.language.messages.invite.joinText;
+        else
+          inviteButton.textContent =
+            storage.language.messages.invite.alreadyJoinedText;
 
-      if (cacheLookup("servers", inviteData.server_id) === 1)
-        inviteButton.textContent = storage.language.messages.invite.joinText;
-      else
-        inviteButton.textContent =
-          storage.language.messages.invite.alreadyJoinedText;
+        inviteButton.onclick = () => {
+          fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
+            headers: {
+              "x-session-token": state.connection.token,
+            },
+            method: "POST",
+          });
+        };
 
-      inviteButton.onclick = () => {
-        fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
-          headers: {
-            "x-session-token": state.connection.token,
-          },
-          method: "POST",
-        });
-      };
+        inviteContainer.appendChild(inviteIcon);
+        inviteContainer.appendChild(inviteText);
+        inviteContainer.appendChild(inviteMemberCount);
+        inviteContainer.appendChild(inviteButton);
+        messageContent.appendChild(inviteContainer);
+        scrollChatToBottom();
+      });
+    });
+  }
+  return messageContent;
+}
 
-      inviteContainer.appendChild(inviteIcon);
-      inviteContainer.appendChild(inviteText);
-      inviteContainer.appendChild(inviteMemberCount);
-      inviteContainer.appendChild(inviteButton);
-      messageContent.appendChild(inviteContainer);
+function parseChannels(messageContent) {
+  if (
+    (matches = messageContent.innerText.match(
+      /<#[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}>/g
+    ))
+  ) {
+    matches.forEach((channelMatch) => {
+      const channel = channelMatch.match(
+        /[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}/g
+      )[0];
+      const channelInfo = cacheLookup("channels", channel);
+
+      const channelElement = document.createElement("span");
+      channelElement.classList.add("tag");
+      channelElement.innerText = "#" + channelInfo.name;
+      messageContent.innerHTML = messageContent.innerHTML.replace(
+        new RegExp(`&lt;#${channel}&gt;`), //<#{channel}>
+        channelElement.outerHTML
+      );
     });
   }
   return messageContent;
@@ -257,6 +272,7 @@ function parseMessageContent(message) {
 
   messageContent = parseEmojis(messageContent);
   messageContent = parseMentions(message, messageContent);
+  messageContent = parseChannels(messageContent);
 
   //Markdown renderer
   messageContent.innerHTML = marked
@@ -275,106 +291,131 @@ function parseMessageContent(message) {
  * @returns {HTMLElement} HTML element containing the embed
  */
 function renderEmbed(embed) {
-  let embedContainer = document.createElement("div");
-  if (embed.type === "Text" || embed.type === "Website") {
-    //Loki TODO: style
-    embedContainer.style.backgroundColor = embed.colour;
+  try {
+    let embedContainer = document.createElement("div");
+    embedContainer.classList.add("embed");
+    if (embed.type === "Text" || embed.type === "Website") {
+      //Loki TODO: style
+      embedContainer.style.backgroundColor = embed.colour;
 
-    if (embed.icon_url) {
-      let icon = document.createElement("img");
+      if (embed.icon_url) {
+        let icon = document.createElement("img");
 
-      icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
-      icon.classList.add("embed-icon");
+        icon.src = `${settings.instance.january}/proxy?url=${embed.icon_url}`;
+        icon.classList.add("embed-icon");
 
-      embedContainer.appendChild(icon);
-    }
+        embedContainer.appendChild(icon);
+      }
 
-    if (embed.original_url) {
-      let originalURL = document.createElement("span");
+      if (embed.original_url) {
+        let originalURL = document.createElement("a");
 
-      originalURL.classList.add("embed-site-name");
-      originalURL.textContent = embed.original_url;
+        originalURL.classList.add("embed-site-name");
+        originalURL.textContent = embed.original_url;
+        originalURL.href = embed.original_url;
 
-      embedContainer.appendChild(originalURL);
-    }
+        embedContainer.appendChild(originalURL);
+      }
 
-    if (embed.site_name) {
-      let siteName = document.createElement("span");
+      if (embed.site_name) {
+        let siteName = document.createElement("span");
 
-      siteName.classList.add("embed-site-name");
-      siteName.textContent = embed.site_name;
+        siteName.classList.add("embed-site-name");
+        siteName.textContent = embed.site_name;
 
-      embedContainer.appendChild(siteName);
-    }
+        embedContainer.appendChild(siteName);
+      }
 
-    if (embed.title) {
-      let title = document.createElement("h3");
+      if (embed.title) {
+        let title = document.createElement("h3");
 
-      title.classList.add("embedTitle");
-      title.textContent = embed.title;
+        title.classList.add("embedTitle");
+        title.textContent = embed.title;
 
-      embedContainer.appendChild(title);
-    }
+        embedContainer.appendChild(title);
+      }
 
-    if (embed.description) {
-      let description = document.createElement("pre");
+      if (embed.description) {
+        let description = document.createElement("div");
 
-      description.classList.add("embedDesc");
-      description.textContent = embed.description;
+        description.classList.add("embedDesc");
+        description.innerHTML = marked.parse(
+          embed.description.replace("<", "&lt;").replace(">", "&gt;")
+        );
 
-      embedContainer.appendChild(description);
-    }
+        embedContainer.appendChild(description);
+      }
 
-    //Loki TODO: cap image size
-    if (embed.image && embed.image.url && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("img");
+      //Loki TODO: cap image size
+      if (
+        embed.image &&
+        embed.image.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
 
-      embedContainer.appendChild(media);
-    }
+        embedContainer.appendChild(media);
+      }
 
-    if (embed.video && embed.video.url && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("video");
+      if (
+        embed.video &&
+        embed.video.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        // This is done because January doesn't proxy videos, so, to avoid
+        // external websites being without the user's consent, we just provide a link
+        // to the video
+        let media = document.createElement("a");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.image.url}`;
+        media.classList.add("embedMedia");
+        media.href = `${settings.instance.january}/proxy?url=${embed.video.url}`;
+        media.innerText = "Link to video";
 
-      embedContainer.appendChild(media);
-    }
+        embedContainer.appendChild(media);
+      }
 
-    if (embed.media && embed.media._id && !settings.behaviour.dataSaver.value) {
-      let media = document.createElement("img");
+      if (
+        embed.media &&
+        embed.media._id &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.autumn}/attachments/${embed.media._id}`;
 
-      embedContainer.appendChild(media);
-    }
-  } else {
-    if (
-      embed.type === "Image" &&
-      embed.url &&
-      !settings.behaviour.dataSaver.value
-    ) {
-      let media = document.createElement("img");
-
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
-
-      embedContainer.appendChild(media);
+        embedContainer.appendChild(media);
+      }
     } else {
-      if (!embed.url) return embedContainer;
-      let media = document.createElement("video");
+      if (
+        embed.type === "Image" &&
+        embed.url &&
+        !settings.behaviour.dataSaver.value
+      ) {
+        let media = document.createElement("img");
 
-      media.classList.add("embedMedia");
-      media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
 
-      embedContainer.appendChild(media);
+        embedContainer.appendChild(media);
+      } else {
+        if (!embed.url) return embedContainer;
+        let media = document.createElement("video");
+
+        media.classList.add("embedMedia");
+        media.src = `${settings.instance.january}/proxy?url=${embed.url}`;
+
+        embedContainer.appendChild(media);
+      }
     }
+    return embedContainer;
+  } catch (error) {
+    showError(error);
+    return document.createElement("div");
   }
-  return embedContainer;
 }
 
 /**
@@ -417,8 +458,9 @@ function contextButtons(message) {
   };
 
   editButton.onclick = () => {
-    editingMessageID = message._id;
+    state.messageMods.editing = message._id;
     document.querySelector("#input").value = message.content;
+    document.querySelector("#editingTag").hidden = false;
   };
 
   deleteButton.onclick = (event) => {
@@ -440,10 +482,14 @@ function contextButtons(message) {
 
 function renderUsername(message, user, member) {
   const masqueradeBadge = document.createElement("span");
+  const botBadge = document.createElement("span");
   const profilePicture = document.createElement("img");
   const presenceIcon = document.createElement("img");
   const userData = document.createElement("div");
   const username = document.createElement("button");
+
+  const pleaseNoMoreSuffering = document.createElement("div");
+  pleaseNoMoreSuffering.style.position = "relative";
 
   profilePicture.classList.add("chat-pfp");
   userData.classList.add("userdata");
@@ -455,19 +501,20 @@ function renderUsername(message, user, member) {
   if (!message.masquerade) {
     username.textContent = member.nickname ? member.nickname : user.displayName;
 
-    if (user.status)
-      presenceIcon.src = `../assets/${
-        user.status.presence ? user.status.presence : "Offline"
-      }.svg`;
+    presenceIcon.src = `../assets/images/presence/${
+      user.status
+        ? user.status.presence
+          ? user.status.presence
+          : "Offline"
+        : "Offline"
+    }.svg`;
 
     if (user.bot !== undefined)
-      masqueradeBadge.textContent = storage.language.messages.botBadge;
+      botBadge.textContent = storage.language.messages.botBadge;
 
     profilePicture.src = member.avatar
       ? `${settings.instance.autumn}/avatars/${member.avatar._id}`
-      : user.pfp
-      ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-      : `${settings.instance.delta}/users/${user.id}/default_avatar`;
+      : user.pfp;
 
     if (member.roles) {
       let highestRole;
@@ -489,16 +536,16 @@ function renderUsername(message, user, member) {
       if (highestRole !== undefined) {
         // Testing if it's a valid hex code
         if (/^#[0-9A-F]{6}$/i.test(highestRole.colour)) {
-          username.style.backgroundColor = highestRole.colour;
+          username.style.color = highestRole.colour;
         } else {
           //For the funky CSS like role gradients
-          username.style.background = highestRole.colour;
-          username.style.backgroundClip = "border-box";
+          username.style.backgroundImage = highestRole.colour;
+          username.classList.add("css-username");
         }
       }
     }
   } else {
-    masqueradeBadge.textContent = storage.language.messages.botBadge;
+    masqueradeBadge.textContent = storage.language.messages.masqueradeBadge;
     if (message.masquerade.name) username.textContent = message.masquerade.name;
     else
       username.textContent = member.nickname
@@ -510,9 +557,7 @@ function renderUsername(message, user, member) {
     if (message.masquerade.avatar) {
       profilePicture.src = `${settings.instance.january}/proxy?url=${message.masquerade.avatar}`;
     } else {
-      profilePicture.src = user.pfp
-        ? `${settings.instance.autumn}/avatars/${user.pfp._id}?max_side=256`
-        : `${settings.instance.delta}/users/${user.pfp._id}/default_avatar`;
+      profilePicture.src = user.pfp;
       username.style.color = message.masquerade.colour;
     }
   }
@@ -525,11 +570,13 @@ function renderUsername(message, user, member) {
     loadProfile(user.id);
   };
 
-  userData.appendChild(profilePicture);
+  userData.appendChild(pleaseNoMoreSuffering);
+  pleaseNoMoreSuffering.appendChild(profilePicture);
   userData.appendChild(username);
   userData.appendChild(masqueradeBadge);
+  userData.appendChild(botBadge);
   if (settings.visual.showPresenceIconsInChat)
-    userData.appendChild(presenceIcon);
+    pleaseNoMoreSuffering.appendChild(presenceIcon);
 
   return userData;
 }
@@ -579,7 +626,8 @@ function renderAttachments(message) {
       tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
     }
     tmpAttachment.type = tmpAttchmntAttrs.content_type;
-    attachments.appendChild(tmpAttachment);
+          tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
+          attachments.appendChild(tmpAttachment);
   });
   return attachments;
 }
@@ -615,10 +663,11 @@ async function parseMessage(message) {
     user = await userLookup(message.author);
   }
 
-  if (message.system) {
-    messageContent.textContent = message.system.type;
+  if (message.system || message.author === "00000000000000000000000000") {
+    messageContent.textContent =
+      storage.language.messages.system[message.system.type];
 
-    messageContainer.appendChild(renderUsername(message));
+    messageContainer.appendChild(renderUsername(message, user, {}));
     messageContainer.appendChild(messageContent);
     return messageDisplay;
   } else {

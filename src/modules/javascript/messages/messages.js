@@ -11,6 +11,7 @@
  * @returns {Array} List the messages that are fetched
  */
 async function getNewMessages(id, startingMessage = undefined) {
+  debugInfo("Getting messages");
   let messagesContainer = document.querySelector("#messagesContainer");
   const placeholder = await fetchResource(
     `channels/${id}/messages?include_users=true&${
@@ -73,9 +74,11 @@ async function getNewMessages(id, startingMessage = undefined) {
  * @returns {null} Doesn't return
  */
 async function getMessages(id) {
+  state.homeScreen = false;
   document.querySelector(".replying-container").replaceChildren();
   document.querySelector("#typingBar").replaceChildren();
   document.querySelector("#typingBar").hidden = true;
+  correctionsContainer.replaceChildren();
 
   const uploadsBarContainer = document.querySelector("#uploadsBarContainer");
 
@@ -83,23 +86,30 @@ async function getMessages(id) {
   uploadsBarContainer.hidden = true;
   state.messageMods.attachments.length = 0;
 
+  clearMessages(id);
+
   if (!checkPermission(id, "SendMessage")) {
-    input.value = "You don't have permission to send messages in this channel";
+    input.value = formatTranslationKey(
+      storage.language.messages.inputField.permissionDeniedText,
+      "channel",
+      `#${cacheLookup("channels", state.active.channel).name}`
+    );
     input.readOnly = true;
   } else {
+    input.placeholder = formatTranslationKey(
+      storage.language.messages.inputField.sendMessageText,
+      "channel",
+      `#${cacheLookup("channels", state.active.channel).name}`
+    );
     input.value = "";
     input.readOnly = false;
   }
 
-  clearMessages(id);
   let [messages, unread] = await getNewMessages(id);
 
   //Wait for images to start loading
   //if (!unread)
-  // TODO: re-scroll once images load
-  setTimeout(() => {
-    scrollChatToBottom();
-  }, 200);
+  scrollChatToBottom();
 
   fetch(
     `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
@@ -117,26 +127,10 @@ async function getMessages(id) {
  * @returns {null} Doesn't return
  */
 async function sendMessage() {
-  if (state.messageSending) return;
+  if (state.messageSending || !input.value) return;
 
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
-
-  //Checking for valid pings, and replacing with an actual ping
-  // TODO: Make this work
-  /*
-  if (message.search(/@[^ ]*) != -1) {
-  //  let pings = /@[^ ]*[Symbol.match](message);
-    for (let i = 0; i < pings.length; i++) {
-      if (await userLookup(pings[i].replace("@", "")) !== undefined) {
-        message = message.replace(
-          pings[i],
-          `<@${await userLookup(pings[i].replace("@", ""))[0]}>`
-        );
-      }
-    }
-  }
-  */
 
   state.messageSending = true;
   messageContainer.classList.add("messageSending");
@@ -145,23 +139,41 @@ async function sendMessage() {
   let attachmentIDs;
   if (state.messageMods.attachments) attachmentIDs = await uploadToAutumn();
 
+  state.messageMods.masquerade = {
+    colour: document.querySelector("#masqColour").value,
+    avatar: document.querySelector("#masqPfp").value,
+    name: document.querySelector("#masqName").value,
+  };
+
+  state.messageMods.embed = {
+    title: document.querySelector("#embedTitle").value,
+    description: document.querySelector("#embedDesc").value,
+    media: document.querySelector("#embedMedia").value,
+    colour: document.querySelector("#embedColour").value,
+    url: document.querySelector("#embedURL").value,
+  };
+
+  ["masquerade", "embed"].forEach((messageMod) => {
+    Object.keys(state.messageMods[messageMod]).forEach((key) => {
+      if (!state.messageMods[messageMod][key]) {
+        delete state.messageMods[messageMod][key];
+      }
+    });
+  });
+
   let body = state.messageMods.sendRawJSON
     ? message
     : {
         content: message,
         replies: state.messageMods.replies,
         masquerade: state.messageMods.masquerade,
-        embeds: state.messageMods.embeds,
+        embeds: [state.messageMods.embed],
         attachments: attachmentIDs,
       };
 
-  if (!state.messageMods.masquerade.name) body.masquerade = null;
-
-  if (
-    !state.messageMods.embed.title.value ||
-    !state.messageMods.embed.title.value
-  )
-    body.embed = null;
+  if (!state.messageMods.masquerade.name) delete body.masquerade;
+  if (!state.messageMods.embed.title || !state.messageMods.embed.description)
+    delete body.embeds;
 
   await fetch(
     state.messageMods.editing === ""
@@ -183,6 +195,7 @@ async function sendMessage() {
 
       if (state.messageMods.editing) {
         state.messageMods.editing = "";
+        document.querySelector("#editingTag").hidden = true;
         return;
       }
       fetch(
@@ -195,6 +208,8 @@ async function sendMessage() {
     });
 
   messageContainer.value = "";
+  state.messageMods.masquerade = {};
+  state.messageMods.embed = {};
   state.messageMods.replies.length = 0;
   state.messageMods.attachments.length = 0;
 

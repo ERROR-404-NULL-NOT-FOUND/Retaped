@@ -20,13 +20,13 @@ async function loadProfile(userID) {
   let bio = document.querySelector("#bio");
   let roleContainer = document.querySelector("#roleContainer");
 
-  username.textContent = '';
-  displayName.textContent = '';
-  badgesContainer.textContent = '';
-  status.textContent = '';
-  bio.textContent = '';
-  profilePicture.src = '';
-  presenceIcon.src = '';
+  username.textContent = "";
+  displayName.textContent = "";
+  badgesContainer.textContent = "";
+  status.textContent = "";
+  bio.textContent = "";
+  profilePicture.src = "";
+  presenceIcon.src = "";
 
   const tmpUserProfile = await fetchResource(`users/${userID}/profile`);
   const memberData = cacheLookup("members", userID, state.active.server);
@@ -36,17 +36,14 @@ async function loadProfile(userID) {
   displayName.textContent = user.displayName;
   badgesContainer.replaceChildren();
 
-  if (user.pfp) {
-    profilePicture.src = `${settings.instance.autumn}/avatars/${user.pfp._id}`;
-  } else {
-    profilePicture.src = `${settings.instance.delta}/users/${user._id}/default_avatar`;
-  }
+  profilePicture.src = user.pfp;
 
   //Loki TODO: Style
   if (user.status) {
-    if (user.status.text)
-      status.textContent = user.status.text;
-    presenceIcon.src = `../assets/${user.status.presence ? user.status.presence : "Offline"}.svg`;
+    if (user.status.text) status.textContent = user.status.text;
+    presenceIcon.src = `../assets/images/presence/${
+      user.status.presence ? user.status.presence : "Offline"
+    }.svg`;
   }
 
   if (user.badges) {
@@ -56,7 +53,7 @@ async function loadProfile(userID) {
         let badgeContainer = document.createElement("div");
         let badgeImg = document.createElement("img");
 
-        badgeImg.src = `${settings.instance.assets}${storage.badges[badge]}`;
+        badgeImg.src = `${settings.instance.assets}${storage.badges[badge].asset}`;
         badgeContainer.classList.add("badge", badge);
 
         badgeContainer.appendChild(badgeImg);
@@ -77,7 +74,11 @@ async function loadProfile(userID) {
   if (memberData.roles)
     for (let i = 0; i < memberData.roles.length; i++) {
       const role = document.createElement("span");
-      const roleData = cacheLookup("roles", memberData.roles[i], state.active.server);
+      const roleData = cacheLookup(
+        "roles",
+        memberData.roles[i],
+        state.active.server
+      );
 
       role.classList.add("tag");
       role.textContent = roleData["name"];

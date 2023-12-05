@@ -22,7 +22,7 @@ const input = document.querySelector("#input");
 const langSelect = document.querySelector("#langSelect");
 
 langSelect.onchange = () => {
-  settings.visual.language = langSelect.options[langSelect.selectedIndex].value; //Set language to selection
+  settings.visual.language.value = langSelect.options[langSelect.selectedIndex].value; //Set language to selection
   setSettings();
   updateLanguage();
 };
@@ -59,11 +59,11 @@ bonfireButton.onclick = () => {
 };
 
 refreshChatButton.onclick = () => {
-  getMessages(activeChannel);
+  getMessages(state.active.channel);
 };
 
 sendJSONbutton.onclick = () => {
-  sendRawJSON = !sendRawJSON;
+  state.messageMods.sendRawJSON = !state.messageMods.sendRawJSON;
 };
 
 sendMessageButton.onclick = () => {

@@ -18,7 +18,11 @@
   },
 
   "visual": {
-    "language": "english",
+    "language": {
+      "value": "english",
+      "name": "Language",
+      "description": "Your preferred language. Please note that languages other than English are not maintained by the primary maintainer, so they may be outdated"
+    },
     "legacyStyleSheet": {
       "value": false,
       "name": "Legacy style sheet",
@@ -46,7 +50,7 @@
     "bonfire": "wss://ws.revolt.chat",
     "autumn": "https://autumn.revolt.chat",
     "january": "https://jan.revolt.chat",
-    "assets": "Removed due to licencing",
+    "assets": "https://app.revolt.chat",
     "legacyEmotes": "https://dl.insrt.uk",
     "emotes": "https://static.revolt.chat/emoji/mutant/"
   }

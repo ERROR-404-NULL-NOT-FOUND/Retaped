@@ -10,32 +10,58 @@
 async function loadDMs() {
   try {
     const channelContainer = document.querySelector("#channelsContainer");
-    const userCat = document.createElement("summary");
+    const infoCatText = document.createElement("summary");
+    const userCatText = document.createElement("summary");
+    const infoCat = document.createElement("details");
+    const userCat = document.createElement("details");
+    const savedMessagesButton = document.createElement("button");
+    const homeButton = document.createElement("button");
 
     state.active.channel = "";
+    infoCatText.textContent = storage.language.dms.infoCat;
+    userCatText.textContent = storage.language.dms.description;
 
-    userCat.classList.add("categoryText");
+    userCatText.classList.add("category-text");
+    userCat.classList.add("channel-category");
+    infoCatText.classList.add("category-text");
+    infoCat.classList.add("channel-category");
+    infoCat.open = true;
+    userCat.open = true;
 
     document.querySelector("#serverBG").src = "";
 
     document.querySelector("#serverName").innerText =
       storage.language.dms.description;
-    document.querySelector("#channelName").innerText = "";
+    document.querySelector("#channelName").innerText =
+      storage.language.dms.description;
+    document.querySelector("#channelDesc").innerText =
+      storage.language.channels.noDesc;
     channelContainer.replaceChildren();
     clearMessages();
 
-    await fetchResource(`users/${state.connection.userProfile._id}/dm`).then(
-      (response) => {
-        const dmButton = document.createElement("button");
+    savedMessagesButton.textContent = storage.language.dms.savedMessages;
+    savedMessagesButton.classList.add("channel");
+    savedMessagesButton.classList.add("saved-messages");
 
-        dmButton.textContent = storage.language.dms.savedMessages;
-        dmButton.classList.add("channel");
-        dmButton.onclick = () => {
+    homeButton.textContent = storage.language.homeScreen.home;
+    homeButton.classList.add("channel");
+    homeButton.classList.add("home-button");
+    homeButton.onclick = loadHome;
+
+    infoCat.appendChild(infoCatText);
+    infoCat.appendChild(savedMessagesButton);
+    infoCat.appendChild(homeButton);
+
+    userCat.appendChild(userCatText);
+
+    channelContainer.appendChild(infoCat);
+    channelContainer.appendChild(userCat);
+
+    fetchResource(`users/${state.connection.userProfile._id}/dm`).then(
+      (response) => {
+        savedMessagesButton.onclick = () => {
           getMessages(response._id);
         };
-
-        dmButton.id = response._id;
-        userCat.appendChild(dmButton);
       }
     );
 
@@ -44,11 +70,17 @@ async function loadDMs() {
       if (!["DirectMessage", "Group"].includes(cache.channels[i].type))
         continue;
 
+      const dmButtonContainer = document.createElement("div");
       const dmButton = document.createElement("button");
-      dmButton.classList.add("channel");
+      const dmButtonAvatar = document.createElement("img");
+
+      dmButtonContainer.classList.add("channel");
 
       if (cache.channels[i].type === "Group") {
         dmButton.textContent = cache.channels[i].name;
+        dmButtonAvatar.src = cache.channels[i].icon
+          ? `${settings.instance.autumn}/icons/${cache.channels[i].icon._id}`
+          : `${settings.instance.legacyEmotes}/projects/revolt/group.png`;
       } else {
         let user;
 
@@ -60,25 +92,88 @@ async function loadDMs() {
           user = await userLookup(cache.channels[i].recipients[0]);
         }
 
-        dmButton.textContent = `@${user.username}#${user.discriminator}`;
+        dmButton.textContent = `${user.username}#${user.discriminator}`;
+        dmButtonAvatar.src = user.pfp;
       }
-
-      dmButton.onclick = () => {
+      const onClick = () => {
         getMessages(cache.channels[i].id);
         document.querySelector("#channelName").innerText = dmButton.textContent;
         document.querySelector("#channelDesc").innerText.length = 0;
       };
+      dmButton.onclick = onClick;
+      dmButtonAvatar.onclick = onClick;
 
       dmButton.id = cache.channels[i].id;
-      userCat.appendChild(dmButton);
+      dmButtonContainer.appendChild(dmButtonAvatar);
+      dmButtonContainer.appendChild(dmButton);
+      userCat.appendChild(dmButtonContainer);
     }
-    channelContainer.appendChild(userCat);
   } catch (error) {
     showError(error);
     return 1;
   }
 }
 
+function renderChannel(channelID, id) {
+  const currentChannel = cacheLookup("channels", channelID);
+  const channel = document.createElement("button");
+  const channelText = document.createElement("span");
+  const channelIcon = document.createElement("img");
+
+  if (currentChannel.type !== "TextChannel") return false;
+
+  channel.classList.add("channel");
+
+  channel.onclick = () => {
+    if (state.active.server !== id) {
+      fetchResource(
+        `servers/${id}/members/${state.connection.userProfile._id}`
+      ).then((member) => {
+        if (cacheLookup("members", member._id.user, id) === 1)
+          cache.servers[cacheIndexLookup("servers", id)].members.push(member);
+      });
+    }
+
+    if (state.active.server !== id) getChannels(id);
+
+    state.active.server = id;
+    state.active.channel = currentChannel.id;
+    getMessages(currentChannel.id);
+    document.querySelector("#channelName").innerText = currentChannel.name;
+
+    //Channel description setting; the expression checks whether or not the channel has a desc
+    (async () => {
+      console.log(await parseMessageContent(currentChannel.desc));
+      document.querySelector("#channelDesc").innerHTML = currentChannel.desc
+        ? await parseMessageContent({ content: currentChannel.desc }).innerHTML
+        : storage.language.channels.noDesc;
+    })();
+  };
+
+  channel.id = currentChannel.id;
+  channelText.innerText = currentChannel.name;
+
+  if (currentChannel.icon) {
+    channelIcon.src = `${settings.instance.autumn}/icons/${currentChannel.icon}`;
+    channel.appendChild(channelIcon);
+  } else channelText.innerText = "# " + channelText.innerText;
+
+  if (
+    state.unreads.unread.channels.indexOf(currentChannel.id) !== -1 &&
+    state.unreads.muted.channels.indexOf(currentChannel.id) === -1
+  ) {
+    if (state.unreads.mentioned.channels.indexOf(currentChannel.id) !== -1)
+      channel.classList.add("mentioned-channel");
+    else channel.classList.add("unread-channel");
+  }
+
+  channel.appendChild(channelText);
+
+  //Add the muted-channel class to it if it's muted
+  if (state.unreads.muted.channels.indexOf(currentChannel.id) !== -1)
+    channel.classList.add("muted-channel");
+  return channel;
+}
 /*
  * Renders channels from the cache
  * @return {Number} Error code; should never be 1
@@ -88,6 +183,15 @@ async function getChannels(id) {
     const channelContainer = document.querySelector("#channelsContainer");
     const server = cacheLookup("servers", id);
     channelContainer.replaceChildren();
+
+    //Loki TODO: styling
+    if (server.background)
+      document.querySelector(
+        "#serverBG"
+      ).src = `${settings.instance.autumn}/banners/${server.background._id}?width=480`;
+    else document.querySelector("#serverBG").src = "";
+
+    document.getElementById("serverName").innerText = server.name;
 
     let addedChannels = [];
     if (server.categories) {
@@ -102,123 +206,42 @@ async function getChannels(id) {
         categoryText.classList.add("category-text");
         categoryContainer.appendChild(categoryText);
 
-        if (category.channels) {
-          for (let j = 0; j < category.channels.length; j++) {
-            const currentChannel = cacheLookup(
-              "channels",
-              category.channels[j]
-            );
-            const channel = document.createElement("button");
-            const channelText = document.createElement("span");
+        try {
+          category.channels.forEach((channel) => {
+            //TODO: Ask Inderix for a VC icon
+            const renderedChannel = renderChannel(channel, id);
 
-            if (currentChannel.type !== "TextChannel") continue;
-
-            addedChannels.push(currentChannel.id);
-
-            channel.classList.add("channel");
-
-            channel.onclick = () => {
-              if (state.active.server !== id) {
-                fetchResource(
-                  `servers/${id}/members/${state.connection.userProfile._id}`
-                ).then((member) => {
-                  if (cacheLookup("members", member._id.user, id) === 1)
-                    cache.servers[cacheIndexLookup("servers", id)].members.push(
-                      member
-                    );
-                });
-              }
-
-              state.active.server = id;
-              state.active.channel = currentChannel.id;
-              getMessages(currentChannel.id);
-              document.querySelector("#channelName").innerText =
-                currentChannel.name;
-
-              //Channel description setting; the expression checks whether or not the channel has a desc
-              document.querySelector("#channelDesc").innerText =
-                currentChannel.desc
-                  ? currentChannel.desc
-                  : "This channel doesn't have a description yet";
-            };
-
-            channel.id = currentChannel.id;
-            channelText.innerText = currentChannel.name;
-
-            if (
-              state.unreads.unread.channels.indexOf(currentChannel.id) !== -1 &&
-              state.unreads.muted.channels.indexOf(currentChannel.id) === -1
-            ) {
-              if (
-                state.unreads.mentioned.channels.indexOf(currentChannel.id) !==
-                -1
-              )
-                channel.classList.add("mentioned-channel");
-              else channel.classList.add("unread-channel");
-            }
-
-            channel.appendChild(channelText);
-
-            //Add the muted-channel class to it if it's muted
-            if (state.unreads.muted.channels.indexOf(currentChannel.id) !== -1)
-              channel.classList.add("muted-channel");
-            categoryContainer.appendChild(channel);
-          }
+            if (renderedChannel) categoryContainer.appendChild(renderedChannel);
+            addedChannels.push(channel);
+          });
+          channelContainer.appendChild(categoryContainer);
+        } catch (error) {
+          showError(error);
         }
-
-        channelContainer.appendChild(categoryContainer);
       });
     }
 
-    const defaultCategory = document.createElement("details");
-    const defaultCategoryText = document.createElement("summary");
+    if (server.channels.length !== addedChannels.length) {
+      const defaultCategory = document.createElement("details");
+      const defaultCategoryText = document.createElement("summary");
 
-    defaultCategory.open = true;
-    defaultCategory.classList.add("channel-category");
-    defaultCategoryText.textContent = "Uncategorised";
-    defaultCategoryText.classList.add("categoryText");
-    defaultCategory.appendChild(defaultCategoryText);
+      defaultCategory.open = true;
+      defaultCategory.classList.add("channel-category");
+      defaultCategoryText.textContent = "Uncategorised"; //TODO: translation string
+      defaultCategoryText.classList.add("categoryText");
+      defaultCategory.appendChild(defaultCategoryText);
 
-    for (let i = 0; i < cache.channels.length; i++) {
-      // Continue if: the current channel isn't in the server trying to be loaded OR the channel isn't a text channel OR if it's already been added
-      if (
-        cache.channels[i].server !== id ||
-        cache.channels[i].type !== "TextChannel" ||
-        addedChannels.indexOf(cache.channels[i].id) !== -1
-      )
-        continue;
+      server.channels.forEach((channel) => {
+        if (addedChannels.indexOf(channel) !== -1) return;
+        const renderedChannel = renderChannel(channel, id);
+        if (renderedChannel) defaultCategory.appendChild(renderedChannel);
+      });
 
-      const currentChannel = cache.channels[i];
-
-      addedChannels.push(currentChannel.id);
-
-      const channel = document.createElement("button");
-      channel.classList.add("channel");
-
-      for (let i = 0; i < state.unreads.unreadList.length; i++) {
-        if (state.unreads.unreadList[i]["_id"].channel === currentChannel.id) {
-          if (
-            state.unreads.muted.channels.indexOf(currentChannel.id) === -1 &&
-            currentChannel.lastMessage > state.unreads.unreadList[i].lastMessage
-          )
-            channel.style.fontWeight = "bold";
-
-          break;
-        }
-      }
-
-      let channelText = document.createElement("span");
-      channelText.id = currentChannel.id;
-      channelText.innerText = currentChannel.name;
-
-      channel.appendChild(channelText);
-      defaultCategory.appendChild(channel);
+      channelContainer.insertBefore(
+        defaultCategory,
+        channelContainer.children[0]
+      );
     }
-
-    channelContainer.insertBefore(
-      defaultCategory,
-      channelContainer.children[0]
-    );
   } catch (error) {
     showError(error);
     return 1;

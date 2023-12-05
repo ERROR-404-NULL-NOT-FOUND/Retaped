@@ -53,15 +53,6 @@ async function getServers() {
 
     server.onclick = () => {
       getChannels(cache.servers[serverIndex].id);
-
-      //Loki TODO: styling
-      if (cache.servers[serverIndex].background)
-        document.querySelector(
-          "#serverBG"
-        ).src = `${settings.instance.autumn}/banners/${serverInfo.background._id}?width=480`;
-      else document.querySelector("#serverBG").src = "";
-
-      document.getElementById("serverName").innerText = serverInfo.name;
     };
 
     if (serverInfo.channels) {
@@ -109,7 +100,6 @@ async function getServers() {
     })
   ) {
     getServers();
-    saveSyncSettings();
   }
 }
 

@@ -147,23 +147,20 @@ async function updateUnreads(
   if (unread) {
     if (state.unreads.unread.channels.indexOf(channelID) === -1)
       state.unreads.unread.channels.push(channelID);
-  } else
+
+    if (state.unreads.mentioned.channels.indexOf(channelID) === -1 && mentioned)
+      state.unreads.mentioned.channels.push(channelID);
+  } else {
     state.unreads.unread.channels.splice(
       state.unreads.unread.channels.indexOf(channelID),
       1
     );
 
-  if (state.unreads.mentioned.channels.indexOf(channelID) !== -1)
-    state.unreads.mentioned.channels.splice(
-      state.unreads.mentioned.channels.indexOf(channelID),
-      1
-    );
-
-  if (mentioned) {
-    if (unread) {
-      if (state.unreads.mentioned.channels.indexOf(channelID) === -1)
-        state.unreads.mentioned.channels.push(channelID);
-    }
+    if (state.unreads.mentioned.channels.indexOf(channelID) !== -1)
+      state.unreads.mentioned.channels.splice(
+        state.unreads.mentioned.channels.indexOf(channelID),
+        1
+      );
   }
 
   for (let i = 0; i < state.unreads.unreadList.length; i++) {
@@ -173,28 +170,6 @@ async function updateUnreads(
     }
   }
   return -1;
-}
-
-/**
- * Macro for showing error codes
- * @param {Object} error Object of the error to display
- * @returns {none} Doesn't return
- */
-async function showError(error) {
-  let errorContainer;
-  if (state.errorTimeout) clearTimeout(state.errorTimeout);
-
-  if (!state.connection.token)
-    errorContainer = document.querySelector("#loginErrorContainer");
-  else errorContainer = document.querySelector("#errorContainer");
-
-  errorContainer.style.display = "block";
-
-  errorContainer.innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
-
-  state.errorTimeout = setTimeout(() => {
-    errorContainer.style.display = "none";
-  }, 10000); //10 seconds
 }
 
 /**
@@ -280,7 +255,7 @@ function updateUser(dataObject) {
         document
           .querySelectorAll(`#USRNM-${userID} > .presence-icon`)
           .forEach((element) => {
-            element.src = `../assets/${dataObject.data.status.presence}.svg`;
+            element.src = `../assets/images/presence/${dataObject.data.status.presence}.svg`;
           });
         break;
       }
@@ -321,7 +296,6 @@ function updateUser(dataObject) {
           document
             .querySelectorAll(`#USRNM-${userID} > .chat-pfp`)
             .forEach((element) => {
-              console.log(element);
               element.src = `${settings.instance.autumn}/avatars/${dataObject.data.avatar._id}`;
             });
         }
@@ -412,94 +386,50 @@ function updateUser(dataObject) {
   }
 }
 
+function formatTranslationKey(input, key, replacement) {
+  return input.replace(`{{${key}}}`, replacement);
+}
+
+//Note: Copy-pasted from stackoverflow, link: https://stackoverflow.com/questions/47062922/
+function* deepKeys(t, pre = []) {
+  if (Array.isArray(t)) return;
+  else if (Object(t) === t)
+    for (const [k, v] of Object.entries(t)) yield* deepKeys(v, [...pre, k]);
+  else yield pre.join(".");
+}
+
+function valueOfDeepKey(keys, object) {
+  val = object[keys[0]];
+  if (Object(val) === val) {
+    keys.shift();
+    return valueOfDeepKey(keys, val);
+  } else return val;
+}
+
 async function updateLanguage() {
-  await fetch(`../assets/languages/${settings.visual.language}.json`)
+  await fetch(`../assets/languages/${settings.visual.language.value}.json`)
     .then((res) => res.json())
     .then((res) => (storage.language = res));
-  let language = storage.language;
-  let fieldsets = screens.login.querySelectorAll("fieldset");
-  let loginFieldset = fieldsets[0];
-  let preferencesFieldset = fieldsets[1];
-  let loginMethodPrompt = loginFieldset.querySelector("legend");
-  let emailAndPasswd = loginFieldset.querySelector("label");
-  let tokenPrompt = loginFieldset
-    .querySelectorAll("details")[0]
-    .querySelector("summary");
-  let advancedOptions = loginFieldset.querySelectorAll("details")[1];
-  let advancedOptionsSummary = advancedOptions.querySelector("summary");
-  let embedTitle = document.querySelector("#embedTitle");
-  let embedDescription = document.querySelector("#embedDesc");
-  let embedMedia = document.querySelector("#embedMedia");
-  let embedColour = document.querySelector("#embedColour");
-  let embedUrl = document.querySelector("#embedURL");
-  let embedIconURL = document.querySelector("#embedIconURL");
-  let masqName = document.querySelector("#masqName");
-  let masqColour = document.querySelector("#masqColour");
-  let masqAvatar = document.querySelector("#masqPfp");
-  let closeSettingsBtn = document.querySelector("#closeSettingsBtn");
-  let rememberMe = document.querySelector("#toggleRememberLabel");
-  let toggleThemeLabel = document.querySelector("#toggleThemeLabel");
-  let customInstance = document.querySelector("#customInstance");
-  let customLegacyEmotes = document.querySelector("#customLegacyEmotes");
-  let customAssetsHost = document.querySelector("#customAssets");
+  if (storage.language.config["text-direction"] === "RL") {
+    let sheet = ".translatable {direction:rtl;}";
+    let style = document.createElement("style");
+    style.innerText = sheet;
 
-  /*
-  Input fields
-  */
-
-  //Login field
-  // Login creds
-  loginData.email.placeholder = language.login.emailPlaceholder;
-  loginData.password.placeholder = language.login.passwdPlaceholder;
-  loginData.mfa.placeholder = language.login.mfaPlaceholder;
-  loginData.token.placeholder = language.login.tokenPlaceholder;
-
-  // Advanced options
-  customInstance.placeholder = language.settings.names.delta;
-  customLegacyEmotes.placeholder = language.settings.names.legacyEmotes;
-  customAssetsHost.placeholder = language.settings.names.assets;
-
-  //Toolbar inputs
-  // Embeds
-  embedUrl.placeholder = language.toolbar.embedInput.url;
-  embedDescription.placeholder = language.toolbar.embedInput.desc;
-  embedMedia.placeholder = language.toolbar.embedInput.media;
-  embedIconURL.placeholder = language.toolbar.embedInput.embedIconUrl;
-  embedColour.placeholder = language.toolbar.embedInput.colour;
-  embedTitle.placeholder = language.toolbar.embedInput.title;
-
-  //Masquerades
-  masqName.placeholder = language.toolbar.masqueradeInput.name;
-  masqColour.placeholder = language.toolbar.masqueradeInput.colour; //TODO: use a colour picker for this
-  masqAvatar.placeholder = language.toolbar.masqueradeInput.avatar;
-
-  /*
-  Buttons and/or static UI
-  */
-  //Login
-  emailAndPasswd.innerText = language.login.emailPasswdPrompt;
-  rememberMe.innerText = language.settings.names.rememberMe;
-  toggleThemeLabel.innerText = language.settings.names.revoltTheme;
-  tokenPrompt.innerText = language.login.tokenPrompt;
-  loginMethodPrompt.innerText = language.login.loginMethodPrompt;
-  advancedOptionsSummary.innerText = language.login.advancedOptsPrompt;
-  loginButton.innerText = language.login.loginBtn;
-
-  //Settings
-  closeSettingsBtn.innerText = language.settings.closeBtn;
-  visualSetting.innerText = language.settings.categories.visual;
-  behaviourSetting.innerText = language.settings.categories.behaviour;
-  profileSetting.innerText = language.settings.categories.profile;
-
-  //Toolbar
-  bonfireButton.innerText = language.toolbar.websocket;
-  refreshChatButton.innerText = language.toolbar.refresh;
-  embedButton.innerText = language.toolbar.embedInput.buttonContent;
-  masqButton.innerText = language.toolbar.masqueradeInput.buttonContent;
-  sendJSONbutton.innerText = language.toolbar.json;
-
-  //Misc
-  openDMsbutton.innerText = language.dms.buttonContent;
+    document.head.appendChild(style);
+  }
+  Array.from(deepKeys(storage.language)).forEach((translationKey) => {
+    if ((element = document.querySelector(`*[name="${translationKey}"]`))) {
+      let value = valueOfDeepKey(translationKey.split("."), storage.language);
+      switch (element.tagName) {
+        case "INPUT":
+          element.placeholder = value;
+        default:
+          element.innerText = value;
+      }
+    } else {
+      debugInfo(`Translatable element not found: ${translationKey}`);
+    }
+  });
 }
 
 //@license-end

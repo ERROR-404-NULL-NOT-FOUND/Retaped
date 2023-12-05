@@ -7,9 +7,10 @@
 const replyingContainer = document.querySelector(".replying-container");
 const inputContainer = document.querySelector("#input");
 
-window.addEventListener("keydown", (event) => {
+input.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "Enter":
+      correctionsContainer.replaceChildren();
       if (!event.shiftKey) {
         event.preventDefault();
         sendMessage();
@@ -23,19 +24,35 @@ window.addEventListener("keydown", (event) => {
       } else {
         state.messageMods.editing = "";
         inputContainer.value = "";
+        document.querySelector("#editingTag").hidden = true;
       }
       break;
+
     case "Tab": {
       event.preventDefault();
       fill();
+      break;
     }
+
+    case "ArrowUp": {
+      if (input.value.length !== 0) break;
+      cache.messages.findLast((message) => {
+        if (message.author !== state.connection.userProfile._id) return;
+        state.messageMods.editing = message.id;
+        document.querySelector("#input").value = message.content;
+
+        return true;
+      });
+    }
+
+    default:
+      break;
   }
   return;
 });
 
 inputContainer.addEventListener("keyup", (event) => {
   if (["Enter", "Escape"].indexOf(event.key) === -1) engine();
-
 });
 
 //@license-end

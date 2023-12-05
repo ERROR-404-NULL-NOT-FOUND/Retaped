@@ -9,14 +9,15 @@
 const screens = {
   login: document.querySelector(".login-screen"),
   app: document.querySelector("#app"),
-}
+};
 
 const loginData = {
   token: document.querySelector("#token"),
   email: document.querySelector("#email"),
   password: document.querySelector("#password"),
   mfa: document.querySelector("#mfa"),
-}
+  instanceURL: document.querySelector("#customInstance"),
+};
 
 //Local settings; saved to localstorage
 var settings;
@@ -25,11 +26,13 @@ var storage = {
   badges: {},
   emojis: {},
   permissions: {},
-  languages: {},
+  language: {},
+  packageSettings: {}
 };
 
 var state = {
   errorTimeout: [],
+  homeScreen: false,
   messageMods: {
     sendRawJSON: false,
     replies: [],
@@ -87,13 +90,13 @@ var state = {
     mentioned: {
       channels: [],
       servers: [],
-    }
-  }
-}
+    },
+  },
+};
 
 var assets = {
   emojis: {},
   badges: {},
-}
+};
 
 //@license-end

@@ -1,4 +1,8 @@
 {
+  "config": {
+    "text-direction": "LR",
+    "maintainers": ["error404nullnotfound#4042"]
+  },
   "login": {
     "loginMethodPrompt": "Login method",
     "emailPasswdPrompt": "Use your Revolt email and password",
@@ -30,7 +34,8 @@
       "delta": "Revolt API endpoint",
       "assets": "Webserver hosting badge assets",
       "legacyEmotes": "Webserver hosting custom emote assets",
-      "emotes": "Webserver hosting emote assets"
+      "emotes": "Webserver hosting emote assets",
+      "language": "Language"
     },
     "descriptions": {
       "dataSaver": "Disables attachment & embed image loading",
@@ -40,6 +45,7 @@
       "compactMode": "UNIMPLEMENTED Similar to Discord's compact mode",
       "revoltTheme": "Loads the colour scheme data set by Revite",
       "showPresenceIconsInChat": "Shows a user's presence next to their username in channels",
+      "language": "Your preferred language. Please note that languages other than English are not maintained by the primary maintainer, so they may be outdated",
       "profile": {
         "previewLabel": "Profile preview",
         "editorLabel": "Profile editor",
@@ -47,11 +53,19 @@
       }
     }
   },
+  "channels": {
+    "noDesc": "This channel doesn't have a description yet"
+  },
   "messages": {
+    "inputField": {
+      "sendMessageText": "Send a message in {{channel}}",
+      "permissionDeniedText": "You do not have permission to send messages in {{channel}}",
+      "editingText": "Editing message"
+    },
     "invite": {
       "joinText": "Join",
       "alreadyJoinedText": "Already joined",
-      "memberCountText": "member(s)"
+      "memberCountText": "{{members}} member(s)"
     },
     "contextButtons": {
       "edit": "Edit",
@@ -61,9 +75,27 @@
     "masqueradeBadge": "Masq",
     "botBadge": "Bot",
     "blockedUser": "<Blocked User>",
-    "markerText": "NEW"
+    "markerText": "NEW",
+    "system": {
+      "user_joined": "System: joined",
+      "user_added": "System: added",
+      "user_remove": "System: emoved",
+      "user_left": "System: left",
+      "user_kicked": "System: kicked",
+      "user_banned": "System: banned",
+      "channel_renamed": "System: channel renamed",
+      "channel_description_changed": "System: channel description updated",
+      "channel_icon_changed": "System: channel icon updated",
+      "channel_ownership_changed": "System: channel ownership changed"
+    }
+  },
+  "homeScreen": {
+    "home": "Home",
+    "greeting": "Hiya, welcome to {{logo}}",
+    "unreadMessage": "Here's what you missed"
   },
   "toolbar": {
+    "typingIndicator": " is typing",
     "masqueradeInput": {
       "buttonContent": "Masquerade",
       "name": "Name",
@@ -77,7 +109,6 @@
       "desc": "Description",
       "colour": "Colour",
       "url": "URL",
-      "embedIconUrl": "Icon URL",
       "media": "Media ID (upload to Autumn)"
     },
     "websocket": "Re-establish websocket",
@@ -87,7 +118,8 @@
   "dms": {
     "description": "Direct messages",
     "buttonContent": "DMS",
-    "savedMessages": "Saved messages"
+    "savedMessages": "Saved messages",
+    "infoCat": "Info"
   },
   "connection": {
     "active": "Connected",
