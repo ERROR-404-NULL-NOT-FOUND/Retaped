@@ -149,7 +149,7 @@ async function bonfire() {
             "servers",
             cacheLookup("channels", data.id).server
           ).channels.forEach((channel) => {
-            if (state.unreads.muted.channels.indexOf(channel) !== -1) {
+            if (state.unreads.muted.channels.indexOf(channel) === -1) {
               if (state.unreads.unread.channels.indexOf(channel) !== -1)
                 stillUnread = true;
               if (state.unreads.mentioned.channels.indexOf(channel) !== -1)
