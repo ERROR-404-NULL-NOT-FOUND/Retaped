@@ -1,4 +1,10 @@
 {
+  "config": {
+    "text-direction": "LR",
+    "maintainers": [
+      "amycatgirl#9237"
+    ]
+  },
   "login": {
     "loginMethodPrompt": "Método de inicio de sesión",
     "emailPasswdPrompt": "Usa tu correo electrónico y contraseña de Revolt",
@@ -29,8 +35,10 @@
       "showPresenceIconsInChat": "Mostrar icono de presencia",
       "delta": "Revolt API endpoint",
       "assets": "Servidor que proporciona recursos de insignias",
-      "legacyEmotes": "Servidor que proporciona emotes personalizados obsoletos",
-      "emotes": "Servidor proporciona emotes personalizados"
+      "legacyEmotes": "Servidor que proporciona emoji personalizados (obsoletos)",
+      "emotes": "Servidor proporciona emoji personalizados",
+      "language": "Idioma"
+
     },
     "descriptions": {
       "dataSaver": "Previene que archivos adjuntos a mensajes e/o imágenes incrustadas carguen",
@@ -40,6 +48,7 @@
       "compactMode": "NO IMPLEMENTADO Similar al modo compacto de Discord",
       "revoltTheme": "Carga los colores de tu tema de Revite",
       "showPresenceIconsInChat": "Muestra el estado de presencia al lado del usuario en mensajes",
+      "language": "Su idioma de preferencia. Tenga en cuenta que los idiomas que no son Inglés no son mantenidos por el mantenedor primario y pueden estar desactualizados",
       "profile": {
         "previewLabel": "Previsualización de perfil",
         "editorLabel": "Editor de perfil",
@@ -47,11 +56,19 @@
       }
     }
   },
+  "channels": {
+    "noDesc": "Este canal todavía no tiene una descripción"
+  },
   "messages": {
+    "inputField": {
+      "sendMessageText": "Enviar un mensaje en {{channel}}",
+      "permissionDeniedText": "No tienes permisos para enviar mensajes en {{channel}}",
+      "editingText": "Editando mensaje"
+    },
     "invite": {
-      "joinText": "Unirse al servidor",
+      "joinText": "Unirse",
       "alreadyJoinedText": "Ya te uniste al servidor",
-      "memberCountText": "miembro(s)"
+      "memberCountText": "{{members}} miembro(s)"
     },
     "contextButtons": {
       "edit": "Editar",
@@ -61,7 +78,24 @@
     "masqueradeBadge": "Enmasq",
     "botBadge": "Bot",
     "blockedUser": "<Usuario Bloqueado>",
-    "markerText": "NUEVO"
+    "markerText": "NUEVO",
+    "system": {
+      "user_joined": "Sistema: unido",
+      "user_added": "Sistema: agregado",
+      "user_remove": "Sistema: removido",
+      "user_left": "Sistema: salio",
+      "user_kicked": "Sistema: sacado",
+      "user_banned": "Sistema: banneado",
+      "channel_renamed": "Sistema: Canal renombrado",
+      "channel_description_changed": "Sistema: Descripción del canal ha sido actualizada",
+      "channel_icon_changed": "Sistema: Icono del canal ha sido actualizado",
+      "channel_ownership_changed": "Sistema: El canal tiene un nuevo propietario"
+    }
+  },
+  "homeScreen": {
+    "home": "Inicio",
+    "greeting": "Hola, bienvenido a {{logo}}",
+    "unreadMessage": "Te has perdido de esto"
   },
   "toolbar": {
     "masqueradeInput": {
