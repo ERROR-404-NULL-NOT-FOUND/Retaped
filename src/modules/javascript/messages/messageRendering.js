@@ -626,11 +626,12 @@ function renderAttachments(message) {
       tmpAttachment.href = `${settings.instance.autumn}/attachments/${tmpAttchmntAttrs._id}/${tmpAttchmntAttrs.filename}`;
     }
     tmpAttachment.type = tmpAttchmntAttrs.content_type;
-          tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
-          attachments.appendChild(tmpAttachment);
+    tmpAttachment.height = tmpAttchmntAttrs.metadata.height;
+    attachments.appendChild(tmpAttachment);
   });
   return attachments;
 }
+
 // Parses and renders messages
 // TODO: make this function not be almost 200 lines long
 // Loki TODO: Add blocked message styling

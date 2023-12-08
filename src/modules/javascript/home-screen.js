@@ -20,7 +20,7 @@ function loadHome() {
     const unreadMessageContainer = document.createElement("div");
     const unreadServer = document.createElement("span");
     const lastMessage = document.createElement("div");
-    
+
     unreadServer.textContent = cacheLookup("servers", channelInfo.server).name;
     lastMessage.classList.add("channel-last-message");
     unreadMessageContainer.classList.add("home-unread-message");

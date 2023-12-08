@@ -297,6 +297,7 @@ async function bonfire() {
         }
         break;
       }
+
       case "UserUpdate": {
         debugInfo("User updated", data);
         updateUser(data);

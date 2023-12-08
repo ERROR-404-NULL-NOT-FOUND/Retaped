@@ -2,10 +2,9 @@ details[open] > summary {
   opacity: 1;
 }
 
-summary { 
-  opacity: .6;
-  cursor: pointer; 
+summary {
+  opacity: 0.6;
+  cursor: pointer;
   font-weight: bold;
   user-select: none;
 }
-

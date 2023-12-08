@@ -5,7 +5,7 @@
   color: var(--accent);
   background: color-mix(in srgb, currentColor 30%, var(--servers-bg));
   border-radius: var(--border-radius);
-  padding: .2rem .5rem;
+  padding: 0.2rem 0.5rem;
   font-weight: bold;
 }
 
@@ -13,5 +13,5 @@
   width: 15px;
   height: 15px;
   border-radius: 100%;
-  margin-right: .3rem;
+  margin-right: 0.3rem;
 }

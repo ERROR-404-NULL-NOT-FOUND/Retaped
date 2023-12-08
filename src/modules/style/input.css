@@ -5,7 +5,7 @@ input:not(input[type="checkbox"]) {
   line-height: 200%;
   width: 100%;
   border: none;
-  padding: 0.4rem .5rem;
+  padding: 0.4rem 0.5rem;
   /* margin: .3rem 0; */
 }
 
@@ -20,7 +20,7 @@ textarea {
   line-height: 200%;
   width: 100%;
   border: none;
-  padding: 0.4rem .5rem;
+  padding: 0.4rem 0.5rem;
   /* margin: .3rem 0; */
 }
 

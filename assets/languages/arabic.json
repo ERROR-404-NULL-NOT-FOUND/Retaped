@@ -1,9 +1,7 @@
 {
   "config": {
     "text-direction": "RL",
-    "maintainers": [
-      "vloddot#2349"
-    ]
+    "maintainers": ["vloddot#2349"]
   },
   "login": {
     "loginMethodPrompt": "طريقة تسجيل الدخول",
