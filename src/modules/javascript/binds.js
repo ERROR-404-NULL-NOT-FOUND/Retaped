@@ -22,7 +22,8 @@ const input = document.querySelector("#input");
 const langSelect = document.querySelector("#langSelect");
 
 langSelect.onchange = () => {
-  settings.visual.language.value = langSelect.options[langSelect.selectedIndex].value; //Set language to selection
+  settings.visual.language.value =
+    langSelect.options[langSelect.selectedIndex].value; //Set language to selection
   setSettings();
   updateLanguage();
 };
