@@ -10,14 +10,7 @@
  * @return none
  * */
 async function bonfire() {
-  state.connection.socket = new WebSocket(settings.instance.bonfire);
-
-  state.connection.socket.addEventListener("open", async function (event) {
-    debugInfo("Socket opened; sending creds");
-    state.connection.socket.send(
-      `{"type": "Authenticate","token": "${state.connection.token}"}`
-    );
-  });
+  state.connection.socket = new WebSocket(`${settings.instance.bonfire}/?token=${state.connection.token}`);
 
   state.connection.socket.addEventListener("message", async function (event) {
     let data;
@@ -149,7 +142,7 @@ async function bonfire() {
             "servers",
             cacheLookup("channels", data.id).server
           ).channels.forEach((channel) => {
-            if (state.unreads.muted.channels.indexOf(channel) === -1) {
+            if (state.unreads.muted.channels.indexOf(channel) =z== -1) {
               if (state.unreads.unread.channels.indexOf(channel) !== -1)
                 stillUnread = true;
               if (state.unreads.mentioned.channels.indexOf(channel) !== -1)
