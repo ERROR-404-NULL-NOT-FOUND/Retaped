@@ -207,8 +207,8 @@ async function bonfire() {
         typingUserContainer.id = typingUser.id;
 
         state.currentlyTyping.push(data.user);
-        document.querySelector("#typingBar").appendChild(typingUserContainer);
-        document.getElementById("typingBarContainer").style.display = "flex";
+        typingBar.appendChild(typingUserContainer);
+        typingBar.parentElement.style.display = "flex";
         break;
       }
 
@@ -225,8 +225,8 @@ async function bonfire() {
           );
         }
 
-        if (document.querySelector("#typingBar").children.length === 0)
-          document.getElementById("typingBarContainer").style.display = "none";
+        if (typingBar.children.length === 0)
+          typingBar.parentElement.style.display = "none";
         break;
       }
 
