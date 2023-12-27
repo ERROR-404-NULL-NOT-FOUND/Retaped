@@ -381,6 +381,7 @@ fieldset legend {
 }
 
 .message-attachments img {
+  height: fit-content;
   max-width: 550px;
   max-height: 550px;
   object-fit: contain;
