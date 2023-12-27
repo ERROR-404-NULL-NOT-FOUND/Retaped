@@ -508,16 +508,21 @@ input[type="file"] {
   display: none;
 }
 
-.uploadsBarContainer {
+#uploadsBarContainer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: .7rem;
+  padding: .3rem;
 }
 
 .attachmentContainer {
   display: flex;
-  height: 5em;
-  width: 5em;
-  flex-direction: row;
+  max-width: 10em;
+  flex-direction: column;
+}
+
+.attachmentContainer > img {
+  object-fit: contain;
 }
 
 .unread-marker-container {
