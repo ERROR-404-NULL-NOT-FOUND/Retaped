@@ -116,17 +116,18 @@ function cacheIndexLookup(resource, ID, serverID = undefined) {
  */
 async function fetchResource(target) {
   //Return of false means that it failed
+  try {
   const res = await fetch(`${settings.instance.delta}/${target}`, {
     headers: {
       "x-session-token": state.connection.token,
     },
     method: "GET",
   })
-    .then((res) => res.json())
-    .catch((error) => {
-      showError(error);
-      return false;
-    });
+    .then((res) => res.json());
+  } catch (e) {
+    showError(e);
+    return false;
+  }
   return res;
 }
 

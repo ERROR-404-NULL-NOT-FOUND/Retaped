@@ -4,17 +4,17 @@
  * @returns {none} Doesn't return
  */
 async function showError(error) {
-  let errorContainer;
   if (state.errorTimeout) clearTimeout(state.errorTimeout);
 
   console.error(error);
-  if (!state.connection.token)
-    errorContainer = document.querySelector("#loginErrorContainer");
-  else errorContainer = document.querySelector("#errorContainer");
+  let loginErrorContainer = document.querySelector("#loginErrorContainer");
+  let loggedErrorContainer = document.querySelector("#errorContainer");
 
-  errorContainer.style.display = "block";
+  loggedErrorContainer.style.display = "block";
+  loginErrorContainer.style.display = "block";
 
-  errorContainer.innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
+  loggedErrorContainer.innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
+  loginErrorContainer.innerText = `${error.name}: ${error.message}`; //Only has one child, therefore this is safe
 
   state.errorTimeout = setTimeout(() => {
     errorContainer.style.display = "none";

@@ -27,16 +27,16 @@ async function login() {
     if (tokenResponse.result === "Success") {
       state.connection.token = tokenResponse.token;
     } else {
-      if (tokenResponse.result === "Unauthorized") {
-        localStorage.removeItem("token");
+      if (tokenResponse.type === "InvalidCredentials") {
         showError(tokenResponse);
-      } else {
+        return false;
+      } else if (tokenResponse.result === "MFA"){
         if (!loginData.mfa) {
           showError({
             name: "LoginError",
             message: "MFA token required but not provided",
           });
-          return;
+          return false;
         }
 
         let mfaTokenResponse = await fetch(
@@ -59,13 +59,13 @@ async function login() {
           state.connection.token = mfaTokenResponse.token;
         else {
           showError(mfaTokenResponse);
-          return;
+          return false;
         }
       }
     }
   } else {
     showError({ name: "loginError", message: "no login method provided" });
-    return;
+    return false;
   }
 
   if (
@@ -73,7 +73,7 @@ async function login() {
   ) {
     showError({ name: "loginError", message: "failed validation" });
     localStorage.removeItem("token");
-    return;
+    return false;
   }
 }
 
