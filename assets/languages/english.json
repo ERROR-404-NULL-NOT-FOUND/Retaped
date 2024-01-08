@@ -21,7 +21,8 @@
     "categories": {
       "behaviour": "Behaviour",
       "visual": "Visuals",
-      "profile": "Profile"
+      "profile": "Profile",
+      "info": "Info"
     },
     "names": {
       "dataSaver": "Data saver",

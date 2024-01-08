@@ -127,17 +127,6 @@ async function getMessages(id) {
  * @returns {null} Doesn't return
  */
 async function sendMessage() {
-  if (state.messageSending || !input.value) return;
-
-  const messageContainer = document.getElementById("input");
-  let message = messageContainer.value;
-
-  state.messageSending = true;
-  messageContainer.classList.add("messageSending");
-  messageContainer.readOnly = true;
-
-  let attachmentIDs;
-  if (state.messageMods.attachments) attachmentIDs = await uploadToAutumn();
 
   state.messageMods.masquerade = {
     colour: document.querySelector("#masqColour").value,
@@ -152,6 +141,18 @@ async function sendMessage() {
     colour: document.querySelector("#embedColour").value,
     url: document.querySelector("#embedURL").value,
   };
+  if (state.messageSending || !(input.value || state.messageMods.embed.title)) return;
+
+  const messageContainer = document.getElementById("input");
+  let message = messageContainer.value;
+
+  state.messageSending = true;
+  messageContainer.classList.add("messageSending");
+  messageContainer.readOnly = true;
+
+  let attachmentIDs;
+  if (state.messageMods.attachments) attachmentIDs = await uploadToAutumn();
+
 
   ["masquerade", "embed"].forEach((messageMod) => {
     Object.keys(state.messageMods[messageMod]).forEach((key) => {
@@ -212,6 +213,12 @@ async function sendMessage() {
   state.messageMods.embed = {};
   state.messageMods.replies.length = 0;
   state.messageMods.attachments.length = 0;
+
+  ['embedTitle', 'embedDesc', 'embedMedia', 'embedURL'].forEach( id => {
+    document.getElementById(id).value = "";
+  });
+  embed.hidden = true;
+  
 
   document.querySelector("#uploadsBarContainer").replaceChildren();
   document.querySelector("#uploadsBarContainer").hidden = true;

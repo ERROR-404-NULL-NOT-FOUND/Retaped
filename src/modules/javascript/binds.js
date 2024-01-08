@@ -15,6 +15,7 @@ const openSettingsButton = document.querySelector("#openSettingsBtn");
 const openDMsbutton = document.querySelector("#dms");
 const profileSetting = document.querySelector("#profileSetting");
 const visualSetting = document.querySelector("#visualSetting");
+const infoSetting = document.querySelector("#infoSetting");
 const toolbar = document.querySelector(".toolbar");
 const toolbarBtn = document.querySelector(".toolbar-btn");
 const uploadContainer = document.querySelector("#upload");
@@ -86,6 +87,10 @@ visualSetting.onclick = () => {
 profileSetting.onclick = () => {
   loadSetting("profile");
 };
+
+infoSetting.onclick = () => {
+  loadSetting("info");
+}
 
 modalBackground.forEach((element) => {
   element.onclick = () => {
