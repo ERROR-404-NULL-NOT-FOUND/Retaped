@@ -381,6 +381,7 @@ fieldset legend {
 }
 
 .message-attachments img {
+  height: fit-content;
   max-width: 550px;
   max-height: 550px;
   object-fit: contain;
@@ -508,16 +509,21 @@ input[type="file"] {
   display: none;
 }
 
-.uploadsBarContainer {
+#uploadsBarContainer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: .7rem;
+  padding: .3rem;
 }
 
 .attachmentContainer {
   display: flex;
-  height: 5em;
-  width: 5em;
-  flex-direction: row;
+  max-width: 10em;
+  flex-direction: column;
+}
+
+.attachmentContainer > img {
+  object-fit: contain;
 }
 
 .unread-marker-container {
@@ -577,52 +583,6 @@ input[type="file"] {
   width: 100%;
 }
 
-.embedsContainer {
-  max-width: 20%;
-}
-.embed {
-  border-radius: var(--border-radius);
-  -webkit-border-radius: var(--border-radius);
-  -moz-border-radius: var(--border-radius);
-  -ms-border-radius: var(--border-radius);
-  -o-border-radius: var(--border-radius);
-}
-.embed > .embedMedia {
-  width: 100%;
-  max-width: inherit;
-}
-
-.embedDesc {
-  display: block;
-  width: auto;
-  word-break: break-all;
-  hyphens: manual;
-  -webkit-hyphens: manual;
-  -moz-hyphens: manual;
-  -ms-hyphens: manual;
-  padding-right: 1em;
-  padding-left: 1em;
-}
-.embed > .embed-site-name {
-  display: block;
-  width: inherit;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 1em;
-  padding-left: 1em;
-  font-size: 0.75em;
-}
-.embed > .embedTitle {
-  padding-right: 1em;
-  padding-left: 1em;
-}
-
-.embed > .embed-icon {
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-}
 .css-username {
   background-clip: text;
   -webkit-text-fill-color: transparent;
