@@ -28,7 +28,10 @@ async function login() {
       state.connection.token = tokenResponse.token;
     } else {
       if (tokenResponse.type === "InvalidCredentials") {
-        showError(tokenResponse);
+        showError({
+          name: "LoginError",
+          message: "InvalidCredentials"
+        });
         return false;
       } else if (tokenResponse.result === "MFA"){
         if (!loginData.mfa) {
