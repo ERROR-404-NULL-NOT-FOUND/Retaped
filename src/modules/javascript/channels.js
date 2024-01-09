@@ -145,7 +145,9 @@ function renderChannel(channelID, id) {
     (async () => {
       console.log(await parseMessageContent(currentChannel.desc));
       document.querySelector("#channelDesc").innerHTML = currentChannel.desc
-        ? await parseMessageContent({ content: currentChannel.desc }).innerHTML
+        ? await parseMessageContent({
+          content: currentChannel.desc.split("\n")[0] // This is to prevent channel descriptions from getting in the way
+        }).innerHTML
         : storage.language.channels.noDesc;
     })();
   };
