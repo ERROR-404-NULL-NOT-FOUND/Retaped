@@ -1,0 +1,15 @@
+button {
+  border-radius: var(--border-radius);
+  background-color: var(--secondary-background);
+  color: var(--foreground);
+  border: none;
+  /* font-size: 0.9em; */
+  font-family: "Roboto", sans-serif;
+  padding: 0.7rem;
+  cursor: pointer;
+  transition: 0.1s;
+}
+
+button:hover {
+  background: var(--hover);
+}

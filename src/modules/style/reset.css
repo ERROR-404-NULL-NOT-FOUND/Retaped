@@ -1,0 +1,74 @@
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: "Roboto", sans-serif;
+  font-size: 0.9rem;
+}
+
+h1 {
+  margin: 0.4rem 0;
+}
+
+h2 {
+  margin: 0.3rem 0;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  margin: 0.2rem 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+p {
+  margin: 0;
+}
+
+pre,
+code {
+  background: color-mix(in srgb, var(--servers-bg) 80%, white 5%);
+  border-radius: var(--border-radius);
+}
+
+pre {
+  margin: 0.5rem 0;
+  padding: 0.8rem;
+}
+
+pre > code {
+  padding: 0;
+}
+
+code {
+  padding: 0 0.3rem;
+}
+
+img {
+  border-radius: var(--border-radius);
+  /*VSC won't let me remove everything below this*/
+  -webkit-border-radius: var(--border-radius);
+  -moz-border-radius: var(--border-radius);
+  -ms-border-radius: var(--border-radius);
+  -o-border-radius: var(--border-radius);
+}
+
+hr {
+  margin: 0.6rem 25%;
+}

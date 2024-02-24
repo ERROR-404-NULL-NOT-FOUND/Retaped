@@ -1,0 +1,129 @@
+{
+  "config": {
+    "text-direction": "LR",
+    "maintainers": ["error404nullnotfound#4042"]
+  },
+  "login": {
+    "loginMethodPrompt": "Login method",
+    "emailPasswdPrompt": "Use your Revolt email and password",
+    "emailPlaceholder": "Email address",
+    "passwdPlaceholder": "Password",
+    "mfaPlaceholder": "TOTP key",
+    "tokenPrompt": "Or use your token",
+    "tokenPlaceholder": "Token",
+    "advancedOptsPrompt": "Advanced options",
+    "preferencesPrompt": "Preferences",
+    "loginBtn": "Login"
+  },
+  "settings": {
+    "settings": "Settings",
+    "closeBtn": "Close settings",
+    "categories": {
+      "behaviour": "Behaviour",
+      "visual": "Visuals",
+      "profile": "Profile",
+      "info": "Info"
+    },
+    "names": {
+      "dataSaver": "Data saver",
+      "extremeDataSaver": "Extreme data saver",
+      "rememberMe": "Remember me",
+      "legacyStyleSheet": "Legacy style sheet",
+      "compactMode": "Compact mode",
+      "revoltTheme": "Use Revolt theme",
+      "showPresenceIconsInChat": "Show presence icons in chat",
+      "delta": "Revolt API endpoint",
+      "assets": "Webserver hosting badge assets",
+      "legacyEmotes": "Webserver hosting custom emote assets",
+      "emotes": "Webserver hosting emote assets",
+      "language": "Language"
+    },
+    "descriptions": {
+      "dataSaver": "Disables attachment & embed image loading",
+      "extremeDataSaver": "UNIMPLEMENTED Tries to minimize the amount of network traffic",
+      "rememberMe": "Save token (settings are still saved)",
+      "legacyStyleSheet": "UNIMPLEMENTED Brings back the old Retaped v1.2 UI",
+      "compactMode": "UNIMPLEMENTED Similar to Discord's compact mode",
+      "revoltTheme": "Loads the colour scheme data set by Revite",
+      "showPresenceIconsInChat": "Shows a user's presence next to their username in channels",
+      "language": "Your preferred language. Please note that languages other than English are not maintained by the primary maintainer, so they may be outdated",
+      "profile": {
+        "previewLabel": "Profile preview",
+        "editorLabel": "Profile editor",
+        "saveBtn": "Save profile"
+      }
+    }
+  },
+  "channels": {
+    "noDesc": "This channel doesn't have a description yet"
+  },
+  "messages": {
+    "inputField": {
+      "sendMessageText": "Send a message in {{channel}}",
+      "permissionDeniedText": "You do not have permission to send messages in {{channel}}",
+      "editingText": "Editing message"
+    },
+    "invite": {
+      "joinText": "Join",
+      "alreadyJoinedText": "Already joined",
+      "memberCountText": "{{members}} member(s)"
+    },
+    "contextButtons": {
+      "edit": "Edit",
+      "reply": "Reply",
+      "del": "Delete"
+    },
+    "masqueradeBadge": "Masq",
+    "botBadge": "Bot",
+    "blockedUser": "<Blocked User>",
+    "markerText": "NEW",
+    "system": {
+      "user_joined": "System: joined",
+      "user_added": "System: added",
+      "user_remove": "System: emoved",
+      "user_left": "System: left",
+      "user_kicked": "System: kicked",
+      "user_banned": "System: banned",
+      "channel_renamed": "System: channel renamed",
+      "channel_description_changed": "System: channel description updated",
+      "channel_icon_changed": "System: channel icon updated",
+      "channel_ownership_changed": "System: channel ownership changed"
+    }
+  },
+  "homeScreen": {
+    "home": "Home",
+    "greeting": "Hiya, welcome to {{logo}}",
+    "unreadMessage": "Here's what you missed"
+  },
+  "toolbar": {
+    "typingIndicator": " is typing",
+    "masqueradeInput": {
+      "buttonContent": "Masquerade",
+      "name": "Name",
+      "avatar": "Profile Picture",
+      "colour": "Colour (must have ManageRole permission)"
+    },
+    "embedInput": {
+      "buttonContent": "Send embed",
+      "title": "Title",
+      "icon": "Icon URL",
+      "desc": "Description",
+      "colour": "Colour",
+      "url": "URL",
+      "media": "Media ID (upload to Autumn)"
+    },
+    "websocket": "Re-establish websocket",
+    "refresh": "Refresh chat",
+    "json": "JSON"
+  },
+  "dms": {
+    "description": "Direct messages",
+    "buttonContent": "DMS",
+    "savedMessages": "Saved messages",
+    "infoCat": "Info"
+  },
+  "connection": {
+    "active": "Connected",
+    "inactive": "Disconnected"
+  }
+}

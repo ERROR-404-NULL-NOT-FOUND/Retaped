@@ -1,0 +1,589 @@
+@import url("https://api.fonts.coollabs.io/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+@import url(./modules/style/button.css);
+@import url(./modules/style/input.css);
+@import url(./modules/style/error.css);
+@import url(./modules/style/modal.css);
+@import url(./modules/style/details.css);
+@import url(./modules/style/tag.css);
+@import url(./modules/style/emoji.css);
+@import url(./modules/style/reset.css);
+
+/* 
+
+TODO: message.css
+TODO: experiment with better/alternative color schemes. Current one has not so good contrast
+
+*/
+
+:root {
+  /* COLORS / THEME */
+  --hover: rgba(225, 225, 225, 0.1);
+  --accent: #ff1a62;
+  --error: #ce1919;
+  --servers-bg: #1a1a1a;
+  --channels-bg: #141414;
+  --foreground: #ffffff;
+  --background: #0f0f0f;
+  --secondary-background: #1a1a1a;
+  /*Loki TODO: Add all the stuff from loadSyncSettings()*/
+
+  /* VARS */
+  --border-radius: 5px;
+  --img-radius: 5px;
+}
+
+.login-screen {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+#name,
+#desc {
+  text-align: center;
+}
+
+#name {
+  font-size: 4em;
+  text-transform: uppercase;
+}
+
+.hl {
+  color: var(--accent);
+}
+
+.login-form {
+  width: 450px;
+  max-width: 100%;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: none;
+  border-top: 1px solid;
+  border-color: #393939;
+  padding: 1rem 0;
+}
+
+fieldset legend {
+  color: hsl(0, 0%, 49%);
+  font-size: 1.4em;
+  padding: 0;
+}
+
+#toggleTheme,
+#toggleToken {
+  outline: none;
+}
+
+.language-selection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#login-btn {
+  width: 100%;
+}
+
+#app {
+  display: none;
+  -ms-grid-columns: 4rem var(--inner-gap) 14rem var(--inner-gap) 1fr;
+  grid-template-columns: 4rem 14rem 1fr;
+  height: 100%;
+}
+
+#serversBar {
+  height: 100%;
+  background: var(--servers-bg);
+  overflow-y: auto;
+  padding: 0.3rem;
+}
+
+#serversContainer {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+#serversContainer button {
+  width: 45px;
+  height: 45px;
+  box-shadow: hsl(0, 0%, 20%) 0px 0px 0px 3px;
+  object-fit: cover;
+  padding: 0;
+}
+
+#serversContainer button:hover {
+  box-shadow: var(--accent) 0px 0px 0px 3px;
+}
+
+.serverIcon {
+  width: 100%;
+  height: 100%;
+}
+
+/* .active-server { */
+/*     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, var(--accent) 0px 0px 0px 3px; */
+/* } */
+
+#channelsContainer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+#dms {
+  width: 100%;
+  background: var(--accent);
+  color: var(--foreground);
+  font-weight: bold;
+}
+
+/* TODO: add a proper 'unread' indicator */
+.channel {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 0.3rem 0;
+  background: transparent;
+  opacity: 0.5;
+  overflow: hidden;
+  text-align: left;
+}
+
+#chatContainer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+#channelBar {
+  padding: 0 0.4rem;
+  background: var(--channels-bg);
+  overflow-y: auto;
+}
+
+/* -- CHAT -- */
+/* NOTE: profile might be widder or smaller depending on stuff, but not too much */
+#userProfile {
+  display: none;
+}
+
+.profile-top {
+  height: 12rem;
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+}
+
+.profile-name {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pfpContainer {
+  position: relative;
+}
+
+#profilePicture {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.custom-status-container {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+.presence-icon {
+  max-height: 1em;
+}
+
+.userdata .presence-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+#displayName {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+#roleContainer {
+  padding: 0.5rem 0;
+  display: flex;
+  gap: 0.4rem;
+}
+
+#bio {
+  max-height: 15rem;
+  margin-bottom: 0.5rem;
+  overflow: auto;
+}
+
+.userdata {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.3rem;
+  margin: 0.2rem;
+}
+
+.chat-pfp {
+  width: 40px;
+  height: 40px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.username {
+  font-weight: bold;
+  /*background: none;*/
+  padding: 0 0.5rem;
+}
+
+.username:hover {
+  text-decoration: underline;
+}
+
+.chat-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--foreground);
+  background: var(--servers-bg);
+  padding: 0.5rem;
+}
+
+#channelName,
+#channelDesc {
+  padding: 0 1rem;
+}
+
+#channelName {
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+.chat-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0.5;
+}
+
+/* TODO: lower the font size of the chat. just a little bit */
+#messagesContainer {
+  /* white-space: pre-line; */ /* NOTE: has weird behavior */
+  overflow: auto;
+  -ms-overflow-style: none;
+  height: 0;
+  overflow-y: scroll;
+  -webkit-box-flex: 1;
+  -ms-flex: auto;
+  flex: auto;
+  padding: 1rem 0;
+}
+
+.message-display {
+  position: relative;
+  padding: 0.2rem 1rem 0.1rem 1rem;
+}
+
+.message-display:hover {
+  background-color: var(--hover);
+}
+
+.message-actions {
+  display: none;
+  position: absolute;
+  top: -25px;
+  right: 50px;
+}
+
+.message-display:hover .message-actions {
+  display: block;
+}
+
+.message-content p {
+  margin: 0;
+}
+
+.mention-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.message-attachments {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.message-attachments img {
+  height: fit-content;
+  max-width: 550px;
+  max-height: 550px;
+  object-fit: contain;
+}
+
+.reply-content {
+  color: hsl(0, 0%, 70%);
+  font-style: italic;
+  padding-top: 0.3rem;
+}
+
+#typingBarContainer,
+#typingBarContainer div,
+#typingBarContainer > span {
+  display: flex;
+  align-items: center;
+}
+
+#typingBarContainer {
+  display: none;
+  padding: 1ch;
+  gap: 0.5ch;
+}
+
+#typingBarContainer > span {
+  gap: 1ch;
+}
+
+#typingBarContainer div {
+  gap: 0.5ch;
+}
+
+#typingBarContainer img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+#mediaUpload {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.toolbar {
+  display: none;
+}
+
+.show-toolbar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.replying-container {
+  background: var(--secondary-background);
+}
+
+.replying-content {
+  padding: 0.4rem 1rem;
+}
+
+.replying-content::before {
+  content: "> ";
+}
+
+.replying-container p {
+  margin: 0;
+}
+
+#messageBar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem;
+}
+
+.unread-server {
+  box-shadow: var(--foreground) 0px 0px 0px 3px !important;
+}
+
+.mentioned-server {
+  box-shadow: var(--mention) 0px 0px 0px 3px !important;
+}
+
+.server {
+  box-shadow: var(--tertiary-background) 0px 0px 0px 3px;
+}
+
+.unread-channel {
+  color: var(--foreground);
+  background-color: var(--secondary-backgound);
+  font-weight: bold;
+  opacity: 1;
+}
+
+.mentioned-channel {
+  color: var(--mention);
+  background-color: var(--tertiary-backgound);
+  font-weight: bold;
+  opacity: 1;
+}
+
+.selfMentioned {
+  background-color: var(--mention) !important;
+  border-radius: 5px;
+}
+
+#input {
+  resize: none;
+}
+
+.messageSending {
+  color: var(--tertiary-foreground);
+}
+/*
+* Loki TODO: redo all of the below CSS, as it's all proof-of-concept
+* */
+
+input[type="file"] {
+  display: none;
+}
+
+#uploadsBarContainer {
+  display: flex;
+  flex-direction: row;
+  gap: .7rem;
+  padding: .3rem;
+}
+
+.attachmentContainer {
+  display: flex;
+  max-width: 10em;
+  flex-direction: column;
+}
+
+.attachmentContainer > img {
+  object-fit: contain;
+}
+
+.unread-marker-container {
+  width: 100%;
+  background-color: var(--mention);
+  height: 0.5em;
+  margin-top: 7px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.unread-marker-container > span {
+  padding: 5px;
+  border-radius: var(--border-radius);
+  background-color: inherit;
+}
+
+.reaction > img {
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;
+  margin-right: 0.3rem;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  -o-border-radius: 100%;
+}
+
+.badge > img {
+  width: 2em;
+  height: 2em;
+  border-radius: 100%;
+  margin-right: 0.3rem;
+}
+
+#badgesContainer {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: row;
+}
+
+.setting-container {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.channel > img,
+#correctionsContainer > div > img {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.3em;
+}
+#serverBG {
+  width: 100%;
+}
+
+.css-username {
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

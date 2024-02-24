@@ -1,0 +1,32 @@
+.embedsContainer {
+  width: 30rem;
+  max-width: 100%;
+}
+
+.embed {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--channels-bg);
+  border-radius: var(--border-radius);
+  -webkit-border-radius: var(--border-radius);
+  -moz-border-radius: var(--border-radius);
+  -ms-border-radius: var(--border-radius);
+  -o-border-radius: var(--border-radius);
+}
+
+.embedMedia {
+  width: 100%;
+}
+
+.embed-site-name {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: 0.75em;
+}
+
+.embed-icon {
+  height: 1.5em;
+}
+

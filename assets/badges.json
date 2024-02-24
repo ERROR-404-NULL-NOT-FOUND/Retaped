@@ -1,0 +1,57 @@
+{
+  "Developer": {
+    "value": 1,
+    "asset": "/assets/badges/developer.svg",
+    "text": "Revolt developer"
+  },
+  "Translator": {
+    "value": 2,
+    "asset": "/assets/badges/translator.svg",
+    "text": "Revolt translator"
+  },
+  "Supporter": {
+    "value": 4,
+    "asset": "/assets/badges/supporter.svg",
+    "text": "Financially supported Revolt"
+  },
+  "ResponsibleDisclosure": {
+    "value": 8,
+    "asset": "/assets/badges/OHGODWHY.svg",
+    "text": "Responsibly disclosed a security vulnerability in Revolt"
+  },
+  "Founder": {
+    "value": 16,
+    "asset": "/assets/badges/founder.svg",
+    "text": "Revolt founder"
+  },
+  "PlatformModeration": {
+    "value": 32,
+    "asset": "/assets/badges/moderation.svg",
+    "text": "Revolt platform moderator"
+  },
+  "ActiveSupporter": {
+    "value": 64,
+    "asset": "/assets/badges/supporter.svg",
+    "text": "Actively financially supports Revolt"
+  },
+  "paw": {
+    "value": 128,
+    "asset": "/assets/badges/paw.svg",
+    "text": "Paw"
+  },
+  "EarlyAdopter": {
+    "value": 256,
+    "asset": "/assets/badges/early_adopter.svg",
+    "text": "Early adopter; one of the first 1000 users"
+  },
+  "ReservedRelevantJokeBadge1": {
+    "value": 512,
+    "asset": "/assets/badges/amog.svg",
+    "text": "amogus"
+  },
+  "ReservedRelevantJokeBadge2": {
+    "value": 128,
+    "asset": "/assets/badges/amorbus.svg",
+    "text": "It's amorbin time"
+  }
+}
