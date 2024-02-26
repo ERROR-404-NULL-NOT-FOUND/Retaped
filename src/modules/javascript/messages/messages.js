@@ -177,7 +177,6 @@ async function sendMessage() {
     state.messageMods.editing === "" ? "POST" : "PATCH",
     JSON.stringify(body)
   )
-    .then((response) => response.json())
     .then((data) => {
       state.messageSending = false;
       messageContainer.readOnly = false;
@@ -245,7 +244,6 @@ async function uploadToAutumn() {
       method: "POST",
       body: formData,
     })
-      .then((response) => response.json())
       .then((data) => {
         attachmentIDs.push(data.id);
       });

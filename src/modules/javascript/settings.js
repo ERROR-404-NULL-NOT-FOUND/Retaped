@@ -52,7 +52,7 @@ async function loadSyncSettings() {
     JSON.stringify({
       keys: ["theme", "notifications", "ordering"],
     })
-  ).then((response) => response.json());
+  );
 
   await fetchResource("/sync/unreads").then((data) => {
     state.unreads.unreadList = data;
