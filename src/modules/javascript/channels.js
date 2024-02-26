@@ -146,8 +146,8 @@ function renderChannel(channelID, id) {
       console.log(await parseMessageContent(currentChannel.desc));
       document.querySelector("#channelDesc").innerHTML = currentChannel.desc
         ? await parseMessageContent({
-          content: currentChannel.desc.split("\n")[0] // This is to prevent channel descriptions from getting in the way
-        }).innerHTML
+            content: currentChannel.desc.split("\n")[0], // This is to prevent channel descriptions from getting in the way
+          }).innerHTML
         : storage.language.channels.noDesc;
     })();
   };

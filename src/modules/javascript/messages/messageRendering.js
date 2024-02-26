@@ -33,14 +33,14 @@ function renderReactions(reactions, channelID, messageID) {
           state.connection.userProfile._id
         ) === -1 // If the reaction has been reacted by the user
       ) {
-        fetch(
-          `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
-          { method: "PUT", headers: { "x-session-token": token } }
+        fetchResource(
+          `/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          "PUT"
         );
       } else {
-        fetch(
-          `${settings.instance.delta}/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
-          { method: "DELETE", headers: { "x-session-token": token } }
+        fetchResource(
+          `/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          "DELETE"
         );
       }
     };
@@ -210,12 +210,7 @@ function parseInvites(messageContent) {
             storage.language.messages.invite.alreadyJoinedText;
 
         inviteButton.onclick = () => {
-          fetch(`${settings.instance.delta}/invites/${matched[0]}`, {
-            headers: {
-              "x-session-token": state.connection.token,
-            },
-            method: "POST",
-          });
+          fetchResource(`/invites/${matched[0]}`, "POST");
         };
 
         inviteContainer.appendChild(inviteIcon);
@@ -295,7 +290,6 @@ function renderEmbed(embed) {
     let embedContainer = document.createElement("div");
     embedContainer.classList.add("embed");
     if (embed.type === "Text" || embed.type === "Website") {
-
       let embedSiteName = document.createElement("div");
       embedSiteName.classList.add("embed-site-name");
       embedContainer.appendChild(embedSiteName);
@@ -464,14 +458,9 @@ function contextButtons(message) {
 
   deleteButton.onclick = (event) => {
     if (event.shiftKey) {
-      fetch(
-        `${settings.instance.delta}/channels/${message.channel}/messages/${message._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "x-session-token": token,
-          },
-        }
+      fetchResource(
+        `/channels/${message.channel}/messages/${message._id}`,
+        "DELETE"
       );
     }
   };

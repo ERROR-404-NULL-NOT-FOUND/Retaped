@@ -90,7 +90,7 @@ profileSetting.onclick = () => {
 
 infoSetting.onclick = () => {
   loadSetting("info");
-}
+};
 
 modalBackground.forEach((element) => {
   element.onclick = () => {

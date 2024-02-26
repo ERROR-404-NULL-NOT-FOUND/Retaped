@@ -111,14 +111,9 @@ async function getMessages(id) {
   //if (!unread)
   scrollChatToBottom();
 
-  fetch(
-    `${settings.instance.delta}/channels/${state.active.channel}/ack/${messages[0]._id}`,
-    {
-      headers: {
-        "x-session-token": state.connection.token,
-      },
-      method: "PUT",
-    }
+  fetchResource(
+    `/channels/${state.active.channel}/ack/${messages[0]._id}`,
+    "PUT"
   );
 }
 
@@ -127,7 +122,6 @@ async function getMessages(id) {
  * @returns {null} Doesn't return
  */
 async function sendMessage() {
-
   state.messageMods.masquerade = {
     colour: document.querySelector("#masqColour").value,
     avatar: document.querySelector("#masqPfp").value,
@@ -141,7 +135,8 @@ async function sendMessage() {
     colour: document.querySelector("#embedColour").value,
     url: document.querySelector("#embedURL").value,
   };
-  if (state.messageSending || !(input.value || state.messageMods.embed.title)) return;
+  if (state.messageSending || !(input.value || state.messageMods.embed.title))
+    return;
 
   const messageContainer = document.getElementById("input");
   let message = messageContainer.value;
@@ -152,7 +147,6 @@ async function sendMessage() {
 
   let attachmentIDs;
   if (state.messageMods.attachments) attachmentIDs = await uploadToAutumn();
-
 
   ["masquerade", "embed"].forEach((messageMod) => {
     Object.keys(state.messageMods[messageMod]).forEach((key) => {
@@ -176,17 +170,12 @@ async function sendMessage() {
   if (!state.messageMods.embed.title || !state.messageMods.embed.description)
     delete body.embeds;
 
-  await fetch(
-    state.messageMods.editing === ""
+  await fetchResource(
+    !state.messageMods.editing
       ? `${settings.instance.delta}/channels/${state.active.channel}/messages`
       : `${settings.instance.delta}/channels/${state.active.channel}/messages/${state.messageMods.editing}`,
-    {
-      headers: {
-        "x-session-token": state.connection.token,
-      },
-      method: state.messageMods.editing === "" ? "POST" : "PATCH",
-      body: JSON.stringify(body),
-    }
+    state.messageMods.editing === "" ? "POST" : "PATCH",
+    JSON.stringify(body)
   )
     .then((response) => response.json())
     .then((data) => {
@@ -214,11 +203,10 @@ async function sendMessage() {
   state.messageMods.replies.length = 0;
   state.messageMods.attachments.length = 0;
 
-  ['embedTitle', 'embedDesc', 'embedMedia', 'embedURL'].forEach( id => {
+  ["embedTitle", "embedDesc", "embedMedia", "embedURL"].forEach((id) => {
     document.getElementById(id).value = "";
   });
   embed.hidden = true;
-  
 
   document.querySelector("#uploadsBarContainer").replaceChildren();
   document.querySelector("#uploadsBarContainer").hidden = true;

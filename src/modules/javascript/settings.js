@@ -46,17 +46,12 @@ async function processSettings() {
  * @returns {null} Doesn't return
  */
 async function loadSyncSettings() {
-  const rawSettings = await fetch(
-    `${settings.instance.delta}/sync/settings/fetch`,
-    {
-      headers: {
-        "x-session-token": state.connection.token,
-      },
-      body: JSON.stringify({
-        keys: ["theme", "notifications", "ordering"],
-      }),
-      method: "POST",
-    }
+  const rawSettings = await fetchResource(
+    "/sync/settings/fetch",
+    "POST",
+    JSON.stringify({
+      keys: ["theme", "notifications", "ordering"],
+    })
   ).then((response) => response.json());
 
   await fetchResource("/sync/unreads").then((data) => {
@@ -108,15 +103,15 @@ async function loadSyncSettings() {
 
 function saveSyncSettings() {
   debugInfo("Saving sync settings");
-  fetch(`${settings.instance.delta}/sync/settings/set`, {
-    method: "POST",
-    headers: { "x-session-token": state.connection.token },
-    body: JSON.stringify({
+  fetchResource(
+    "/sync/settings/set",
+    "POST",
+    JSON.stringify({
       ordering: JSON.stringify({
         servers: state.ordering,
       }),
-    }),
-  });
+    })
+  );
 }
 
 /**
@@ -132,142 +127,143 @@ async function loadSetting(settingCategory) {
     storage.language.settings.categories[settingCategory];
   mainSettings.replaceChildren();
 
-  switch(settingCategory) {
+  switch (settingCategory) {
     case "profile": {
-    debugInfo("Loading profile editor");
-    //Loki TODO: style
-    //Creates a div with text, profile preview, text, profile editor, save button
-    let user = await fetchResource(
-      `users/${state.connection.userProfile._id}/profile`
-    );
-
-    let profileEditor = document.createElement("div");
-    let profilePreviewContainer = document.createElement("div");
-    let profileInputContainer = document.createElement("div");
-    let profilePreview = document.createElement("p");
-    let profileInput = document.createElement("textarea");
-    let profilePreviewText = document.createElement("h4");
-    let profileInputText = document.createElement("h4");
-    let profileSaveButton = document.createElement("button");
-
-    profileEditor.classList.add("profile-editor");
-    profilePreviewContainer.classList.add("profile-preview");
-    profileInputContainer.classList.add("profile-input");
-    profileSaveButton.classList.add("profile-save-button");
-
-    profilePreview.innerHTML = marked.parse(user.content);
-    profilePreviewText.innerText =
-      storage.language.settings.descriptions.profile.previewLabel;
-    profileInputText.innerText =
-      storage.language.settings.descriptions.profile.editorLabel;
-    profileSaveButton.innerText =
-      storage.language.settings.descriptions.profile.saveBtn;
-
-    profileInput.value = user.content;
-
-    profileInput.onkeyup = () => {
-      profilePreview.innerHTML = marked.parse(profileInput.value);
-    };
-
-    profileSaveButton.onclick = () => {
-      fetch(
-        `${settings.instance.delta}/users/${state.connection.userProfile._id}`,
-        {
-          method: "PATCH",
-          body: JSON.stringify({
-            profile: {
-              content: profileInput.value,
-            },
-          }),
-          headers: {
-            "x-session-token": state.connection.token,
-          },
-        }
+      debugInfo("Loading profile editor");
+      //Loki TODO: style
+      //Creates a div with text, profile preview, text, profile editor, save button
+      let user = await fetchResource(
+        `users/${state.connection.userProfile._id}/profile`
       );
-    };
 
-    profileInputContainer.appendChild(profileInputText);
-    profileInputContainer.appendChild(profileInput);
-    profilePreviewContainer.appendChild(profilePreviewText);
-    profilePreviewContainer.appendChild(profilePreview);
+      let profileEditor = document.createElement("div");
+      let profilePreviewContainer = document.createElement("div");
+      let profileInputContainer = document.createElement("div");
+      let profilePreview = document.createElement("p");
+      let profileInput = document.createElement("textarea");
+      let profilePreviewText = document.createElement("h4");
+      let profileInputText = document.createElement("h4");
+      let profileSaveButton = document.createElement("button");
 
-    profileEditor.appendChild(profilePreviewContainer);
-    profileEditor.appendChild(profileInputContainer);
-    profileEditor.appendChild(profileSaveButton);
-    mainSettings.appendChild(profileEditor);
+      profileEditor.classList.add("profile-editor");
+      profilePreviewContainer.classList.add("profile-preview");
+      profileInputContainer.classList.add("profile-input");
+      profileSaveButton.classList.add("profile-save-button");
+
+      profilePreview.innerHTML = marked.parse(user.content);
+      profilePreviewText.innerText =
+        storage.language.settings.descriptions.profile.previewLabel;
+      profileInputText.innerText =
+        storage.language.settings.descriptions.profile.editorLabel;
+      profileSaveButton.innerText =
+        storage.language.settings.descriptions.profile.saveBtn;
+
+      profileInput.value = user.content;
+
+      profileInput.onkeyup = () => {
+        profilePreview.innerHTML = marked.parse(profileInput.value);
+      };
+
+      profileSaveButton.onclick = () => {
+        fetch(
+          `${settings.instance.delta}/users/${state.connection.userProfile._id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({
+              profile: {
+                content: profileInput.value,
+              },
+            }),
+            headers: {
+              "x-session-token": state.connection.token,
+            },
+          }
+        );
+      };
+
+      profileInputContainer.appendChild(profileInputText);
+      profileInputContainer.appendChild(profileInput);
+      profilePreviewContainer.appendChild(profilePreviewText);
+      profilePreviewContainer.appendChild(profilePreview);
+
+      profileEditor.appendChild(profilePreviewContainer);
+      profileEditor.appendChild(profileInputContainer);
+      profileEditor.appendChild(profileSaveButton);
+      mainSettings.appendChild(profileEditor);
       break;
-  }
+    }
     case "info": {
       debugInfo("Displaying info");
       let links = {
-        "Revolt": "https://github.com/RevoltChat",
-        "Retaped": "https://github.com/error-404-null-not-found/Retaped",
-        "Tetra": "https://meowcity.club",
-        "Loki": "https://loki.monster"
+        Revolt: "https://github.com/RevoltChat",
+        Retaped: "https://github.com/error-404-null-not-found/Retaped",
+        Tetra: "https://meowcity.club",
+        Loki: "https://loki.monster",
       };
       let info = document.createElement("p");
       info.textContent = `Retaped: a minimalistic but powerful Revolt client programmed in vanilla JS 
         Developed by Tetra Green with the assistance of Lokicalmito
         Licensed under GPL-3.0-or-later
         Links:`;
-      Object.keys(links).forEach(linkRef => {
+      Object.keys(links).forEach((linkRef) => {
         let link = document.createElement("a");
         link.href = links[linkRef];
         link.textContent = linkRef;
         info.appendChild(document.createElement("br"));
         info.appendChild(link);
-      })
+      });
       mainSettings.appendChild(info);
       break;
     }
     default: {
-    Object.keys(settings[settingCategory]).forEach((setting) => {
-      debugInfo(`Loading setting: ${setting}`);
-      let settingContainer = document.createElement("div");
-      let settingInputLabel = document.createElement("label");
-      let settingDesc = document.createElement("span");
+      Object.keys(settings[settingCategory]).forEach((setting) => {
+        debugInfo(`Loading setting: ${setting}`);
+        let settingContainer = document.createElement("div");
+        let settingInputLabel = document.createElement("label");
+        let settingDesc = document.createElement("span");
 
-      let settingInput;
-      if (typeof settings[settingCategory][setting].value === "boolean") {
-        settingInput = document.createElement("input");
-        settingInput.type = "checkbox";
-        settingInput.checked = settings[settingCategory][setting].value;
-        settingInput.id = setting;
-        settingInput.onclick = () => {
-          settings[settingCategory][setting].value =
-            !settings[settingCategory][setting].value;
-          setSettings();
-        };
-      } else {
-        settingInput = document.createElement("select");
-        settingInput.onchange = () => {
-          settings.visual.language.value =
-            langSelect.options[settingInput.selectedIndex].value; //Set language to selection
-          setSettings();
-          updateLanguage();
-        };
-        storage.languages.forEach((language) => {
-          languageOpt = document.createElement("option");
-          languageOpt.value = language;
-          languageOpt.text = language;
-          settingInput.appendChild(languageOpt);
-        });
-      }
+        let settingInput;
+        if (typeof settings[settingCategory][setting].value === "boolean") {
+          settingInput = document.createElement("input");
+          settingInput.type = "checkbox";
+          settingInput.checked = settings[settingCategory][setting].value;
+          settingInput.id = setting;
+          settingInput.onclick = () => {
+            settings[settingCategory][setting].value =
+              !settings[settingCategory][setting].value;
+            setSettings();
+          };
+        } else {
+          settingInput = document.createElement("select");
+          settingInput.onchange = () => {
+            settings.visual.language.value =
+              langSelect.options[settingInput.selectedIndex].value; //Set language to selection
+            setSettings();
+            updateLanguage();
+          };
+          storage.languages.forEach((language) => {
+            languageOpt = document.createElement("option");
+            languageOpt.value = language;
+            languageOpt.text = language;
+            settingInput.appendChild(languageOpt);
+          });
+        }
 
-      //Loki TODO: style
-      settingDesc.innerHTML =
-        "<br>" + storage.language.settings.descriptions[setting];
-      settingInputLabel.textContent = storage.language.settings.names[setting];
-      settingInputLabel.for = setting;
+        //Loki TODO: style
+        settingDesc.innerHTML =
+          "<br>" + storage.language.settings.descriptions[setting];
+        settingInputLabel.textContent =
+          storage.language.settings.names[setting];
+        settingInputLabel.for = setting;
 
-      settingContainer.classList.add("setting-container");
+        settingContainer.classList.add("setting-container");
 
-      settingContainer.appendChild(settingInput);
-      settingContainer.appendChild(settingInputLabel);
-      settingContainer.appendChild(settingDesc);
+        settingContainer.appendChild(settingInput);
+        settingContainer.appendChild(settingInputLabel);
+        settingContainer.appendChild(settingDesc);
 
-      mainSettings.appendChild(settingContainer);
-    });
+        mainSettings.appendChild(settingContainer);
+      });
       break;
     }
   }

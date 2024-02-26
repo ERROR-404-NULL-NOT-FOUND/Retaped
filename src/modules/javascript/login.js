@@ -8,32 +8,30 @@
  */
 async function login() {
   if (loginData.token.value || state.connection.token) {
-    if (!state.connection.token) state.connection.token = loginData.token.value;
+    if (!state.connection.token) state.connection.token = loginData.token.value; //This if statement is so that autofill doesn't break it
   } else if (loginData.email && loginData.password) {
-    let tokenResponse = await fetch(
-      `${settings.instance.delta}/auth/session/login`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          email: loginData.email.value,
-          password: loginData.password.value,
-          friendly_name: "Retaped",
-        }),
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => data);
+    let tokenResponse = await fetchResource(
+      "/auth/session/login",
+      "POST",
+      JSON.stringify({
+        email: loginData.email.value,
+        password: loginData.password.value,
+        friendly_name: "Retaped",
+      })
+    );
 
     if (tokenResponse.result === "Success") {
       state.connection.token = tokenResponse.token;
     } else {
       if (tokenResponse.type === "InvalidCredentials") {
+        //TODO: check for other failing types
         showError({
           name: "LoginError",
-          message: "InvalidCredentials"
+          message: tokenResponse.type,
         });
         return false;
-      } else if (tokenResponse.result === "MFA"){
+      } else if (tokenResponse.result === "MFA") {
+        //Why is 2FA implemented like this
         if (!loginData.mfa) {
           showError({
             name: "LoginError",
@@ -42,21 +40,17 @@ async function login() {
           return false;
         }
 
-        let mfaTokenResponse = await fetch(
-          `${settings.instance.delta}/auth/session/login`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              mfa_ticket: tokenResponse.ticket,
-              mfa_response: {
-                totp_code: loginData.mfa.value,
-              },
-              friendly_name: "Retaped",
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => data);
+        let mfaTokenResponse = await fetchResource(
+          "/auth/session/login",
+          "POST",
+          JSON.stringify({
+            mfa_ticket: tokenResponse.ticket,
+            mfa_response: {
+              totp_code: loginData.mfa.value,
+            },
+            friendly_name: "Retaped",
+          })
+        );
 
         if (mfaTokenResponse.result === "Success")
           state.connection.token = mfaTokenResponse.token;
