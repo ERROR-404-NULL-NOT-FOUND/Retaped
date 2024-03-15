@@ -80,20 +80,11 @@ async function loadSyncSettings() {
     themeVars.style.setProperty("--servers-bg", theme.background);
     themeVars.style.setProperty("--channels-bg", theme["secondary-background"]);
     themeVars.style.setProperty("--secondary-background", theme["message-box"]);
-    themeVars.style.setProperty(
-      "--tertiary-background",
-      theme["tertiary-background"]
-    );
-    themeVars.style.setProperty(
-      "--tertiary-foreground",
-      theme["tertiary-foreground"]
-    );
+    themeVars.style.setProperty("--tertiary-background", theme["tertiary-background"]);
+    themeVars.style.setProperty("--tertiary-foreground", theme["tertiary-foreground"]);
     themeVars.style.setProperty("--background", theme["primary-background"]);
     themeVars.style.setProperty("--foreground", theme["foreground"]);
-    themeVars.style.setProperty(
-      "--secondary-foreground",
-      theme["secondary-foreground"]
-    );
+    themeVars.style.setProperty("--secondary-foreground", theme["secondary-foreground"]);
     themeVars.style.setProperty("--hover", theme.hover);
     themeVars.style.setProperty("--mention", theme.mention);
 
@@ -201,10 +192,11 @@ async function loadSetting(settingCategory) {
         Loki: "https://loki.monster",
       };
       let info = document.createElement("p");
-      info.textContent = `Retaped: a minimalistic but powerful Revolt client programmed in vanilla JS 
-        Developed by Tetra Green with the assistance of Lokicalmito
-        Licensed under GPL-3.0-or-later
-        Links:`;
+      info.classList.add("infoPage");
+      info.textContent = `Retaped: a minimalistic but powerful Revolt client programmed in vanilla JS\n
+        Developed by Tetra Green with the assistance of Lokicalmito\n
+        Licensed under GPL-3.0-or-later\n
+        Links:\n`;
       Object.keys(links).forEach((linkRef) => {
         let link = document.createElement("a");
         link.href = links[linkRef];
@@ -212,7 +204,15 @@ async function loadSetting(settingCategory) {
         info.appendChild(document.createElement("br"));
         info.appendChild(link);
       });
+
+      let distInfo = document.createElement("p");
+      distInfo.classList.add("infoPage");
+      distInfo.textContent = `
+      Version: ${storage.packageSettings.version}\n
+      Debug: ${storage.packageSettings.version}`;
+
       mainSettings.appendChild(info);
+      mainSettings.appendChild(distInfo);
       break;
     }
     default: {

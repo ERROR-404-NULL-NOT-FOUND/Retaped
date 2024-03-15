@@ -112,8 +112,10 @@ async function getMessages(id) {
   scrollChatToBottom();
 
   fetchResource(
-    `/channels/${state.active.channel}/ack/${messages[0]._id}`,
-    "PUT"
+    `channels/${state.active.channel}/ack/${messages[0]._id}`,
+    "PUT",
+    undefined,
+    false
   );
 }
 
@@ -172,29 +174,27 @@ async function sendMessage() {
 
   await fetchResource(
     !state.messageMods.editing
-      ? `${settings.instance.delta}/channels/${state.active.channel}/messages`
-      : `${settings.instance.delta}/channels/${state.active.channel}/messages/${state.messageMods.editing}`,
+      ? `channels/${state.active.channel}/messages`
+      : `channels/${state.active.channel}/messages/${state.messageMods.editing}`,
     state.messageMods.editing === "" ? "POST" : "PATCH",
     JSON.stringify(body)
-  )
-    .then((data) => {
-      state.messageSending = false;
-      messageContainer.readOnly = false;
-      messageContainer.classList.remove("messageSending");
+  ).then((data) => {
+    state.messageSending = false;
+    messageContainer.readOnly = false;
+    messageContainer.classList.remove("messageSending");
 
-      if (state.messageMods.editing) {
-        state.messageMods.editing = "";
-        document.querySelector("#editingTag").hidden = true;
-        return;
-      }
-      fetch(
-        `${settings.instance.delta}/channels/${state.active.channel}/ack/${data._id}`,
-        {
-          method: "PUT",
-          headers: { "x-session-token": state.connection.token },
-        }
-      );
-    });
+    if (state.messageMods.editing) {
+      state.messageMods.editing = "";
+      document.querySelector("#editingTag").hidden = true;
+      return;
+    }
+    fetchResource(
+      `channels/${state.active.channel}/ack/${data._id}`,
+      "PUT",
+      undefined,
+      false
+    );
+  });
 
   messageContainer.value = "";
   state.messageMods.masquerade = {};
@@ -236,18 +236,17 @@ function clearMessages(id) {
  */
 async function uploadToAutumn() {
   let attachmentIDs = [];
-  for (let i = 0; i < state.messageMods.attachments.length; i++) {
+  state.messageMods.attachments.forEach(async (attachment) => {
     const formData = new FormData();
-    formData.append("myFile", state.messageMods.attachments[i]);
+    formData.append("myFile", attachment);
 
     await fetch(`${settings.instance.autumn}/attachments`, {
       method: "POST",
       body: formData,
-    })
-      .then((data) => {
-        attachmentIDs.push(data.id);
-      });
-  }
+    }).then((data) => {
+      attachmentIDs.push(data.id);
+    });
+  });
   return attachmentIDs;
 }
 

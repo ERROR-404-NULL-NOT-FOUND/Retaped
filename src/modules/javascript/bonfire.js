@@ -50,8 +50,10 @@ async function bonfire() {
 
           if (shouldAck) {
             fetchResource(
-              `/channels/${state.active.channel}/ack/${data._id}`,
-              "PUT"
+              `channels/${state.active.channel}/ack/${data._id}`,
+              "PUT",
+              undefined,
+              false
             );
           }
 

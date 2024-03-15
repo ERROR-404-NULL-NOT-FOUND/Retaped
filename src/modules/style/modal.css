@@ -33,3 +33,18 @@
   border: 1px solid hsl(0, 0%, 20%);
   z-index: 102;
 }
+
+/*Specifically for the settings modal*/
+.setting-container {
+  display: inline-block;
+  padding: 0.25em;
+  margin: 0.25em 0;
+  background-color: var(--secondary-background);
+  border-radius: var(--border-radius);
+  width: 100%;
+}
+
+.setting-container > span {
+  color: var(--secondary-foreground);
+  padding-left: 1em;
+}

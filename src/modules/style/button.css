@@ -5,7 +5,7 @@ button {
   border: none;
   /* font-size: 0.9em; */
   font-family: "Roboto", sans-serif;
-  padding: 0.7rem;
+  padding: 0.5rem;
   cursor: pointer;
   transition: 0.1s;
 }

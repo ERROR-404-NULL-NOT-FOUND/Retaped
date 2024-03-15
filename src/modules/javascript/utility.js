@@ -114,7 +114,12 @@ function cacheIndexLookup(resource, ID, serverID = undefined) {
  * @param {String} target The relative URL to fetch from
  * @returns {Object} The Object of the returned data
  */
-async function fetchResource(target, method = "GET", body = undefined) {
+async function fetchResource(
+  target,
+  method = "GET",
+  body = undefined,
+  expectsResult = true
+) {
   //Return of false means that it failed
   try {
     return await fetch(`${settings.instance.delta}/${target}`, {
@@ -123,9 +128,9 @@ async function fetchResource(target, method = "GET", body = undefined) {
       },
       method: method,
       body: body,
-    }).then((res) => res.json());
+    }).then((res) => expectsResult ? res.json() : true);
   } catch (e) {
-    showError({ name: "loginError", message: e });
+    showError({ name: "fetchError", message: e });
     return false;
   }
 }
@@ -188,6 +193,8 @@ function addFile(file) {
   let uploadPreview = document.createElement("img");
   let attachmentText = document.createElement("span");
 
+  uploadsContainer.style.display = "flex";
+
   if (upload.type.startsWith("image")) {
     var fr = new FileReader();
     fr.onload = function () {
@@ -200,6 +207,8 @@ function addFile(file) {
     const uploadContainer = document.getElementById(`IMG-${upload.name}`);
     uploadContainer.parentNode.removeChild(uploadContainer);
     attachments.splice(upload, 1);
+    if (uploadContainer.parentNode.children.length == 0)
+      uploadContainer.parentNode.style.display = "none";
   };
 
   attachmentContainer.classList.add("attachmentContainer");

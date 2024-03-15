@@ -45,6 +45,7 @@ pre,
 code {
   background: color-mix(in srgb, var(--servers-bg) 80%, white 5%);
   border-radius: var(--border-radius);
+  max-width: 100%;
 }
 
 pre {

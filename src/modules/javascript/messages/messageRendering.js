@@ -34,12 +34,12 @@ function renderReactions(reactions, channelID, messageID) {
         ) === -1 // If the reaction has been reacted by the user
       ) {
         fetchResource(
-          `/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          `channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
           "PUT"
         );
       } else {
         fetchResource(
-          `/channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
+          `channels/${channelID}/messages/${messageID}/reactions/${reaction}`,
           "DELETE"
         );
       }
@@ -256,7 +256,7 @@ function parseChannels(messageContent) {
 function parseMessageContent(message) {
   let messageContent = document.createElement("div");
 
-  messageContent.classList.add("messageContent");
+  messageContent.classList.add("message-content");
   if (!message.content) return messageContent;
 
   //Message sanitation; replaces < and > with their HTML symbols
@@ -459,7 +459,7 @@ function contextButtons(message) {
   deleteButton.onclick = (event) => {
     if (event.shiftKey) {
       fetchResource(
-        `/channels/${message.channel}/messages/${message._id}`,
+        `channels/${message.channel}/messages/${message._id}`,
         "DELETE"
       );
     }
@@ -483,6 +483,9 @@ function renderUsername(message, user, member) {
   userData.classList.add("userdata");
   username.classList.add("username");
   presenceIcon.classList.add("presence-icon");
+  masqueradeBadge.classList.add("masquerade");
+
+  masqueradeBadge.hidden = true;
 
   userData.id = `USRNM-${user.id}`;
 
@@ -534,6 +537,7 @@ function renderUsername(message, user, member) {
     }
   } else {
     masqueradeBadge.textContent = storage.language.messages.masqueradeBadge;
+    masqueradeBadge.hidden = false;
     if (message.masquerade.name) username.textContent = message.masquerade.name;
     else
       username.textContent = member.nickname
