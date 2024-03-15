@@ -306,12 +306,16 @@ fieldset legend {
   justify-content: space-between;
   color: var(--foreground);
   background: var(--servers-bg);
-  padding: 0.5rem;
+  padding:  0 0.5rem;
 }
-
+.chat-header > div:nth-child(1) {
+  display: flex;
+  align-items: center;
+}
 #channelName,
 #channelDesc {
-  padding: 0 1rem;
+  display: inline;
+  padding-left: 1rem;
 }
 
 #channelName {
