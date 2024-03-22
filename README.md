@@ -1,3 +1,5 @@
+# MOVED TO https://git.sr.ht/~error404nullnotfound/Retaped
+
 # Retaped
 
 The revolt.chat client re-taped from the one held together by duct tape and bad code\*
